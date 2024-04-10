@@ -12,8 +12,12 @@
 
 #include "Server.hpp"
 
-Server::Server(int port, std::string password) : port(port), password(password)
+Server::Server(int port, std::string password) : _port(port), _password(password)
 {
+	if (_port == 23)
+	{
+		;
+	}
 }
 
 Server::~Server()
