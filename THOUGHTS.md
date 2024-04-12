@@ -25,17 +25,34 @@ Formatting:
 
 **Classes**: UpperCamelCase
 
-**Functions**: lowerCamelCase, except setters and getters resemble the variable name, let's say we want to retrieve variable ```count```, the function can be ```int count();```
-setter for that same variable would be ```void set_count(int value)```
+**Functions**: lowerCamelCase
 
 **Variables**: snake_case. class data memberse set to private will have underscore(_) in the end.
 
-**Header guard**: 
+**Header guard**: __HEADER_H__
+
+**EXAMPLE**
 ```
 #ifndef __CLIENT_H__
 #define __CLIENT_H__
 
-/// stuff
+class Client{
+  private:
+  int            some_variable_;
+  std::string    other_variable_;
+  std::string    nickname_;
+
+  public:
+  // getters
+  std::string getNickname();
+  int         getSomeVariable();
+
+  // setters
+  void        setNickname(std::string const &new_nick);
+  void        setSomeVariable(int const &value);
+
+  // member functions
+  void        doSomethingUseful()
 
 #endif
 ```
