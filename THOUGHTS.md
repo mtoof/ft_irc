@@ -19,6 +19,8 @@ Some general principles:
 
 ### Naming
 
+Let's try to be as descriptive with naming as we can, even if the names can become long. In short functions and for loops _n_ or _i_ could be fine but as a Class member, please god no.
+
 Formatting:
 
 **Classes**: UpperCamelCase
@@ -28,6 +30,13 @@ setter for that same variable would be ```void set_count(int value)```
 
 **Variables**: snake_case. class data memberse set to private will have underscore(_) in the end.
 
-Let's try to be as descriptive with naming as we can, even if the names can become long. In short functions and for loops _n_ or _i_ could be fine but as a Class member, please god no.
+**Header guard**: 
+```
+#ifndef __CLIENT_H__
+#define __CLIENT_H__
 
+/// stuff
+
+#endif
+```
 
