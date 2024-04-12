@@ -31,17 +31,25 @@
 
 #define MAX_MSG_LENGTH 512
 
+
+class Client;
+
 class Server
 {
 private:
-	int _port;
-	std::string _password;
-	int			address_families;
-
-
+	int 				port_;
+	const std::string 	password_;
+	std::string 		name_;
+	int					socket_;
+	
+	
 public:
 	Server(int port, std::string password);
 	~Server();
+
+	void server_socket_create();
+	std::vector<struct pollfd> fds;
+	
 };
 
 #endif
