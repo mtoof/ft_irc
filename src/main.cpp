@@ -1,9 +1,8 @@
-// #include <Server.hpp>
+#include "./server/Server.h"
 #include <iostream>
 
-#define DEFAULTPORT 6667
 
-void convertArgs(int &port, char **av)
+void convertArgs(int &port, string &password, char **av)
 {
 	int index;
 	for (index = 0; av[1][index];index++)
@@ -14,12 +13,15 @@ void convertArgs(int &port, char **av)
 	port = std::stoi(av[1]);
 	if (port < 0 || (port >= 0 && port <= 1024) || port > 65536)
 		throw std::runtime_error("Invalid port number, must be between 1025 and 65536");
+	if (av[2])
+		password = av[2];
 }
 
 int main(int ac, char **av)
 {
 	// Server server;
-	int port;
+	int port=-1;
+	string password;
 	try
 	{
 		switch (ac)
@@ -29,7 +31,7 @@ int main(int ac, char **av)
 				break;
 			case 2:
 			case 3:
-				convertArgs(port, av);
+				convertArgs(port, password, av);
 				break;
 			default:
 				std::cout << "Usage:\n./ircserv <Port> <Password>";
@@ -41,5 +43,6 @@ int main(int ac, char **av)
 		std::cout << e.what() << std::endl;
 		return (1);
 	}
+	Server server(port, password);
 	return 0;
 }

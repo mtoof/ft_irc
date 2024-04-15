@@ -13,23 +13,22 @@
 NAME = ft_irc
 SRCS = main.cpp Server.cpp Client.cpp
 OBJS = $(SRCS:.cpp=.o)
-SRC_DIR = src/
+SRC_DIR = src
 OBJ_DIR = obj/
-INC_DIR = inc/
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++17
 RM = rm -rf
-HEADERS = $(wildcard $(INC_DIR)*.hpp)
+HEADERS := $(wildcard $(shell find $(SRC_DIR) -type f -name "*.h"))
 
 vpath %.cpp $(SRC_DIR)
 
 all: $(OBJ_DIR) $(NAME)
 
 $(NAME): $(addprefix $(OBJ_DIR), $(OBJS))
-	$(CC) $(CFLAGS) -I $(INC_DIR) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 $(OBJ_DIR)%.o: %.cpp $(HEADERS)
-	$(CC) $(CFLAGS) -I $(INC_DIR) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
