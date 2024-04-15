@@ -10,15 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "Server.h"
+
+bool Server::signal_ = false;
 
 Server::Server(int port, std::string password) : host_("localhost"), port_(port), password_(password)
 {
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
 	this->runnning_ = 1;
-	this->server_socket_create();
 }
 
 Server::~Server()
@@ -26,7 +26,7 @@ Server::~Server()
 	close(this->socket_);
 }
 
-void Server::server_socket_create()
+void Server::createServerSocket()
 {
 	struct sockaddr_in6 sa6;
 	struct pollfd pfds;
@@ -45,11 +45,69 @@ void Server::server_socket_create()
 		throw(std::runtime_error("failed to set reuse address on socket"));
 	if (fcntl(socket_, F_SETFL, O_NONBLOCK) < 0) // set the socket to non-blocking mode because we want to use poll() to check for incoming connections and data on the socket and we don't want to block the server
     	throw std::runtime_error("Error while setting socket to NON-BLOCKING!");
-	if ((::bind(this->socket_, (struct sockaddr *)&sa6, sizeof(sa6))) == -1) // bind the socket to the address and port number, Binding is like setting up a mailbox on a house, telling the postal service (or network messages) where to deliver the letters (or network packets).
+	if ((bind(this->socket_, (struct sockaddr *)&sa6, sizeof(sa6))) == -1) // bind the socket to the address and port number, Binding is like setting up a mailbox on a house, telling the postal service (or network messages) where to deliver the letters (or network packets).
 		throw(std::runtime_error("Error while binding a socket!"));
 	if (listen(this->socket_, SOMAXCONN) < 0) // Listening is akin to saying, "I'm ready to receive visitors" after you've established where you live.
 		throw(std::runtime_error("Error while listen!"));
 	pfds = {this->socket_, POLLIN, 0}; // set the file descriptor for the server socket to the pollfd structure and set the events to POLLIN, this is crucial because we want to check for incoming connections on the server socket and we want to read data from the clients
-	fds.push_back(pfds); // add the server socket to the pollfd vector
+	fds_.push_back(pfds); // add the server socket to the pollfd vector
 	std::cout << "Server is running on port " << this->port_ << std::endl; // print a message to the console that the server is running
 }
+
+void Server::initServer()
+{
+	createServerSocket();
+	std::cout << "Server is connected to " << port_ << std::endl;
+	std::cout << "Waiting... " << std::endl;
+	int event;
+	while (!Server::signal_)
+	{
+		event = poll(&fds_[0], fds_.size(), -1);
+		if (event == -1 && !Server::signal_)
+			throw std::runtime_error("Server poll error");
+		for (int index = 0; index < (int)fds_.size(); index++)
+		{
+			if (fds_[index].revents && POLL_IN)
+			{
+				if (fds_[index].fd == socket_)
+					registerNewClient();
+				else
+					// handleClientData(fds_[index].fd);
+					break;
+			}
+		}
+	}
+	//close_fds();
+}
+
+void Server::registerNewClient()
+{
+	struct sockaddr_in	usersocketaddress;
+	struct pollfd 		userpollfd;
+	socklen_t		 	socketlen;
+	int 				userfd;
+
+	std::shared_ptr<Client> newclient = std::make_shared<Client>();
+	socketlen = sizeof(usersocketaddress);
+	userfd = accept(socket_, (sockaddr *)&usersocketaddress, &socketlen);
+	if (userfd == -1)
+	{
+		std::cout << "User accept" << std::endl;
+		return;
+	}
+	if (fcntl(userfd, F_SETFL, O_NONBLOCK) < 0)
+	{
+		std::cout << "User fcntl" << std::endl;
+		return;
+	}
+	userpollfd = {userfd, POLL_IN, 0};
+	newclient->setFd(userfd);
+	newclient->setIpAddress(inet_ntoa(usersocketaddress.sin_addr));
+	this->clients_.push_back(newclient);
+	fds_.push_back(userpollfd);
+}
+
+// void Server::handleClientData(int fd)
+// {
+
+// }

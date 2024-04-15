@@ -29,6 +29,9 @@
 #include <netinet/in.h>
 #include <poll.h> //
 #include <fcntl.h>
+#include <csignal>
+#include <arpa/inet.h>
+#include <memory>
 #include "../client/Client.h"
 
 #define MAX_MSG_LENGTH 512
@@ -44,15 +47,21 @@ private:
 	const std::string 	password_;
 	int					runnning_;
 	int					socket_;
-
+	std::vector<struct pollfd> fds_; // pollfd structure for the server socket
+	std::vector<std::shared_ptr<Client>> clients_;
+	static void			shutdownServer(const std::string& reason);
 
 public:
 	Server(int port, std::string password);
 	~Server();
 
-	void server_socket_create();
-	std::vector<struct pollfd> fds; // pollfd structure for the server socket
-	std::map<int, Client *> clients;
+	static bool			signal_;
+	static void 		signalHandler(int signum);
+	void				createServerSocket();
+	void				registerNewClient();
+	void				handleClientData(int fd);
+	void				initServer();
+	void				closeFds();
 };
 
 #endif
