@@ -1,17 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Server.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/02 20:02:20 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/02 20:02:20 by atoof            ###   ########.fr       */
+/*   Created: 2024/04/15 12:13:56 by atoof             #+#    #+#             */
+/*   Updated: 2024/04/15 12:13:56 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-#define SERVER_HPP
+
+#ifndef __SERVER_H__
+#define __SERVER_H__
 
 #include <iostream>
 #include <string>
@@ -28,19 +29,19 @@
 #include <netinet/in.h>
 #include <poll.h> //
 #include <fcntl.h>
-// #include "Client.hpp" // include the Client class
+#include "../client/Client.h"
 
 #define MAX_MSG_LENGTH 512
-
+#define DEFAULTPORT 6667
 
 class Client;
 
 class Server
 {
 private:
+	std::string 		host_;
 	int 				port_;
 	const std::string 	password_;
-	std::string 		host_;
 	int					runnning_;
 	int					socket_;
 
