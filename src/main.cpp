@@ -6,7 +6,7 @@
 /*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:19 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/15 12:14:20 by atoof            ###   ########.fr       */
+/*   Updated: 2024/04/15 12:47:59 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <iostream>
 
 
-void convertArgs(int &port, string &password, char **av)
+void convertArgs(int &port, std::string &password, char **av)
 {
 	int index;
 	for (index = 0; av[1][index];index++)
@@ -33,7 +33,7 @@ int main(int ac, char **av)
 {
 	// Server server;
 	int port=-1;
-	string password;
+	std::string password;
 	try
 	{
 		switch (ac)

@@ -33,15 +33,15 @@
 
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
-using namespace std;
+
 class Client;
 
 class Server
 {
 private:
+	std::string 		host_;
 	int 				port_;
 	const std::string 	password_;
-	std::string 		host_;
 	int					runnning_;
 	int					socket_;
 
