@@ -15,7 +15,8 @@
 
 #include <iostream>
 #include <string>
-#include <vector>	  // std::vector for storing clients in the server class
+#include <vector>	  // std::vector for pollfd structures in the server class
+#include <map>		  // std::map for storing clients in the server class
 #include <thread>	  // std::thread for running the server in a separate thread
 #include <mutex>	  // std::mutex for synchronizing access to the server's clients vector
 #include <algorithm>  // std::find_if for checking if a client is already connected
@@ -27,7 +28,7 @@
 #include <netinet/in.h>
 #include <poll.h> //
 #include <fcntl.h>
-#include "Client.hpp" // include the Client class
+// #include "Client.hpp" // include the Client class
 
 #define MAX_MSG_LENGTH 512
 
@@ -39,17 +40,18 @@ class Server
 private:
 	int 				port_;
 	const std::string 	password_;
-	std::string 		name_;
+	std::string 		host_;
+	int					runnning_;
 	int					socket_;
-	
-	
+
+
 public:
 	Server(int port, std::string password);
 	~Server();
 
 	void server_socket_create();
-	std::vector<struct pollfd> fds;
-	
+	std::vector<struct pollfd> fds; // pollfd structure for the server socket
+	std::map<int, Client *> clients;
 };
 
 #endif
