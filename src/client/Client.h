@@ -1,4 +1,16 @@
-#ifndef __CLIENT_H__ 
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Client.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
+/*   Updated: 2024/04/15 12:14:06 by atoof            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef __CLIENT_H__
 #define __CLIENT_H__
 
 #include <string>
@@ -16,7 +28,7 @@ class Client{
 	std::string								ip_address_;
 //  std::vector<std::shared_ptr<Channel>>	channels_;
 //  do we need to monitor ping pong status?
-	
+
 	public:
 	Client() = default;
 	Client(const int &fd, const std::string &nickname, const std::string &username);
@@ -32,7 +44,7 @@ class Client{
 	bool		getRegisterStatus();
 
 	// setters
-	
+
 	void		setFd(int const &fd);
 	void		setNickname(std::string const &nickname);
 	void		setUsername(std::string const &username);
