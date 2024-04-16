@@ -125,25 +125,3 @@ void Server::handleClientData(struct pollfd pfd)
 	}
 	std::cout << buffer << std::endl;
 }
-
-void Server::deleteClient(int fd)
-{
-	for (auto index = clients_.begin(); index != clients_.end(); index++)
-	{
-		std::shared_ptr<Client> clientPtr = *index;
-		if (clientPtr->getFd() == fd)
-		{
-			clients_.erase(index);
-			break;
-		}
-	}
-	for (auto index = fds_.begin(); index != fds_.end(); index++)
-	{
-		if (index->fd == fd)
-		{	
-			close(index->fd);
-			fds_.erase(index);
-			break;
-		}
-	}
-}
