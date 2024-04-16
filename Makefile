@@ -14,7 +14,7 @@ NAME = ircserv
 SRC_DIR = src
 OBJ_DIR = obj/
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++17
+CFLAGS = -Wall -Wextra -Werror -std=c++17 -fsanitize=address
 RM = rm -rf
 HEADERS := $(shell find $(SRC_DIR) -type f -name "*.h")
 SRCS := $(shell find $(SRC_DIR) -type f -name "*.cpp")

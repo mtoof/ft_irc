@@ -18,7 +18,7 @@ Server::Server(int port, std::string password) : host_("localhost"), port_(port)
 {
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
-	this->runnning_ = 1;
+	this->running_ = 1;
 }
 
 Server::~Server()
@@ -57,7 +57,6 @@ void Server::createServerSocket()
 void Server::initServer()
 {
 	createServerSocket();
-	std::cout << "Server is connected to " << port_ << std::endl;
 	std::cout << "Waiting... " << std::endl;
 	int event;
 	while (!Server::signal_)
@@ -72,12 +71,10 @@ void Server::initServer()
 				if (fds_[index].fd == socket_)
 					registerNewClient();
 				else
-					// handleClientData(fds_[index].fd);
-					break;
+					handleClientData(fds_[index]);
 			}
 		}
 	}
-	//close_fds();
 }
 
 void Server::registerNewClient()
@@ -105,9 +102,48 @@ void Server::registerNewClient()
 	newclient->setIpAddress(inet_ntoa(usersocketaddress.sin_addr));
 	this->clients_.push_back(newclient);
 	fds_.push_back(userpollfd);
+
 }
 
-// void Server::handleClientData(int fd)
-// {
+void Server::handleClientData(struct pollfd pfd)
+{
+	ssize_t readbyte = 0;
+	char buffer[MAX_MSG_LENGTH] = {};
 
-// }
+	std::cout << pfd.fd << std::endl;
+	readbyte = recv(pfd.fd , buffer, MAX_MSG_LENGTH, 0);
+	if (readbyte < 0)
+	{
+		perror("Error recv message:");
+		return;
+	}
+	else if (!readbyte)
+	{
+		std::cout << "Client disconnected" << std::endl;
+		deleteClient(pfd.fd);
+		return;
+	}
+	std::cout << buffer << std::endl;
+}
+
+void Server::deleteClient(int fd)
+{
+	for (auto index = clients_.begin(); index != clients_.end(); index++)
+	{
+		std::shared_ptr<Client> clientPtr = *index;
+		if (clientPtr->getFd() == fd)
+		{
+			clients_.erase(index);
+			break;
+		}
+	}
+	for (auto index = fds_.begin(); index != fds_.end(); index++)
+	{
+		if (index->fd == fd)
+		{	
+			close(index->fd);
+			fds_.erase(index);
+			break;
+		}
+	}
+}

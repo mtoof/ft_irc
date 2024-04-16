@@ -36,20 +36,21 @@
 
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
+#define CRLF "\r\n"
 
 class Client;
 
 class Server
 {
 private:
-	std::string 		host_;
-	int 				port_;
-	const std::string 	password_;
-	int					runnning_;
-	int					socket_;
-	std::vector<struct pollfd> fds_; // pollfd structure for the server socket
-	std::vector<std::shared_ptr<Client>> clients_;
-	static void			shutdownServer(const std::string& reason);
+	std::string 							host_;
+	int 									port_;
+	const std::string 						password_;
+	int										running_;
+	int										socket_;
+	std::vector<struct pollfd> 				fds_; // pollfd structure for the server socket
+	std::vector<std::shared_ptr<Client>> 	clients_;
+	static void								shutdownServer(const std::string& reason);
 
 public:
 	Server(int port, std::string password);
@@ -59,8 +60,9 @@ public:
 	static void 		signalHandler(int signum);
 	void				createServerSocket();
 	void				registerNewClient();
-	void				handleClientData(int fd);
+	void				handleClientData(struct pollfd pfd);
 	void				initServer();
+	void				deleteClient(int fd);
 	void				closeFds();
 };
 
