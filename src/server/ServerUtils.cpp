@@ -44,3 +44,29 @@ void Server::closeDeletePollFd(int fd)
 		}
 	}
 }
+
+void Server::closeFds()
+{
+	std::cout << "Closing all connections" << std::endl;
+	if (fds_.size() > 1)
+	{
+		for (auto index = fds_.begin(); index != fds_.end(); index++)
+		{
+			if (index->fd)
+			{	
+				close(index->fd);
+				fds_.erase(index);
+			}
+		}
+	}
+}
+
+std::shared_ptr<Client>	Server::findClientUsingFd(int fd) const
+{
+	for (auto index : clients_)
+	{
+		if (index->getFd() == fd)
+			return index;
+	}
+	return nullptr;
+}

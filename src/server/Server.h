@@ -50,21 +50,23 @@ private:
 	int										socket_;
 	std::vector<struct pollfd> 				fds_; // pollfd structure for the server socket
 	std::vector<std::shared_ptr<Client>> 	clients_;
+	static bool								signal_;
 	static void								shutdownServer(const std::string& reason);
 
 public:
 	Server(int port, std::string password);
 	~Server();
 
-	static bool			signal_;
-	static void 		signalHandler(int signum);
-	void				createServerSocket();
-	void				registerNewClient();
-	void				handleClientData(struct pollfd pfd);
-	void				initServer();
-	void				deleteClient(int fd);
-	void				closeDeletePollFd(int fd);
-	void				closeFds();
+	static void 			signalHandler(int signum);
+	void					createServerSocket();
+	void					registerNewClient();
+	void					handleClientData(int fd);
+	void					initServer();
+	void					deleteClient(int fd);
+	void					closeDeletePollFd(int fd);
+	void					closeFds();
+	std::shared_ptr<Client>	findClientUsingFd(int fd) const;
+
 };
 
 #endif

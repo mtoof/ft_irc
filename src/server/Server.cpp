@@ -68,24 +68,26 @@ void Server::initServer()
 		{
 			if (fds_[index].revents && POLL_IN)
 			{
-				if (fds_[index].fd == socket_)
+				if (fds_[index].fd == socket_ && Server::signal_ == false)
 					registerNewClient();
 				else
-					handleClientData(fds_[index]);
+					handleClientData(fds_[index].fd);
 			}
 		}
 	}
+	closeFds();
 }
 
 void Server::registerNewClient()
 {
-	struct sockaddr_in	usersocketaddress;
+	struct sockaddr_in6	usersocketaddress;
 	struct pollfd 		userpollfd;
 	socklen_t		 	socketlen;
 	int 				userfd;
 
-	std::shared_ptr<Client> newclient = std::make_shared<Client>();
+
 	socketlen = sizeof(usersocketaddress);
+	std::shared_ptr<Client> newclient = std::make_shared<Client>();
 	userfd = accept(socket_, (sockaddr *)&usersocketaddress, &socketlen);
 	if (userfd == -1)
 	{
@@ -99,29 +101,41 @@ void Server::registerNewClient()
 	}
 	userpollfd = {userfd, POLL_IN, 0};
 	newclient->setFd(userfd);
-	newclient->setIpAddress(inet_ntoa(usersocketaddress.sin_addr));
+	char ipstr[INET6_ADDRSTRLEN];
+	memset(ipstr, 0, INET6_ADDRSTRLEN);
+	if (usersocketaddress.sin6_family == AF_INET6)
+	{
+		inet_ntop(AF_INET6, &(usersocketaddress.sin6_addr), ipstr, INET6_ADDRSTRLEN);
+	}
+	else if (usersocketaddress.sin6_family == AF_INET)
+		inet_ntop(AF_INET, &(usersocketaddress.sin6_addr), ipstr, INET_ADDRSTRLEN);
+	else
+	{
+		perror("Unknown IP address family");
+		close(userfd);
+		return;
+	}
+	newclient->setIpAddress(ipstr);
 	this->clients_.push_back(newclient);
 	fds_.push_back(userpollfd);
-
 }
 
-void Server::handleClientData(struct pollfd pfd)
+void Server::handleClientData(int fd)
 {
 	ssize_t readbyte = 0;
 	char buffer[MAX_MSG_LENGTH] = {};
 
-	std::cout << pfd.fd << std::endl;
-	readbyte = recv(pfd.fd , buffer, MAX_MSG_LENGTH, 0);
-	if (readbyte < 0)
+	readbyte = recv(fd , buffer, MAX_MSG_LENGTH, 0);
+	if (readbyte < 0 && !Server::signal_)
 	{
 		perror("Error recv message:");
 		return;
 	}
 	else if (!readbyte)
 	{
-		std::cout << "Client disconnected" << std::endl;
-		deleteClient(pfd.fd);
-		closeDeletePollFd(pfd.fd);
+		std::cout << "Client " << findClientUsingFd(fd)->getNickname() << " disconnected" << std::endl; // Should fix it if the user does not have any nickname yet
+		deleteClient(fd);
+		closeDeletePollFd(fd);
 		return;
 	}
 	std::cout << buffer << std::endl;
