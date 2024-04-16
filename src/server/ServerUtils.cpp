@@ -30,6 +30,10 @@ void Server::deleteClient(int fd)
 			break;
 		}
 	}
+}
+
+void Server::closeDeletePollFd(int fd)
+{
 	for (auto index = fds_.begin(); index != fds_.end(); index++)
 	{
 		if (index->fd == fd)

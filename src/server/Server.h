@@ -63,6 +63,7 @@ public:
 	void				handleClientData(struct pollfd pfd);
 	void				initServer();
 	void				deleteClient(int fd);
+	void				closeDeletePollFd(int fd);
 	void				closeFds();
 };
 

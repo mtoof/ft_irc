@@ -121,6 +121,7 @@ void Server::handleClientData(struct pollfd pfd)
 	{
 		std::cout << "Client disconnected" << std::endl;
 		deleteClient(pfd.fd);
+		closeDeletePollFd(pfd.fd);
 		return;
 	}
 	std::cout << buffer << std::endl;
