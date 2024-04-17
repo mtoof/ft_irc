@@ -13,26 +13,8 @@
 
 #ifndef __SERVER_H__
 #define __SERVER_H__
-
-#include <iostream>
-#include <string>
-#include <vector>	  // std::vector for pollfd structures in the server class
-#include <map>		  // std::map for storing clients in the server class
-#include <thread>	  // std::thread for running the server in a separate thread
-#include <mutex>	  // std::mutex for synchronizing access to the server's clients vector
-#include <algorithm>  // std::find_if for checking if a client is already connected
-#include <cstdlib>	  // std::exit for exiting the server when all clients disconnect
-#include <unistd.h>	  // for sleeping between client checks on UNIX systems (Linux, Mac OS X)
-#include <cstdlib>	  // for std::stoi
-#include <sys/socket.h> // create an endpoint for communication
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <poll.h> //
-#include <fcntl.h>
-#include <csignal>
-#include <arpa/inet.h>
-#include <memory>
 #include "../client/Client.h"
+#include "../headers.h"
 
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
@@ -49,7 +31,7 @@ private:
 	int										running_;
 	int										socket_;
 	std::vector<struct pollfd> 				fds_; // pollfd structure for the server socket
-	std::vector<std::shared_ptr<Client>> 	clients_;
+	std::map <int, std::shared_ptr<Client>>	clients_;
 	static bool								signal_;
 	static void								shutdownServer(const std::string& reason);
 
@@ -66,6 +48,8 @@ public:
 	void					closeDeletePollFd(int fd);
 	void					closeFds();
 	std::shared_ptr<Client>	findClientUsingFd(int fd) const;
+	void					whoGotDisconnected(int fd);
+	int						extractUserIpAddress(struct sockaddr_in6 usersocketaddress, std::shared_ptr<Client> &newclient);
 
 };
 

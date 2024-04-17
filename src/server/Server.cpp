@@ -51,7 +51,7 @@ void Server::createServerSocket()
 		throw(std::runtime_error("Error while listen!"));
 	pfds = {this->socket_, POLLIN, 0}; // set the file descriptor for the server socket to the pollfd structure and set the events to POLLIN, this is crucial because we want to check for incoming connections on the server socket and we want to read data from the clients
 	fds_.push_back(pfds); // add the server socket to the pollfd vector
-	std::cout << "Server is running on port " << this->port_ << std::endl; // print a message to the console that the server is running
+	std::cout << GREEN "Server is running on port " << this->port_ << RESET << std::endl; // print a message to the console that the server is running
 }
 
 void Server::initServer()
@@ -85,8 +85,8 @@ void Server::registerNewClient()
 	socklen_t		 	socketlen;
 	int 				userfd;
 
-
-	socketlen = sizeof(usersocketaddress);
+	memset(&usersocketaddress, 0, sizeof(usersocketaddress));
+	socketlen = sizeof(sockaddr_in6);
 	std::shared_ptr<Client> newclient = std::make_shared<Client>();
 	userfd = accept(socket_, (sockaddr *)&usersocketaddress, &socketlen);
 	if (userfd == -1)
@@ -101,22 +101,13 @@ void Server::registerNewClient()
 	}
 	userpollfd = {userfd, POLL_IN, 0};
 	newclient->setFd(userfd);
-	char ipstr[INET6_ADDRSTRLEN];
-	memset(ipstr, 0, INET6_ADDRSTRLEN);
-	if (usersocketaddress.sin6_family == AF_INET6)
+	if (extractUserIpAddress(usersocketaddress, newclient) < 0)
 	{
-		inet_ntop(AF_INET6, &(usersocketaddress.sin6_addr), ipstr, INET6_ADDRSTRLEN);
-	}
-	else if (usersocketaddress.sin6_family == AF_INET)
-		inet_ntop(AF_INET, &(usersocketaddress.sin6_addr), ipstr, INET_ADDRSTRLEN);
-	else
-	{
-		perror("Unknown IP address family");
-		close(userfd);
+		std::cerr << "Unknown address family" << std::endl;
 		return;
 	}
-	newclient->setIpAddress(ipstr);
-	this->clients_.push_back(newclient);
+	newclient->setFd(userfd);
+	this->clients_.insert({userfd, newclient});
 	fds_.push_back(userpollfd);
 }
 
@@ -133,10 +124,9 @@ void Server::handleClientData(int fd)
 	}
 	else if (!readbyte)
 	{
-		std::cout << "Client " << findClientUsingFd(fd)->getNickname() << " disconnected" << std::endl; // Should fix it if the user does not have any nickname yet
+		std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
 		deleteClient(fd);
 		closeDeletePollFd(fd);
 		return;
 	}
-	std::cout << buffer << std::endl;
 }
