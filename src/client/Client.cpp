@@ -92,6 +92,24 @@ void		Client::unregisterClient()
 		this->registered_ = false;
 }
 
+void Client::processBuffer()
+{
+    size_t pos;
+    while ((pos = this->buffer.find("\r\n")) != std::string::npos) {
+        std::string line = this->buffer.substr(0, pos);
+        this->buffer.erase(0, pos + 2);  // Remove the processed line from the buffer
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        // processCommand(line);
+    }
+}
+
+void Client::appendToBuffer(const std::string& data)
+{
+    this->buffer += data;  // Append new data to the existing buffer
+}
+
 // this function is supposed to send a message to client
 // void		Client::sendMessage(std::string const &message)
 // {
