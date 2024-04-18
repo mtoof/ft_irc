@@ -5,34 +5,29 @@
 #                                                     +:+ +:+         +:+      #
 #    By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/04/03 01:26:14 by atoof             #+#    #+#              #
-#    Updated: 2024/04/03 01:26:14 by atoof            ###   ########.fr        #
+#    Created: 2024/04/15 12:27:52 by atoof             #+#    #+#              #
+#    Updated: 2024/04/15 12:27:52 by atoof            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = ft_irc
-SRCS = main.cpp Server.cpp Client.cpp
-OBJS = $(SRCS:.cpp=.o)
-SRC_DIR = src/
+NAME = ircserv
+SRC_DIR = src
 OBJ_DIR = obj/
-INC_DIR = inc/
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++17
+CFLAGS = -Wall -Wextra -Werror -std=c++17 -fsanitize=address
 RM = rm -rf
-HEADERS = $(wildcard $(INC_DIR)*.hpp)
+HEADERS := $(shell find $(SRC_DIR) -type f -name "*.h")
+SRCS := $(shell find $(SRC_DIR) -type f -name "*.cpp")
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)%.o)
 
-vpath %.cpp $(SRC_DIR)
+all: $(NAME)
 
-all: $(OBJ_DIR) $(NAME)
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $^ -o $@
 
-$(NAME): $(addprefix $(OBJ_DIR), $(OBJS))
-	$(CC) $(CFLAGS) -I $(INC_DIR) $^ -o $@
-
-$(OBJ_DIR)%.o: %.cpp $(HEADERS)
-	$(CC) $(CFLAGS) -I $(INC_DIR) -c $< -o $@
-
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+$(OBJ_DIR)%.o: $(SRC_DIR)/%.cpp $(HEADERS)
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJ_DIR)
