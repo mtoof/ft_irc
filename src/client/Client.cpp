@@ -1,7 +1,7 @@
 #include "Client.h"
 
-Client::Client (const int &fd, const std::string &nickname, const std::string &username) :
-fd_(fd), registered_(true), nickname_(nickname), username_(username)
+Client::Client (const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) :
+fd_(fd), registered_(true), nickname_(nickname), username_(username), ip_address_(ipaddress)
 {
 }
 
