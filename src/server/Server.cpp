@@ -87,7 +87,6 @@ void Server::registerNewClient()
 
 	memset(&usersocketaddress, 0, sizeof(usersocketaddress));
 	socketlen = sizeof(sockaddr_in6);
-	std::shared_ptr<Client> newclient = std::make_shared<Client>();
 	userfd = accept(socket_, (sockaddr *)&usersocketaddress, &socketlen);
 	if (userfd == -1)
 	{
@@ -100,13 +99,13 @@ void Server::registerNewClient()
 		return;
 	}
 	userpollfd = {userfd, POLL_IN, 0};
-	newclient->setFd(userfd);
-	if (extractUserIpAddress(usersocketaddress, newclient) < 0)
+	char *ip;
+	if ((ip = extractUserIpAddress(usersocketaddress)))
 	{
 		std::cerr << "Unknown address family" << std::endl;
 		return;
 	}
-	newclient->setFd(userfd);
+	std::shared_ptr<Client> newclient = std::make_shared<Client>(userfd, "", "", ip);
 	this->clients_.insert({userfd, newclient});
 	fds_.push_back(userpollfd);
 }
