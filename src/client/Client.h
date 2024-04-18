@@ -6,7 +6,7 @@
 /*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/16 17:43:36 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/04/18 16:35:43 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Client{
 
 	public:
 	Client() = default;
-	Client(const int &fd, const std::string &nickname, const std::string &username);
+	Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress);
 	~Client();
 
 	// getters
