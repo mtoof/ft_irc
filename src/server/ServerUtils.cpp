@@ -75,10 +75,9 @@ void Server::whoGotDisconnected(int fd)
 	}
 }
 
-int Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress, std::shared_ptr<Client> &newclient)
+char* Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress)
 {
-	char ipv4str[INET_ADDRSTRLEN];
-	char ipv6str[INET6_ADDRSTRLEN];
+	char *ipstr = nullptr;
 
 	if (usersocketaddress.sin6_family == AF_INET6)
 	{
@@ -87,22 +86,22 @@ int Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress, std::sha
 			// It's an IPv4-mapped IPv6 address, extract the IPv4 address
 			struct in_addr ipv4addr;
 			memcpy(&ipv4addr, &(usersocketaddress.sin6_addr.s6_addr[12]), sizeof(struct in_addr));
-			inet_ntop(AF_INET, &ipv4addr, ipv4str, INET_ADDRSTRLEN);
-			newclient->setIpAddress(ipv4str);
-			std::cout << "Client IPv4: " << ipv4str << std::endl;
-		} else {
+			ipstr = new char[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &ipv4addr, ipstr, INET_ADDRSTRLEN);
+		} 
+		else
+		{
 			// It's a regular IPv6 address
-			inet_ntop(AF_INET6, &(usersocketaddress.sin6_addr), ipv6str, INET6_ADDRSTRLEN);
-			newclient->setIpAddress(ipv6str);
-			std::cout << "Client IPv6: " << ipv6str << std::endl;
+
+			ipstr = new char[INET6_ADDRSTRLEN];
+			inet_ntop(AF_INET6, &(usersocketaddress.sin6_addr), ipstr, INET6_ADDRSTRLEN);
 		}
-	} else if (usersocketaddress.sin6_family == AF_INET) {
-		// It's an IPv4 address
-		inet_ntop(AF_INET, &(usersocketaddress.sin6_addr), ipv4str, INET_ADDRSTRLEN);
-		newclient->setIpAddress(ipv4str);
-		std::cout << "Client IPv4: " << ipv4str << std::endl;
-	} else {
-		return (-1);
 	}
-	return 0;
+	else if (usersocketaddress.sin6_family == AF_INET)
+	{
+		// It's an IPv4 address
+		ipstr = new char[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &(usersocketaddress.sin6_addr), ipstr, INET_ADDRSTRLEN);
+	}
+	return ipstr;
 }
