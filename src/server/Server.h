@@ -15,6 +15,7 @@
 #define __SERVER_H__
 #include "../client/Client.h"
 #include "../headers.h"
+#include "../debug/debug.h"
 
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
