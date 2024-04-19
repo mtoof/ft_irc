@@ -6,7 +6,7 @@
 /*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/19 14:51:58 by atoof            ###   ########.fr       */
+/*   Updated: 2024/04/19 16:57:16 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int																fd_;
 	std::string													realname_;
 	std::string													ip_address_;
 	std::string													buffer;
-	std::map<std::string, void (Client::*)(const std::string&)> commandMap;
+	    std::map<std::string, void (Client::*)(const std::string&, int)> commandMap;
 //  std::vector<std::shared_ptr<Channel>>	channels_;
 //  do we need to monitor ping pong status?
 
@@ -61,11 +61,11 @@ int																fd_;
 	void		unregisterClient();
 	void 		processBuffer();
 	void 		appendToBuffer(const std::string& data);
-	void		processCommand(const std::string& commandLine);
-	void		handleJoin(const std::string &parameters);
-	void		handleNick(const std::string &parameters);
-	void		handlePrivmsg(const std::string &parameters);
-	void		handleQuit(const std::string &parameters);
+	void		processCommand(const std::string& commandLine, int fd);
+	void		handleJoin(const std::string &parameters, int fd);
+	void		handleNick(const std::string &parameters, int fd);
+	void		handlePrivmsg(const std::string &parameters, int fd);
+	void		handleQuit(const std::string &parameters, int fd);
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?

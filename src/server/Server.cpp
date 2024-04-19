@@ -153,5 +153,9 @@ void Server::handleClientData(int fd)
 			client->appendToBuffer(std::string(buffer, readbyte));
         	client->processBuffer();
     	}
+	for (auto &command : commands)
+	{
+		client->processCommand(command, fd);
+	}
 		
 }

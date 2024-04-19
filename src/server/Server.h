@@ -51,6 +51,7 @@ public:
 	std::shared_ptr<Client>	findClientUsingFd(int fd) const;
 	void					whoGotDisconnected(int fd);
 	char*					extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
+	
 
 };
 

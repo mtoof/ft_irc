@@ -103,11 +103,11 @@ void Client::processBuffer()
 		this->buffer.erase(0, pos + 2);
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back(); // Remove the trailing \r
-		processCommand(line);
+		processCommand(line, this->fd_);
 	}
 }
 
-void Client::processCommand(const std::string &line)
+void Client::processCommand(const std::string &line, int fd)
 {
 	std::istringstream iss(line);
 	std::string command;
@@ -116,36 +116,35 @@ void Client::processCommand(const std::string &line)
 	getline(iss, parameters);
 
 	if (parameters.size() > 0 && parameters[0] == ' ')
-		parameters.erase(0, 1);
+		parameters.erase(0, 1); // Remove the leading space
 	auto it = commandMap.find(command);
 	if (it != commandMap.end())
-		(this->*it->second)(parameters);
+		(this->*it->second)(parameters, fd);
 	else
 		std::cerr << "Unknown command: " << command << std::endl;
 }
 
 void Client::appendToBuffer(const std::string &data)
 {
-	this->buffer += data; // Append new data to the existing buffer
+	this->buffer += data;
 }
 
-// Define the command handler functions
-void Client::handleJoin(const std::string &parameters)
+void Client::handleJoin(const std::string &parameters, int fd)
 {
 	// Implementation for JOIN command
 }
 
-void Client::handleNick(const std::string &parameters)
+void Client::handleNick(const std::string &parameters, int fd)
 {
-	// Implementation for NICK command
+	
 }
 
-void Client::handlePrivmsg(const std::string &parameters)
+void Client::handlePrivmsg(const std::string &parameters, int fd)
 {
 	// Implementation for PRIVMSG command
 }
 
-void Client::handleQuit(const std::string &parameters)
+void Client::handleQuit(const std::string &parameters, int fd)
 {
 	// Implementation for QUIT command
 }

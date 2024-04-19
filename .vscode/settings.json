@@ -1,5 +1,6 @@
 {
 	"files.associations": {
+		"iosfwd": "cpp",
 		"__bit_reference": "cpp",
 		"__config": "cpp",
 		"__debug": "cpp",
@@ -38,7 +39,6 @@
 		"functional": "cpp",
 		"initializer_list": "cpp",
 		"ios": "cpp",
-		"iosfwd": "cpp",
 		"iostream": "cpp",
 		"istream": "cpp",
 		"iterator": "cpp",
