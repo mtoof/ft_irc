@@ -57,7 +57,7 @@ void Server::closeFds()
 
 std::shared_ptr<Client>	Server::findClientUsingFd(int fd) const
 {
-	std::shared_ptr <Client> client;
+	std::shared_ptr <Client> client = std::make_shared<Client>();
 	auto iter = clients_.find(fd);
 	if (iter != clients_.end())
 		return iter->second;

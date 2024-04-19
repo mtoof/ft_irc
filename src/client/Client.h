@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
+/*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/18 16:35:43 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/04/19 14:51:58 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,20 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <sstream>
+#include "../server/Server.h"
 
 class Client{
 	private:
-	int										fd_;
-	bool									registered_;
-	std::string								nickname_; // can't be longer than 9 characters
-	std::string								username_;
-	std::string								hostname_;
-	std::string								realname_;
-	std::string								ip_address_;
+int																fd_;
+	bool														registered_;
+	std::string													nickname_; // can't be longer than 9 characters
+	std::string													username_;
+	std::string													hostname_;
+	std::string													realname_;
+	std::string													ip_address_;
+	std::string													buffer;
+	std::map<std::string, void (Client::*)(const std::string&)> commandMap;
 //  std::vector<std::shared_ptr<Channel>>	channels_;
 //  do we need to monitor ping pong status?
 
@@ -55,6 +59,13 @@ class Client{
 	// member functions
 	void		registerClient();
 	void		unregisterClient();
+	void 		processBuffer();
+	void 		appendToBuffer(const std::string& data);
+	void		processCommand(const std::string& commandLine);
+	void		handleJoin(const std::string &parameters);
+	void		handleNick(const std::string &parameters);
+	void		handlePrivmsg(const std::string &parameters);
+	void		handleQuit(const std::string &parameters);
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?

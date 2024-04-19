@@ -126,9 +126,16 @@ void Server::registerNewClient()
 void Server::handleClientData(int fd)
 {
 	ssize_t readbyte = 0;
+	std::vector<std::string> commands;
 	char buffer[MAX_MSG_LENGTH] = {};
-
-	readbyte = recv(fd , buffer, MAX_MSG_LENGTH, 0);
+	memset(buffer, 0, sizeof(buffer));
+	std::shared_ptr <Client> client = findClientUsingFd(fd);
+	if (!client)
+	{
+        std::cerr << "Failed to find client for fd " << fd << std::endl;
+        return;
+    }
+	readbyte = recv(fd , buffer, MAX_MSG_LENGTH - 1, 0);
 	if (readbyte < 0 && !Server::signal_)
 	{
 		perror("Error recv message:");
@@ -138,7 +145,13 @@ void Server::handleClientData(int fd)
 	{
 		std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
 		deleteClient(fd);
-		closeDeletePollFd(fd);
+		closeDeletePollFd(fd); 
 		return;
 	}
+	else
+		{
+			client->appendToBuffer(std::string(buffer, readbyte));
+        	client->processBuffer();
+    	}
+		
 }
