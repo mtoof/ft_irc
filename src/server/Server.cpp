@@ -112,12 +112,13 @@ void Server::registerNewClient()
 	}
 	userpollfd = {userfd, POLL_IN, 0};
 	char *ip;
-	if ((ip = extractUserIpAddress(usersocketaddress)))
+	if ((ip = extractUserIpAddress(usersocketaddress)) == nullptr)
 	{
 		std::cerr << "Unknown address family" << std::endl;
 		return;
 	}
 	std::shared_ptr<Client> newclient = std::make_shared<Client>(userfd, "", "", ip);
+	delete ip;
 	this->clients_.insert({userfd, newclient});
 	fds_.push_back(userpollfd);
 }
