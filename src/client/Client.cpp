@@ -132,21 +132,25 @@ void Client::appendToBuffer(const std::string &data)
 // Define the command handler functions
 void Client::handleJoin(const std::string &parameters)
 {
+	(void)parameters;
 	// Implementation for JOIN command
 }
 
 void Client::handleNick(const std::string &parameters)
 {
+	(void)parameters;
 	// Implementation for NICK command
 }
 
 void Client::handlePrivmsg(const std::string &parameters)
 {
+	(void)parameters;
 	// Implementation for PRIVMSG command
 }
 
 void Client::handleQuit(const std::string &parameters)
 {
+	(void)parameters;
 	// Implementation for QUIT command
 }
 

@@ -31,6 +31,9 @@ void Server::createServerSocket()
 	struct sockaddr_in6 sa6;
 	struct pollfd pfds;
 
+    #ifdef DEBUG_MODE
+        std::cout << "Program is compiled in debug mode." << std::endl;
+    #endif
 	memset(&sa6, 0, sizeof(sa6)); // clear the structure
 	sa6.sin6_family = AF_INET6; // set the address family to IPv6
 	sa6.sin6_addr = in6addr_any; // set the address to any interface
@@ -75,7 +78,7 @@ void Server::initServer()
 	{
 		event = poll(&fds_[0], fds_.size(), -1);
 		if (event == -1 && !Server::signal_)
-			throw std::runtime_error("Server poll error");
+			debug("Server poll error", THROW_ERR);
 		for (int index = 0; index < (int)fds_.size(); index++)
 		{
 			if (fds_[index].revents && POLL_IN)
@@ -102,19 +105,19 @@ void Server::registerNewClient()
 	userfd = accept(socket_, (sockaddr *)&usersocketaddress, &socketlen);
 	if (userfd == -1)
 	{
-		std::cout << "User accept" << std::endl;
+		debug("Accept user socket", FAILED);
 		return;
 	}
 	if (fcntl(userfd, F_SETFL, O_NONBLOCK) < 0)
 	{
-		std::cout << "User fcntl" << std::endl;
+		debug("Set user fd on NONBLOCK mode", FAILED);
 		return;
 	}
 	userpollfd = {userfd, POLL_IN, 0};
 	char *ip;
 	if ((ip = extractUserIpAddress(usersocketaddress)) == nullptr)
 	{
-		std::cerr << "Unknown address family" << std::endl;
+		debug("Unknown address family", FAILED);
 		return;
 	}
 	std::shared_ptr<Client> newclient = std::make_shared<Client>(userfd, "", "", ip);
@@ -132,13 +135,13 @@ void Server::handleClientData(int fd)
 	std::shared_ptr <Client> client = findClientUsingFd(fd);
 	if (!client)
 	{
-        std::cerr << "Failed to find client for fd " << fd << std::endl;
+        debug("Failed to find client for fd" + fd, FAILED);
         return;
     }
 	readbyte = recv(fd , buffer, MAX_MSG_LENGTH - 1, 0);
 	if (readbyte < 0 && !Server::signal_)
 	{
-		perror("Error recv message:");
+		debug("recv function", FAILED);
 		return;
 	}
 	else if (!readbyte)

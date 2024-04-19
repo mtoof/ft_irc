@@ -10,8 +10,6 @@
             std::cout << GREEN << message << " successfully." <<RESET << std::endl; \
 			sleep(1);\
 		}\
-		else if (flag == THROW_ERR) \
-			throw(std::runtime_error(message)); \
 }
 #else
 #define DEBUG(message, flag) ((void)0)
@@ -20,7 +18,14 @@
 
 void	debug(const std::string &message, int flag)
 {
-	DEBUG(message, flag);
-	(void)message;
-	(void)flag;
+	#ifdef DEBUG_MODE
+		DEBUG(message, flag);
+    #else
+	{
+		if (flag == THROW_ERR)
+			throw(std::runtime_error(message));
+        else if (flag == FAILED)
+            std::cerr << RED << message << " failed." << RESET << std::endl;
+	}
+    #endif
 }

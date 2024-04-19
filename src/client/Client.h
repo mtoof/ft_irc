@@ -3,20 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
+/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/19 14:51:58 by atoof            ###   ########.fr       */
+/*   Updated: 2024/04/19 17:03:00 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __CLIENT_H__
 #define __CLIENT_H__
 
-#include <string>
-#include <vector>
-#include <memory>
-#include <sstream>
+#include "../headers.h"
 #include "../server/Server.h"
 
 class Client{
