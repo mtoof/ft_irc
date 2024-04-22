@@ -6,7 +6,7 @@
 /*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/22 12:18:53 by atoof            ###   ########.fr       */
+/*   Updated: 2024/04/22 14:32:19 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class Client{
 	private:
 int																fd_;
 	bool														registered_;
+	bool														password_; //true if server password is set
 	std::string													nickname_;
 	std::string													username_;
 	std::string													hostname_;

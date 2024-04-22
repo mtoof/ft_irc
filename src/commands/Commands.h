@@ -13,6 +13,7 @@ public:
 	void handleNick(const std::string &parameters, int fd);
 	void handlePrivmsg(const std::string &parameters, int fd);
 	void handleQuit(const std::string &parameters, int fd);
+	void handlePass(const std::string &parameters, int fd);
 };
 
 #endif

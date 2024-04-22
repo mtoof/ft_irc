@@ -1,11 +1,12 @@
 #include "Client.h"
 
-Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(true), nickname_(nickname), username_(username), ip_address_(ipaddress)
+Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(false), nickname_(nickname), username_(username), ip_address_(ipaddress)
 {
 	commandMap["JOIN"] = &Commands::handleJoin;
 	commandMap["NICK"] = &Commands::handleNick;
 	commandMap["PRIVMSG"] = &Commands::handlePrivmsg;
 	commandMap["QUIT"] = &Commands::handleQuit;
+	commandMap["PASS"] = &Commands::handlePass;
 }
 
 Client::~Client()
@@ -109,17 +110,49 @@ void Client::processBuffer()
 
 void Client::processCommand(const std::string &line, int fd)
 {
+	// message format: :prefix command param1 param2 ... :trailing
 	std::istringstream iss(line);
-	std::string command;
-	iss >> command;
-	std::string parameters;
-	getline(iss, parameters);
-	Commands cmds; // Create an instance of the Commands class to call the functions
-	if (parameters.size() > 0 && parameters[0] == ' ')
-		parameters.erase(0, 1); // Remove the leading space
+	std::string prefix, command, param;
+	std::vector<std::string> params;
+
+	// Extract prefix if present
+	if (line.front() == ':')
+	{
+		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
+		std::string temp_prefix = ":" + this->getNickname();
+		if (prefix != temp_prefix)
+		{
+			std::cerr << "Invalid prefix: " << prefix << std::endl;
+			return;
+		}
+	}
+
+	iss >> command; // Extract command
+
+	// Extract parameters, handling trailing parameters starting with ':'
+	while (iss >> param)
+	{
+		if (param.front() == ':')
+		{
+			// Append the rest of the input stream as a single parameter, including spaces
+			params.push_back(param.substr(1) + iss.rdbuf()->str());
+			break;
+		}
+		params.push_back(param);
+	}
+
+	// Dispatch the command if it exists in the commandMap
 	auto it = commandMap.find(command);
 	if (it != commandMap.end())
-		(cmds.*(it->second))(parameters, fd); // Call the function pointer with the parameters and fd
+	{
+		Commands cmds;
+		std::string combinedParams;
+		for (const auto &p : params)
+			combinedParams += p + " "; // Combine all parameters into a single string
+		if (!combinedParams.empty())
+			combinedParams.pop_back(); // Remove the last space
+		(cmds.*(it->second))(combinedParams, fd);
+	}
 	else
 		std::cerr << "Unknown command: " << command << std::endl;
 }
@@ -128,8 +161,6 @@ void Client::appendToBuffer(const std::string &data)
 {
 	this->buffer += data;
 }
-
-
 
 // this function is supposed to send a message to client
 // void		Client::sendMessage(std::string const &message)

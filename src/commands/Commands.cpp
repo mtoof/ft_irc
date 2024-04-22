@@ -32,3 +32,9 @@ void Commands::handleQuit(const std::string &parameters, int fd)
 	(void)parameters;
 	// Implementation for QUIT command
 }
+
+void Commands::handlePass(const std::string &parameters, int fd)
+{
+	(void)parameters;
+	// Implementation for PASS command
+}
