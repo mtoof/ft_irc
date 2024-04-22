@@ -16,6 +16,7 @@
 #include "../client/Client.h"
 #include "../headers.h"
 #include "../debug/debug.h"
+#include "../common/reply.h"
 
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
@@ -51,7 +52,7 @@ public:
 	std::shared_ptr<Client>	findClientUsingFd(int fd) const;
 	void					whoGotDisconnected(int fd);
 	char*					extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
-	
+	void					send_response(int fd, const std::string &response);
 
 };
 

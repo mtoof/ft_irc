@@ -135,7 +135,7 @@ void Server::handleClientData(int fd)
 	std::shared_ptr <Client> client = findClientUsingFd(fd);
 	if (!client)
 	{
-        debug("Failed to find client for fd" + fd, FAILED);
+        debug("Failed to find client for fd" + std::to_string(fd), FAILED);
         return;
     }
 	readbyte = recv(fd , buffer, MAX_MSG_LENGTH - 1, 0);

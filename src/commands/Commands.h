@@ -3,8 +3,9 @@
 
 #include <iostream>
 #include <string>
+#include "../server/Server.h"
 
-class Commands
+class Commands : public Server
 {
 public:
 	Commands();
