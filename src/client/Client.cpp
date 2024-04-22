@@ -2,10 +2,10 @@
 
 Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(true), nickname_(nickname), username_(username), ip_address_(ipaddress)
 {
-	commandMap["JOIN"] = &Client::handleJoin;
-	commandMap["NICK"] = &Client::handleNick;
-	commandMap["PRIVMSG"] = &Client::handlePrivmsg;
-	commandMap["QUIT"] = &Client::handleQuit;
+	commandMap["JOIN"] = &Commands::handleJoin;
+	commandMap["NICK"] = &Commands::handleNick;
+	commandMap["PRIVMSG"] = &Commands::handlePrivmsg;
+	commandMap["QUIT"] = &Commands::handleQuit;
 }
 
 Client::~Client()
@@ -114,12 +114,12 @@ void Client::processCommand(const std::string &line, int fd)
 	iss >> command;
 	std::string parameters;
 	getline(iss, parameters);
-
+	Commands cmds; // Create an instance of the Commands class to call the functions
 	if (parameters.size() > 0 && parameters[0] == ' ')
 		parameters.erase(0, 1); // Remove the leading space
 	auto it = commandMap.find(command);
 	if (it != commandMap.end())
-		(this->*it->second)(parameters, fd);
+		(cmds.*(it->second))(parameters, fd); // Call the function pointer with the parameters and fd
 	else
 		std::cerr << "Unknown command: " << command << std::endl;
 }
@@ -129,30 +129,7 @@ void Client::appendToBuffer(const std::string &data)
 	this->buffer += data;
 }
 
-void Client::handleJoin(const std::string &parameters, int fd)
-{
-	(void)parameters;
-	// Implementation for JOIN command
-}
 
-void Client::handleNick(const std::string &parameters, int fd)
-{
-	
-	(void)parameters;
-	// Implementation for NICK command
-}
-
-void Client::handlePrivmsg(const std::string &parameters, int fd)
-{
-	(void)parameters;
-	// Implementation for PRIVMSG command
-}
-
-void Client::handleQuit(const std::string &parameters, int fd)
-{
-	(void)parameters;
-	// Implementation for QUIT command
-}
 
 // this function is supposed to send a message to client
 // void		Client::sendMessage(std::string const &message)

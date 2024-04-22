@@ -6,7 +6,7 @@
 /*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/19 19:09:13 by atoof            ###   ########.fr       */
+/*   Updated: 2024/04/22 12:18:53 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,18 +15,19 @@
 
 #include "../headers.h"
 #include "../server/Server.h"
+#include "../Commands/Commands.h"
 
 class Client{
 	private:
 int																fd_;
 	bool														registered_;
-	std::string													nickname_; // can't be longer than 9 characters
+	std::string													nickname_;
 	std::string													username_;
 	std::string													hostname_;
 	std::string													realname_;
 	std::string													ip_address_;
 	std::string													buffer;
-	    std::map<std::string, void (Client::*)(const std::string&, int)> commandMap;
+	std::map<std::string, void (Commands::*)(const std::string&, int)> commandMap;
 //  std::vector<std::shared_ptr<Channel>>	channels_;
 //  do we need to monitor ping pong status?
 
