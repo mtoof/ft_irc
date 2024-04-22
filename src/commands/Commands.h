@@ -8,8 +8,8 @@
 class Commands : public Server
 {
 public:
-	Commands();
-	~Commands();
+	Commands() = default;
+	~Commands() = default;
 	void handleJoin(const std::string &parameters, int fd);
 	void handleNick(const std::string &parameters, int fd);
 	void handlePrivmsg(const std::string &parameters, int fd);

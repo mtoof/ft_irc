@@ -162,3 +162,8 @@ void Server::handleClientData(int fd)
 	}
 		
 }
+
+const std::string *Server::getPassword() const
+{
+	return &password_;
+}

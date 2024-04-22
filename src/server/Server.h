@@ -54,6 +54,10 @@ public:
 	char*					extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
 	void					send_response(int fd, const std::string &response);
 
+//getter
+
+	std::string const * getPassword() const;
+
 };
 
 #endif
