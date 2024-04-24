@@ -1,15 +1,22 @@
-#ifndef _COMMANDS_H_
-#define _COMMANDS_H_
+#ifndef __COMMANDS_H__
+#define __COMMANDS_H__
 
 #include <iostream>
 #include <string>
 #include "../server/Server.h"
 
-class Commands : public Server
+class Server;
+
+class Commands
 {
+private:
+	Server *server_;
+
 public:
-	Commands() = default;
-	~Commands() = default;
+
+	Commands();
+	~Commands();
+
 	void handleJoin(const std::string &parameters, int fd);
 	void handleNick(const std::string &parameters, int fd);
 	void handlePrivmsg(const std::string &parameters, int fd);

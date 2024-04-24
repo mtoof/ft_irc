@@ -6,7 +6,7 @@
 /*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/22 15:33:53 by atoof            ###   ########.fr       */
+/*   Updated: 2024/04/24 16:02:12 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 #include "../headers.h"
 #include "../server/Server.h"
 #include "../commands/Commands.h"
+
+class Server;
+class Commands;
 
 class Client{
 	private:
