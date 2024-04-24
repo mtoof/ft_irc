@@ -10,7 +10,7 @@ class Server;
 class Commands
 {
 private:
-	Server *server_;
+	Server *server_; // Pointer to the server object to access server data
 
 public:
 

@@ -2,11 +2,6 @@
 
 Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(false), nickname_(nickname), username_(username), ip_address_(ipaddress)
 {
-	commandMap["JOIN"] = &Commands::handleJoin;
-	commandMap["NICK"] = &Commands::handleNick;
-	commandMap["PRIVMSG"] = &Commands::handlePrivmsg;
-	commandMap["QUIT"] = &Commands::handleQuit;
-	commandMap["PASS"] = &Commands::handlePass;
 }
 
 Client::~Client()
@@ -110,16 +105,24 @@ void Client::processBuffer()
 
 void Client::processCommand(const std::string &line, int fd)
 {
+	// Command map
+	std::map<std::string, void (Commands::*)(const std::string &, int)> commandMap = {
+		{"JOIN", &Commands::handleJoin},
+		{"NICK", &Commands::handleNick},
+		{"PRIVMSG", &Commands::handlePrivmsg},
+		{"QUIT", &Commands::handleQuit},
+		{"PASS", &Commands::handlePass}};
+	// Parse the message
 	// message format: :prefix command param1 param2 ... :trailing
 	std::istringstream iss(line);
 	std::string prefix, command, param;
 	std::vector<std::string> params;
 
 	// Extract prefix if present
-	if (line.front() == ':')
+	if (line.front() == ':') // Prefix is present
 	{
 		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
-		std::string temp_prefix = ":" + this->getNickname();
+		std::string temp_prefix = ":" + this->getNickname(); // Expected prefix format is ":nickname"
 		if (prefix != temp_prefix)
 		{
 			std::cerr << "Invalid prefix: " << prefix << std::endl;

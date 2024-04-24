@@ -46,10 +46,10 @@ void Commands::handlePass(const std::string &parameters, int fd)
 		server_->send_response(fd, ERR_NOTENOUGHPARAM(std::string("*")));
 	else if (!client->getRegisterStatus())
 	{
-		if(&parameters == server_->getPassword())
+		if(parameters == server_->getPassword()) 
 			client->registerClient();
 		else
-			server_->send_response(fd, ERR_INCORPASS(std::string("*")));
+			server_->send_response(fd, ERR_INCORPASS(client->getNickname()));
 	}
 	else
 		server_->send_response(fd, ERR_ALREADYREGISTERED(client->getNickname()));

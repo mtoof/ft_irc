@@ -57,7 +57,7 @@ public:
 
 //getter
 
-	std::string const * getPassword() const;
+	std::string const & getPassword() const;
 
 };
 

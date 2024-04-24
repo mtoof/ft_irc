@@ -158,12 +158,15 @@ void Server::handleClientData(int fd)
     	}
 	for (auto &command : commands)
 	{
+		if (command.empty())
+			continue;
+		//TODO:
 		client->processCommand(command, fd);
 	}
 		
 }
 
-const std::string *Server::getPassword() const
+const std::string & Server::getPassword() const
 {
-	return &password_;
+	return password_;
 }
