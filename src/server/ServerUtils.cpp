@@ -1,6 +1,6 @@
 #include "Server.h"
 
-void Server::shutdownServer(const std::string& reason)
+void Server::shutdownServer(const std::string &reason)
 {
 	std::cout << RED ", shutting down server..." RESET << std::endl;
 	(void)reason;
@@ -8,7 +8,8 @@ void Server::shutdownServer(const std::string& reason)
 
 void Server::signalHandler(int signum)
 {
-	switch (signum) {
+	switch (signum)
+	{
 	case SIGINT:
 		shutdownServer("SIGINT (Interrupt signal)");
 		break;
@@ -31,7 +32,7 @@ void Server::closeDeletePollFd(int fd)
 	for (auto index = fds_.begin(); index != fds_.end(); index++)
 	{
 		if (index->fd == fd)
-		{	
+		{
 			close(index->fd);
 			fds_.erase(index);
 			break;
@@ -47,7 +48,7 @@ void Server::closeFds()
 		for (auto index = fds_.begin(); index != fds_.end(); index++)
 		{
 			if (index->fd)
-			{	
+			{
 				close(index->fd);
 				fds_.erase(index);
 			}
@@ -55,9 +56,9 @@ void Server::closeFds()
 	}
 }
 
-std::shared_ptr<Client>	Server::findClientUsingFd(int fd) const
+std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 {
-	std::shared_ptr <Client> client;
+	std::shared_ptr<Client> client = std::make_shared<Client>();
 	auto iter = clients_.find(fd);
 	if (iter != clients_.end())
 		return iter->second;
@@ -75,10 +76,9 @@ void Server::whoGotDisconnected(int fd)
 	}
 }
 
-int Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress, std::shared_ptr<Client> &newclient)
+char *Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress)
 {
-	char ipv4str[INET_ADDRSTRLEN];
-	char ipv6str[INET6_ADDRSTRLEN];
+	char *ipstr = nullptr;
 
 	if (usersocketaddress.sin6_family == AF_INET6)
 	{
@@ -87,22 +87,30 @@ int Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress, std::sha
 			// It's an IPv4-mapped IPv6 address, extract the IPv4 address
 			struct in_addr ipv4addr;
 			memcpy(&ipv4addr, &(usersocketaddress.sin6_addr.s6_addr[12]), sizeof(struct in_addr));
-			inet_ntop(AF_INET, &ipv4addr, ipv4str, INET_ADDRSTRLEN);
-			newclient->setIpAddress(ipv4str);
-			std::cout << "Client IPv4: " << ipv4str << std::endl;
-		} else {
-			// It's a regular IPv6 address
-			inet_ntop(AF_INET6, &(usersocketaddress.sin6_addr), ipv6str, INET6_ADDRSTRLEN);
-			newclient->setIpAddress(ipv6str);
-			std::cout << "Client IPv6: " << ipv6str << std::endl;
+			ipstr = new char[INET_ADDRSTRLEN];
+			inet_ntop(AF_INET, &ipv4addr, ipstr, INET_ADDRSTRLEN);
 		}
-	} else if (usersocketaddress.sin6_family == AF_INET) {
-		// It's an IPv4 address
-		inet_ntop(AF_INET, &(usersocketaddress.sin6_addr), ipv4str, INET_ADDRSTRLEN);
-		newclient->setIpAddress(ipv4str);
-		std::cout << "Client IPv4: " << ipv4str << std::endl;
-	} else {
-		return (-1);
+		else
+		{
+			// It's a regular IPv6 address
+
+			ipstr = new char[INET6_ADDRSTRLEN];
+			inet_ntop(AF_INET6, &(usersocketaddress.sin6_addr), ipstr, INET6_ADDRSTRLEN);
+		}
 	}
-	return 0;
+	else if (usersocketaddress.sin6_family == AF_INET)
+	{
+		// It's an IPv4 address
+		ipstr = new char[INET_ADDRSTRLEN];
+		inet_ntop(AF_INET, &(usersocketaddress.sin6_addr), ipstr, INET_ADDRSTRLEN);
+	}
+	return ipstr;
+}
+
+void Server::send_response(int fd, const std::string &response)
+{
+	std::cout << "Response:\n" << response;
+	if (send(fd, response.c_str(), response.length(), 0) < 0)
+		debug("Response send() faild", FAILED);
+
 }

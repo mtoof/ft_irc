@@ -3,35 +3,38 @@
 /*                                                        :::      ::::::::   */
 /*   Client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
+/*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/16 17:43:36 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/04/22 15:33:53 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __CLIENT_H__
 #define __CLIENT_H__
 
-#include <string>
-#include <vector>
-#include <memory>
+#include "../headers.h"
+#include "../server/Server.h"
+#include "../commands/Commands.h"
 
 class Client{
 	private:
-	int										fd_;
-	bool									registered_;
-	std::string								nickname_; // can't be longer than 9 characters
-	std::string								username_;
-	std::string								hostname_;
-	std::string								realname_;
-	std::string								ip_address_;
+int																fd_;
+	bool														registered_;
+	bool														password_; //true if server password is set
+	std::string													nickname_;
+	std::string													username_;
+	std::string													hostname_;
+	std::string													realname_;
+	std::string													ip_address_;
+	std::string													buffer;
+	std::map<std::string, void (Commands::*)(const std::string&, int)> commandMap;
 //  std::vector<std::shared_ptr<Channel>>	channels_;
 //  do we need to monitor ping pong status?
 
 	public:
 	Client() = default;
-	Client(const int &fd, const std::string &nickname, const std::string &username);
+	Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress);
 	~Client();
 
 	// getters
@@ -55,6 +58,13 @@ class Client{
 	// member functions
 	void		registerClient();
 	void		unregisterClient();
+	void 		processBuffer();
+	void 		appendToBuffer(const std::string& data);
+	void		processCommand(const std::string& commandLine, int fd);
+	void		handleJoin(const std::string &parameters, int fd);
+	void		handleNick(const std::string &parameters, int fd);
+	void		handlePrivmsg(const std::string &parameters, int fd);
+	void		handleQuit(const std::string &parameters, int fd);
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?
