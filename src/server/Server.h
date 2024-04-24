@@ -13,6 +13,7 @@
 
 #ifndef __SERVER_H__
 #define __SERVER_H__
+
 #include "../client/Client.h"
 #include "../headers.h"
 #include "../debug/debug.h"
@@ -39,7 +40,7 @@ private:
 
 public:
 	Server(int port, std::string password);
-	~Server();
+	virtual ~Server();
 
 	static void 			signalHandler(int signum);
 	void					createServerSocket();
