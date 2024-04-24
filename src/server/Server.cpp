@@ -152,10 +152,12 @@ void Server::handleClientData(int fd)
 		return;
 	}
 	else
-		{
-			client->appendToBuffer(std::string(buffer, readbyte));
-        	client->processBuffer();
-    	}
+	{
+		client->appendToBuffer(std::string(buffer, readbyte));
+		client->processBuffer(std::make_shared<Server>(this));
+	}
+	// when the buffer has been processed and we can construct a message
+	
 	for (auto &command : commands)
 	{
 		client->processCommand(command, fd);

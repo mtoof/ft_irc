@@ -95,7 +95,7 @@ void Client::unregisterClient()
 		this->registered_ = false;
 }
 
-void Client::processBuffer()
+void Client::processBuffer(std::shared_ptr<Server> server_ptr)
 {
 	size_t pos;
 	while ((pos = this->buffer.find("\r\n")) != std::string::npos)
@@ -104,7 +104,8 @@ void Client::processBuffer()
 		this->buffer.erase(0, pos + 2);
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back(); // Remove the trailing \r
-		processCommand(line, this->fd_);
+		//processCommand(line, this->fd_);
+		Message message(line, server_ptr, this->fd_);
 	}
 }
 

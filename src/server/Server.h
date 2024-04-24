@@ -18,6 +18,7 @@
 #include "../headers.h"
 #include "../debug/debug.h"
 #include "../common/reply.h"
+#include "../message/Message.h"
 
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
