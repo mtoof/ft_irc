@@ -19,6 +19,7 @@ Server::Server(int port, std::string password) : host_("localhost"), port_(port)
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
 	this->running_ = 1;
+	
 }
 
 Server::~Server()

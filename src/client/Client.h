@@ -6,7 +6,7 @@
 /*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/25 15:38:09 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/04/25 17:00:08 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include "../headers.h"
 #include "../server/Server.h"
-#include "../commands/Commands.h"
+#include "../command/Command.h"
 #include "../message/Message.h"
 
 class Server;
@@ -32,7 +32,7 @@ int																fd_;
 	std::string													realname_;
 	std::string													ip_address_;
 	std::string													buffer;
-	std::map<std::string, void (Commands::*)(const std::string&, int)> commandMap;
+
 //  std::vector<std::shared_ptr<Channel>>	channels_;
 //  do we need to monitor ping pong status?
 

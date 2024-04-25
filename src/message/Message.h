@@ -35,6 +35,7 @@ class Message{
 	void setParams(std::string raw_message);
 	void setTrailer(std::string raw_message);
 	
+	std::string getCommand();
 	void printMessageContents();
 
 

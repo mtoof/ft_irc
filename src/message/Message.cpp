@@ -15,7 +15,7 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 	}
 	std::cout << "Message constructor. Raw message: " << raw_message_ << "\t received from fd: " << client_fd_ << std::endl;
 	
-	analyzeMessage();
+	valid_message_ = analyzeMessage();
 	printMessageContents();
 	// TODO: Parsing the message and saving it to the members of the class
 	// Parser is below, modularize it to subfunctions that save each element of the message to correct members
@@ -52,11 +52,14 @@ bool Message::analyzeMessage()
 	command_ = command;
 	while (iss >> param)
 	{
-		std::cout << "param = " << param << std::endl;
 		if (param.front() == ':')
 		{
 			if (param.size() > 1)
-				trailer_ = param.substr(1) + iss.rdbuf()->str();
+			{
+				trailer_ = param;
+				while (iss >> param)
+					trailer_ += " " + param; // TODO handle extra spaces in the end of trailer_
+			}
 			break;
 		}
 		parameters_.push_back(param);
@@ -77,4 +80,14 @@ void	Message::printMessageContents()
 	}
 	std::cout << "Trailer trash: " << trailer_ << std::endl;
 	
+}
+
+std::string Message::getCommand()
+{
+	return command_;
+}
+
+bool Message::isValidMessage()
+{
+	return valid_message_;
 }

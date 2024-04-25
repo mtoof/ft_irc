@@ -1,5 +1,5 @@
-#ifndef __COMMANDS_H__
-#define __COMMANDS_H__
+#ifndef __COMMAND_H__
+#define __COMMAND_H__
 
 #include <iostream>
 #include <string>
@@ -7,15 +7,15 @@
 
 class Server;
 
-class Commands
+class Command
 {
 private:
 	Server *server_;
-
+		
 public:
 
-	Commands();
-	~Commands();
+	Command();
+	~Command();
 
 	void handleJoin(const std::string &parameters, int fd);
 	void handleNick(const std::string &parameters, int fd);
