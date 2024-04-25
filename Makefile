@@ -14,7 +14,7 @@ NAME = ircserv
 SRC_DIR = src
 OBJ_DIR = obj/
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++17 -fsanitize=address
+CFLAGS = -Wall -Wextra -Werror -std=c++17## -g -fsanitize=address
 
 ifdef DEBUG
 CFLAGS += -g -DDEBUG_MODE

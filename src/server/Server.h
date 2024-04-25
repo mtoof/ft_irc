@@ -18,6 +18,8 @@
 #include "../headers.h"
 #include "../debug/debug.h"
 #include "../common/reply.h"
+#include "../message/Message.h"
+#include "../command/Command.h"
 
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
@@ -28,20 +30,20 @@ class Client;
 class Server
 {
 private:
-	std::string 							host_;
-	int 									port_;
-	const std::string 						password_;
-	int										running_;
-	int										socket_;
-	std::vector<struct pollfd> 				fds_; // pollfd structure for the server socket
-	std::map <int, std::shared_ptr<Client>>	clients_;
-	static bool								signal_;
+	std::string 												host_;
+	int 														port_;
+	const std::string 											password_;
+	int															running_;
+	int															socket_;
+	std::vector<struct pollfd> 									fds_; // pollfd structure for the server socket
+	std::map <int, std::shared_ptr<Client>>						clients_;
+	static bool													signal_;
+	std::map<std::string, void (Command::*)(const std::string&, int)> supported_commands_;
 	static void								shutdownServer(const std::string& reason);
 
 public:
 	Server(int port, std::string password);
 	virtual ~Server();
-
 	static void 			signalHandler(int signum);
 	void					createServerSocket();
 	void					registerNewClient();

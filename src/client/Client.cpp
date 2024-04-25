@@ -2,6 +2,11 @@
 
 Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(false), nickname_(nickname), username_(username), ip_address_(ipaddress)
 {
+	// commandMap["JOIN"] = &Command::handleJoin;
+	// commandMap["NICK"] = &Command::handleNick;
+	// commandMap["PRIVMSG"] = &Command::handlePrivmsg;
+	// commandMap["QUIT"] = &Command::handleQuit;
+	// commandMap["PASS"] = &Command::handlePass;
 }
 
 Client::~Client()
@@ -90,7 +95,7 @@ void Client::unregisterClient()
 		this->registered_ = false;
 }
 
-void Client::processBuffer()
+void Client::processBuffer(Server *server_ptr)
 {
 	size_t pos;
 	while ((pos = this->buffer.find("\r\n")) != std::string::npos)
@@ -99,66 +104,63 @@ void Client::processBuffer()
 		this->buffer.erase(0, pos + 2);
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back(); // Remove the trailing \r
-		processCommand(line, this->fd_);
+		//processCommand(line, this->fd_);
+		Message message(line, server_ptr, this->fd_); // Parse the message
+		if(message.isValidMessage() == true)
+		{
+			//TODO: send the message to command
+		}
 	}
 }
 
-void Client::processCommand(const std::string &line, int fd)
-{
-	// Command map
-	std::map<std::string, void (Commands::*)(const std::string &, int)> commandMap = {
-		{"JOIN", &Commands::handleJoin},
-		{"NICK", &Commands::handleNick},
-		{"PRIVMSG", &Commands::handlePrivmsg},
-		{"QUIT", &Commands::handleQuit},
-		{"PASS", &Commands::handlePass}};
-	// Parse the message
+// void Client::processCommand(const std::string &line, int fd)
+// {
 	// message format: :prefix command param1 param2 ... :trailing
-	std::istringstream iss(line);
-	std::string prefix, command, param;
-	std::vector<std::string> params;
+	// std::istringstream iss(line);
+	// std::string prefix, command, param;
+	// std::vector<std::string> params;
 
-	// Extract prefix if present
-	if (line.front() == ':') // Prefix is present
-	{
-		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
-		std::string temp_prefix = ":" + this->getNickname(); // Expected prefix format is ":nickname"
-		if (prefix != temp_prefix)
-		{
-			std::cerr << "Invalid prefix: " << prefix << std::endl;
-			return;
-		}
-	}
+	// // Extract prefix if present
+	// if (line.front() == ':')
+	// {
+	// 	std::getline(iss, prefix, ' '); // Extract prefix up to the first space
+	// 	std::string temp_prefix = ":" + this->getNickname();
+	// 	if (prefix != temp_prefix)
+	// 	{
+	// 		std::cerr << "Invalid prefix: " << prefix << std::endl;
+	// 		return;
+	// 	}
+	// }
 
-	iss >> command; // Extract command
+	// iss >> command; // Extract command
 
-	// Extract parameters, handling trailing parameters starting with ':'
-	while (iss >> param)
-	{
-		if (param.front() == ':')
-		{
-			// Append the rest of the input stream as a single parameter, including spaces
-			params.push_back(param.substr(1) + iss.rdbuf()->str());
-			break;
-		}
-		params.push_back(param);
-	}
+	// // Extract parameters, handling trailing parameters starting with ':'
+	// while (iss >> param)
+	// {
+	// 	if (param.front() == ':')
+	// 	{
+	// 		// Append the rest of the input stream as a single parameter, including spaces
+	// 		params.push_back(param.substr(1) + iss.rdbuf()->str());
+	// 		break;
+	// 	}
+	// 	params.push_back(param);
+	// }
 
 	// Dispatch the command if it exists in the commandMap
-	auto it = commandMap.find(command);
-	if (it != commandMap.end())
-	{
-		Commands cmds;
-		std::string combinedParams;
-		for (const auto &p : params)
-			combinedParams += p + " "; // Combine all parameters into a single string
-		if (!combinedParams.empty())
-			combinedParams.pop_back(); // Remove the last space
-		(cmds.*(it->second))(combinedParams, fd);
-	}
-	else
-		std::cerr << "Unknown command: " << command << std::endl;
-}
+		// auto it = commandMap.find(command);
+		// if (it != commandMap.end())
+		// {
+		// 	Commands cmds;
+		// 	std::string combinedParams;
+		// 	for (const auto &p : params)
+		// 		combinedParams += p + " "; // Combine all parameters into a single string
+		// 	if (!combinedParams.empty())
+		// 		combinedParams.pop_back(); // Remove the last space
+		// 	(cmds.*(it->second))(combinedParams, fd);
+		// }
+		// else
+		// 	std::cerr << "Unknown command: " << command << std::endl;
+// }
 
 void Client::appendToBuffer(const std::string &data)
 {

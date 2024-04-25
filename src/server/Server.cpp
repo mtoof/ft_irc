@@ -19,6 +19,7 @@ Server::Server(int port, std::string password) : host_("localhost"), port_(port)
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
 	this->running_ = 1;
+	
 }
 
 Server::~Server()
@@ -152,17 +153,17 @@ void Server::handleClientData(int fd)
 		return;
 	}
 	else
-		{
-			client->appendToBuffer(std::string(buffer, readbyte));
-        	client->processBuffer();
-    	}
-	for (auto &command : commands)
 	{
-		if (command.empty())
-			continue;
-		//TODO:
-		client->processCommand(command, fd);
+		client->appendToBuffer(std::string(buffer, readbyte));
+		client->processBuffer(this);
+	
 	}
+	// when the buffer has been processed and we can construct a message
+	
+	// for (auto &command : commands)
+	// {
+	// 	client->processCommand(command, fd);
+	// }
 		
 }
 
