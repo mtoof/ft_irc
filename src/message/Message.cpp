@@ -58,7 +58,7 @@ bool Message::analyzeMessage()
 			{
 				trailer_ = param;
 				while (iss >> param)
-					trailer_ += " " + param; // TODO handle extra spaces in the end of trailer_
+					trailer_ += " " + param;
 			}
 			break;
 		}
@@ -87,7 +87,17 @@ std::string Message::getCommand()
 	return command_;
 }
 
+std::vector<std::string> Message::getParameters()
+{
+	return parameters_;
+}
+
 bool Message::isValidMessage()
 {
 	return valid_message_;
+}
+
+std::string Message::getTrailer()
+{
+	return trailer_;
 }

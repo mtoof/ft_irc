@@ -60,6 +60,8 @@ public:
 //getter
 
 	std::string const & getPassword() const;
+	// getter for map of supported commands
+	std::map<std::string, void (Command::*)(const std::string&, int)> const & getSupportedCommands() const;
 
 };
 

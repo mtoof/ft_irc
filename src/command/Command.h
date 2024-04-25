@@ -22,6 +22,7 @@ public:
 	void handlePrivmsg(const std::string &parameters, int fd);
 	void handleQuit(const std::string &parameters, int fd);
 	void handlePass(const std::string &parameters, int fd);
+	void handleCap(const std::string &parameters, int fd);
 };
 
 #endif

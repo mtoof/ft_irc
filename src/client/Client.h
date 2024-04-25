@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
+/*   By: atoof <atoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/25 17:00:08 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/04/25 19:20:53 by atoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 
 class Server;
 class Commands;
+class Message;
 
 class Client{
 	private:
@@ -64,7 +65,7 @@ int																fd_;
 	void		unregisterClient();
 	void 		processBuffer(Server *server_ptr);
 	void 		appendToBuffer(const std::string& data);
-	void		processCommand(const std::string& commandLine, int fd);
+	void		processCommand(Message &message, Server *server_ptr);
 	void		handleJoin(const std::string &parameters, int fd);
 	void		handleNick(const std::string &parameters, int fd);
 	void		handlePrivmsg(const std::string &parameters, int fd);

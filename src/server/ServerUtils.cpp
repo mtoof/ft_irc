@@ -2,8 +2,7 @@
 
 void Server::shutdownServer(const std::string &reason)
 {
-	std::cout << RED ", shutting down server..." RESET << std::endl;
-	(void)reason;
+	std::cout << RED << reason << ", shutting down server..." RESET << std::endl;
 }
 
 void Server::signalHandler(int signum)
@@ -113,4 +112,10 @@ void Server::send_response(int fd, const std::string &response)
 	if (send(fd, response.c_str(), response.length(), 0) < 0)
 		debug("Response send() faild", FAILED);
 
+}
+
+// getter for map of supported commands
+std::map<std::string, void (Command::*)(const std::string &, int)> const &Server::getSupportedCommands() const
+{
+	return supported_commands_;
 }
