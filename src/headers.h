@@ -21,6 +21,7 @@
 #include <arpa/inet.h>
 #include <memory>
 #include <map>
+#include "./debug/debug.h"
 
 
 #define RED     "\x1b[31m"

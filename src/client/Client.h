@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oandelin <oandelin@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/24 17:49:25 by oandelin         ###   ########.fr       */
+/*   Updated: 2024/04/25 15:38:09 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int																fd_;
 	// member functions
 	void		registerClient();
 	void		unregisterClient();
-	void 		processBuffer(std::shared_ptr<Server> server_ptr);
+	void 		processBuffer(Server *server_ptr);
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(const std::string& commandLine, int fd);
 	void		handleJoin(const std::string &parameters, int fd);

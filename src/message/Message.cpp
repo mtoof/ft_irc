@@ -4,48 +4,77 @@
 /// @param raw_message 
 /// @param server 
 /// @param clientfd 
-Message::Message(std::string raw_message, std::shared_ptr<Server> server, int clientfd)
-: raw_message_(raw_message), server_(server), client_fd_(clientfd), valid_message_(false)
+Message::Message(std::string raw_message, Server *server, int clientfd)
+: raw_message_(raw_message), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
 {
+	client_ptr_ = server_ptr_->findClientUsingFd(client_fd_);
+	if (!client_ptr_)
+	{
+		debug("Find client in message constructor", FAILED);
+		return;
+	}
+	std::cout << "Message constructor. Raw message: " << raw_message_ << "\t received from fd: " << client_fd_ << std::endl;
+	
+	analyzeMessage();
+	printMessageContents();
 	// TODO: Parsing the message and saving it to the members of the class
 	// Parser is below, modularize it to subfunctions that save each element of the message to correct members
 	// once parsing/analyzing is done, it's sent for COMMAND class (also TODO)
 	// THIS IS ABOUT FORMATTING
 }
 
-// Message::Message(const std::string &line, Client &client)
-// {
+Message::~Message()
+{
+	std::cout << "Message destructor" << std::endl;
+}
 
-
-// Message::M
-// {
-// 	std::istringstream iss(line);
-// 	std::string prefix;
-
-// 	// Extract prefix if present
-// 	if (line.front() == ':')
-// 	{
-// 		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
-// 		std::string temp_prefix = ":" + client->getNickname();
-// 		if (prefix != temp_prefix)
-// 		{
-// 			std::cerr << "Invalid prefix: " << prefix << std::endl;
-// 			return;
-// 		}
-// 	}
-
-// 	std::string command, param;
-// 	std::vector<std::string> params;
+bool Message::analyzeMessage()
+{
+	std::istringstream iss(raw_message_);
+	std::string prefix;
 	
-// 	iss >> command;
-// 	while (iss >> param)
-// 	{
-// 		if (param.front() == ':')
-// 		{
-// 			std::string msg = param.substr(1) + iss.rdbuf()->str();
-// 			// 			// 
-// 			break;
-// 		}
-// 		params.push_back(param);
-// 	}
-// }
+	// Extract prefix if present
+	if (raw_message_.front() == ':')
+	{
+		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
+		std::string temp_prefix = ":" + client_ptr_->getNickname();
+		if (prefix != temp_prefix)
+		{
+			std::cerr << "Invalid prefix: " << prefix << std::endl;
+			return false;
+		}
+		prefix_ = prefix;
+	}
+
+	std::string command, param;
+		
+	iss >> command;
+	command_ = command;
+	while (iss >> param)
+	{
+		std::cout << "param = " << param << std::endl;
+		if (param.front() == ':')
+		{
+			if (param.size() > 1)
+				trailer_ = param.substr(1) + iss.rdbuf()->str();
+			break;
+		}
+		parameters_.push_back(param);
+	}
+
+	return true;
+}
+
+void	Message::printMessageContents()
+{
+	std::cout << "Printing contents:\n";
+	std::cout << "Prefix: " << prefix_ << "\n";
+	std::cout << "command: " << command_ << "\n";
+	std::cout << "Params:\n";
+	for (auto param : parameters_)
+	{
+		std::cout << param << "\n";
+	}
+	std::cout << "Trailer trash: " << trailer_ << std::endl;
+	
+}

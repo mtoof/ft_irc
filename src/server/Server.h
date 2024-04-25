@@ -42,7 +42,6 @@ private:
 public:
 	Server(int port, std::string password);
 	virtual ~Server();
-
 	static void 			signalHandler(int signum);
 	void					createServerSocket();
 	void					registerNewClient();

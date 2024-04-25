@@ -95,7 +95,7 @@ void Client::unregisterClient()
 		this->registered_ = false;
 }
 
-void Client::processBuffer(std::shared_ptr<Server> server_ptr)
+void Client::processBuffer(Server *server_ptr)
 {
 	size_t pos;
 	while ((pos = this->buffer.find("\r\n")) != std::string::npos)
