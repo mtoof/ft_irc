@@ -57,7 +57,9 @@ void Server::closeFds()
 
 std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 {
-	std::shared_ptr<Client> client = std::make_shared<Client>();
+	std::cout << "clients_ size = " << clients_.size() << std::endl;
+	if (clients_.empty())
+		return nullptr;
 	auto iter = clients_.find(fd);
 	if (iter != clients_.end())
 		return iter->second;
@@ -115,7 +117,7 @@ void Server::send_response(int fd, const std::string &response)
 }
 
 // getter for map of supported commands
-std::map<std::string, void (Command::*)(const std::string &, int)> const &Server::getSupportedCommands() const
+std::map<std::string, void (Command::*)(const Message &msg)> const &Server::getSupportedCommands() const
 {
 	return supported_commands_;
 }

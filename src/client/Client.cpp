@@ -107,8 +107,6 @@ void Client::processBuffer(Server *server_ptr)
 			//TODO: send the message to command
 			processCommand(message, server_ptr);
 		}
-
-
 	}
 }
 
@@ -116,25 +114,25 @@ void Client::processCommand(Message &message, Server *server_ptr)
 {
     const std::string &command = message.getCommand();
     const std::vector<std::string> &params = message.getParameters();
-    int fd = this->fd_;  // Assume fd is a file descriptor or similar in your Client class
+    // const std::string &trailer = message.getTrailer();
 
     auto it = server_ptr->getSupportedCommands().find(command);
     if (it != server_ptr->getSupportedCommands().end())
     {
-        Command commandObject;
-        auto handler = it->second;
-        // If params is empty, pass an empty string, otherwise pass the first parameter
-        (commandObject.*handler)(params.empty() ? "" : params[0], fd);
-    }
-    else
-    {
-        // Send ERR_UNKNOWNCOMMAND or CMDNOTFOUND as per your error handling
-        server_ptr->send_response(this->fd_, ERR_CMDNOTFOUND(this->nickname_, command));
+        if (!params.empty())
+        {
+            auto handler = it->second; // Get the function pointer from the map
+            Command commandObject(server_ptr);
+            (commandObject.*handler)(message);
+        }
     }
 }
 
 
-
+void	Client::setPassword()
+{
+	password_ = true;
+}
 
 void Client::appendToBuffer(const std::string &data)
 {

@@ -128,7 +128,7 @@ void Server::registerNewClient()
 	}
 	std::shared_ptr<Client> newclient = std::make_shared<Client>(userfd, "", "", ip);
 	delete ip;
-	this->clients_.insert({userfd, newclient});
+	this->clients_.insert(std::make_pair(userfd, newclient));
 	fds_.push_back(userpollfd);
 }
 

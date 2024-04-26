@@ -4,9 +4,10 @@
 #include <iostream>
 #include <string>
 #include "../server/Server.h"
+#include "../message/Message.h"
 
 class Server;
-
+class Message;
 class Command
 {
 private:
@@ -14,15 +15,15 @@ private:
 		
 public:
 
-	Command();
+	Command(Server *server_ptr);
 	~Command();
 
-	void handleJoin(const std::string &parameters, int fd);
-	void handleNick(const std::string &parameters, int fd);
-	void handlePrivmsg(const std::string &parameters, int fd);
-	void handleQuit(const std::string &parameters, int fd);
-	void handlePass(const std::string &parameters, int fd);
-	void handleCap(const std::string &parameters, int fd);
+	void handleJoin(const Message &msg);
+	void handleNick(const Message &msg);
+	void handlePrivmsg(const Message &msg);
+	void handleQuit(const Message &msg);
+	void handlePass(const Message &msg);
+	void handleCap(const Message &msg);
 };
 
 #endif
