@@ -14,7 +14,7 @@
 
 bool Server::signal_ = false;
 
-Server::Server(int port, std::string password) : host_("localhost"), port_(port), password_(password)
+Server::Server(int port, std::string password) : host_(""), port_(port), password_(password)
 {
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
@@ -72,6 +72,7 @@ void Server::createServerSocket()
 		debug("Server is listening", SUCCESS);
 	pfds = {this->socket_, POLLIN, 0}; // set the file descriptor for the server socket to the pollfd structure and set the events to POLLIN, this is crucial because we want to check for incoming connections on the server socket and we want to read data from the clients
 	fds_.push_back(pfds); // add the server socket to the pollfd vector
+	setServerHostname();
 	std::cout << GREEN "Server is running on port " << this->port_ << RESET << std::endl; // print a message to the console that the server is running
 }
 

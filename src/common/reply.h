@@ -31,8 +31,8 @@
 
 // ERRORS
 
-#define ERR_NOTENOUGHPARAM(nickname) (": 461 " + nickname + " :Not enough parameters." + CRLF)
-#define ERR_NOTREGISTERED(servername) (": 451 " + servername + " :You have not registered." + CRLF)
+#define ERR_NEEDMOREPARAMS(client_prefix, command) (client_prefix + " 461 " + command + " :Not enough parameters." + CRLF)
+#define ERR_NOTREGISTERED(servername) (":" + servername + " 451 " + "*" + " :You have not registered." + CRLF)
 #define ERR_NICKINUSE(servername, nickname) (":" + servername + " 433 * " + nickname + " :Nickname is already in use" + CRLF)
 #define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + CRLF)
 #define ERR_ALREADYREGISTERED(nickname) (": 462 " + nickname + " :You are already registered!" + CRLF)
