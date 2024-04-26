@@ -113,18 +113,15 @@ void Client::processBuffer(Server *server_ptr)
 void Client::processCommand(Message &message, Server *server_ptr)
 {
     const std::string &command = message.getCommand();
-    const std::vector<std::string> &params = message.getParameters();
+    //const std::vector<std::string> &params = message.getParameters();
     // const std::string &trailer = message.getTrailer();
 
     auto it = server_ptr->getSupportedCommands().find(command);
     if (it != server_ptr->getSupportedCommands().end())
     {
-        if (!params.empty())
-        {
-            auto handler = it->second; // Get the function pointer from the map
-            Command commandObject(server_ptr);
-            (commandObject.*handler)(message);
-        }
+       auto handler = it->second; // Get the function pointer from the map
+       Command commandObject(server_ptr);
+       (commandObject.*handler)(message);
     }
 }
 
@@ -137,6 +134,16 @@ void	Client::setPassword()
 void Client::appendToBuffer(const std::string &data)
 {
 	this->buffer += data;
+}
+
+void Client::setClientPrefix()
+{
+	client_prefix_ = ":" + nickname_ + "!~" + username_ + "@" + ip_address_;
+}
+
+const std::string &Client::getClientPrefix()
+{
+	return client_prefix_;
 }
 
 // this function is supposed to send a message to client

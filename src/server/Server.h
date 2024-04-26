@@ -56,12 +56,14 @@ public:
 	void					whoGotDisconnected(int fd);
 	char*					extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
 	void					send_response(int fd, const std::string &response);
+	void					setServerHostname();
 
 //getter
 
 	std::string const & getPassword() const;
 	// getter for map of supported commands
 	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;
+	const std::string &getServerHostname() const;
 
 };
 

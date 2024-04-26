@@ -121,3 +121,18 @@ std::map<std::string, void (Command::*)(const Message &msg)> const &Server::getS
 {
 	return supported_commands_;
 }
+
+void Server::setServerHostname()
+{
+	char hostname[256] = {};
+	if (gethostname(hostname, 256) == 0)
+		host_ = hostname;
+	else
+		debug("gethostname", FAILED);
+	return;
+}
+
+const std::string &Server::getServerHostname() const
+{
+	return host_;
+}

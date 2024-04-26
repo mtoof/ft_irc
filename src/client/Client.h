@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
+/*   By: oandelin <oandelin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/26 14:50:16 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/04/26 16:50:14 by oandelin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ int																fd_;
 	std::string													hostname_;
 	std::string													realname_;
 	std::string													ip_address_;
+	std::string													client_prefix_;
 	std::string													buffer;
 
 //  std::vector<std::shared_ptr<Channel>>	channels_;
@@ -50,6 +51,7 @@ int																fd_;
 	std::string getRealname();
 	std::string getIpAddress();
 	bool		getRegisterStatus();
+	const std::string &getClientPrefix();
 
 	// setters
 
@@ -60,13 +62,15 @@ int																fd_;
 	void		setRealname(std::string const &realname);
 	void		setIpAddress(std::string const &ip_address);
 	void		setPassword();
-
+	void        setClientPrefix();
+	
 	// member functions
 	void		registerClient();
 	void		unregisterClient();
 	void 		processBuffer(Server *server_ptr);
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(Message &message, Server *server_ptr);
+	
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?
