@@ -19,7 +19,12 @@ Server::Server(int port, std::string password) : host_("localhost"), port_(port)
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
 	this->running_ = 1;
-	
+	supported_commands_.insert(std::pair("JOIN", &Command::handleJoin));
+	supported_commands_.insert(std::pair("NICK", &Command::handleNick));
+	supported_commands_.insert(std::pair("PRIVMSG", &Command::handlePrivmsg));
+	supported_commands_.insert(std::pair("QUIT", &Command::handleQuit));
+	supported_commands_.insert(std::pair("PASS", &Command::handlePass));
+	supported_commands_.insert(std::pair("CAP", &Command::handleCap));
 }
 
 Server::~Server()
@@ -123,7 +128,7 @@ void Server::registerNewClient()
 	}
 	std::shared_ptr<Client> newclient = std::make_shared<Client>(userfd, "", "", ip);
 	delete ip;
-	this->clients_.insert({userfd, newclient});
+	this->clients_.insert(std::make_pair(userfd, newclient));
 	fds_.push_back(userpollfd);
 }
 
@@ -159,15 +164,13 @@ void Server::handleClientData(int fd)
 	
 	}
 	// when the buffer has been processed and we can construct a message
-	
 	// for (auto &command : commands)
 	// {
 	// 	client->processCommand(command, fd);
 	// }
-		
 }
 
-const std::string *Server::getPassword() const
+const std::string & Server::getPassword() const
 {
-	return &password_;
+	return password_;
 }

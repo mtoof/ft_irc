@@ -2,8 +2,7 @@
 
 void Server::shutdownServer(const std::string &reason)
 {
-	std::cout << RED ", shutting down server..." RESET << std::endl;
-	(void)reason;
+	std::cout << RED << reason << ", shutting down server..." RESET << std::endl;
 }
 
 void Server::signalHandler(int signum)
@@ -58,7 +57,9 @@ void Server::closeFds()
 
 std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 {
-	std::shared_ptr<Client> client = std::make_shared<Client>();
+	std::cout << "clients_ size = " << clients_.size() << std::endl;
+	if (clients_.empty())
+		return nullptr;
 	auto iter = clients_.find(fd);
 	if (iter != clients_.end())
 		return iter->second;
@@ -113,4 +114,10 @@ void Server::send_response(int fd, const std::string &response)
 	if (send(fd, response.c_str(), response.length(), 0) < 0)
 		debug("Response send() faild", FAILED);
 
+}
+
+// getter for map of supported commands
+std::map<std::string, void (Command::*)(const Message &msg)> const &Server::getSupportedCommands() const
+{
+	return supported_commands_;
 }
