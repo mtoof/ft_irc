@@ -58,7 +58,7 @@ bool Message::analyzeMessage()
 			{
 				trailer_ = param;
 				while (iss >> param)
-					trailer_ += " " + param; // TODO handle extra spaces in the end of trailer_
+					trailer_ += " " + param;
 			}
 			break;
 		}
@@ -82,12 +82,32 @@ void	Message::printMessageContents()
 	
 }
 
-std::string Message::getCommand()
+std::string Message::getCommand() const
 {
 	return command_;
+}
+
+std::vector<std::string> Message::getParameters() const
+{
+	return parameters_;
 }
 
 bool Message::isValidMessage()
 {
 	return valid_message_;
+}
+
+std::string Message::getTrailer() const
+{
+	return trailer_;
+}
+
+int Message::getClientfd() const
+{
+	return client_fd_;
+}
+
+std::shared_ptr<Client> Message::getClientPtr() const
+{
+	return client_ptr_;
 }

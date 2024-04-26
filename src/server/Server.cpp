@@ -24,6 +24,7 @@ Server::Server(int port, std::string password) : host_("localhost"), port_(port)
 	supported_commands_.insert(std::pair("PRIVMSG", &Command::handlePrivmsg));
 	supported_commands_.insert(std::pair("QUIT", &Command::handleQuit));
 	supported_commands_.insert(std::pair("PASS", &Command::handlePass));
+	supported_commands_.insert(std::pair("CAP", &Command::handleCap));
 }
 
 Server::~Server()
@@ -127,7 +128,7 @@ void Server::registerNewClient()
 	}
 	std::shared_ptr<Client> newclient = std::make_shared<Client>(userfd, "", "", ip);
 	delete ip;
-	this->clients_.insert({userfd, newclient});
+	this->clients_.insert(std::make_pair(userfd, newclient));
 	fds_.push_back(userpollfd);
 }
 
@@ -169,7 +170,7 @@ void Server::handleClientData(int fd)
 	// }
 }
 
-const std::string *Server::getPassword() const
+const std::string & Server::getPassword() const
 {
-	return &password_;
+	return password_;
 }

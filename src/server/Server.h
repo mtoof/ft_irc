@@ -26,7 +26,7 @@
 #define CRLF "\r\n"
 
 class Client;
-
+class Message;
 class Server
 {
 private:
@@ -38,7 +38,7 @@ private:
 	std::vector<struct pollfd> 									fds_; // pollfd structure for the server socket
 	std::map <int, std::shared_ptr<Client>>						clients_;
 	static bool													signal_;
-	std::map<std::string, void (Command::*)(const std::string&, int)> supported_commands_;
+	std::map<std::string, void (Command::*)(const Message &msg)> supported_commands_;
 	static void								shutdownServer(const std::string& reason);
 
 public:
@@ -59,7 +59,9 @@ public:
 
 //getter
 
-	std::string const * getPassword() const;
+	std::string const & getPassword() const;
+	// getter for map of supported commands
+	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;
 
 };
 

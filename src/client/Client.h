@@ -6,7 +6,7 @@
 /*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/25 17:00:08 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/04/26 14:50:16 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 
 class Server;
 class Commands;
+class Message;
 
 class Client{
 	private:
@@ -58,17 +59,14 @@ int																fd_;
 	void		setHostname(std::string const &hostname);
 	void		setRealname(std::string const &realname);
 	void		setIpAddress(std::string const &ip_address);
+	void		setPassword();
 
 	// member functions
 	void		registerClient();
 	void		unregisterClient();
 	void 		processBuffer(Server *server_ptr);
 	void 		appendToBuffer(const std::string& data);
-	void		processCommand(const std::string& commandLine, int fd);
-	void		handleJoin(const std::string &parameters, int fd);
-	void		handleNick(const std::string &parameters, int fd);
-	void		handlePrivmsg(const std::string &parameters, int fd);
-	void		handleQuit(const std::string &parameters, int fd);
+	void		processCommand(Message &message, Server *server_ptr);
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?
