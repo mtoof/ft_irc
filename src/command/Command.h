@@ -6,6 +6,8 @@
 #include "../server/Server.h"
 #include "../message/Message.h"
 #include "../channel/Channel.h"
+#include "../common/MagicNumbers.h"
+
 
 class Server;
 class Message;

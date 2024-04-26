@@ -9,6 +9,54 @@ Command::~Command()
 {
 }
 
+void Command::handleNick(const Message &msg)
+{
+	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	int fd = client_ptr->getFd();
+	if (!server_->getPassword().empty() && client_ptr->hasSentPassword() == false)
+	{
+		server_->send_response(fd, "you must send password first");
+		return;
+	}
+	std::vector<std::string> parameters = msg.getParameters();
+	if (parameters.empty()) {
+		server_->send_response(fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
+		return;
+	}
+	std::string new_nickname = parameters.front();
+	if (isValidNickname(new_nickname) == false)
+	{
+		server_->send_response(fd, ERR_ERRONEUSNICK(new_nickname));
+		return;
+	}
+	if (isNicknameInUse(new_nickname) == true)
+	{
+		server_->send_response(fd, ERR_NICKINUSE(server_->getServerHostname(), new_nickname))
+		return;
+	}
+	std::string old_prefix = client_ptr->getPrefix(); // this is needed for broadcasting the nickname change
+	client_ptr->setNickname(new_nickname);
+	// broadcast nickname change to everyone
+}
+
+/**
+ * @brief	checks whether user's desired nickname fits within RFC2812 standard
+ *			allowed chars: a-z, A-Z, 0-9, "[", "]", "\", "_", "-", "^", "|", "{", "}"
+ *			however, first character is not allowed to be a digit or "-"
+ * 			
+ * @param nickname 
+ * @return true 
+ * @return false 
+ */
+bool Command::isValidNickname(std::string& nickname)
+{
+	if (isDigit(nickname.front()) || nickname.front() == '-')
+		return false;
+	if(nickname->size() > NICK_MAX_LENGTH)
+		nickname = nickname.substr(0, NICK_MAX_LENGTH);
+	//check with regex for illegal characters
+	return true;
+}
 void Command::handleJoin(const Message &msg)
 {
 	std::cout << "handleJoin called" << std::endl;
