@@ -5,6 +5,7 @@
 #include <string>
 #include "../server/Server.h"
 #include "../message/Message.h"
+#include "../channel/Channel.h"
 
 class Server;
 class Message;
