@@ -1,60 +1,59 @@
 #include "Channel.h"
 #include "Client.h" // Include the Client class header
 
-// Constructor
-Channel::Channel(const std::string &name)
-	: name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false)
+
+Channel::Channel(const std::string &name) : name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false)
 {
 }
 
-// Destructor
+
 Channel::~Channel()
 {
 }
 
-// Get channel name
+
 std::string Channel::getName() const
 {
 	return name_;
 }
 
-// Get users
+
 std::map<std::shared_ptr<Client>, bool> Channel::getUsers() const
 {
 	return users_;
 }
 
-// Get user count
+
 unsigned int Channel::getUserCount() const
 {
 	return usercount_;
 }
 
-// Get channel key
+
 std::string Channel::getChannelKey() const
 {
 	return channel_key_;
 }
 
-// Get topic
+
 std::pair<std::string, std::string> Channel::getTopic() const
 {
 	return topic_;
 }
 
-// Get mode_t
+// Get mode_t (topic lock mode)
 bool Channel::getModeT() const
 {
 	return mode_t_;
 }
 
-// Get mode_i
+// Get mode_i (invite-only mode)
 bool Channel::getModeI() const
 {
 	return mode_i_;
 }
 
-// Get mode_k
+// Get mode_k (key-protected mode)
 bool Channel::getModeK() const
 {
 	return mode_k_;
@@ -138,13 +137,15 @@ bool Channel::isPasswordProtected() const
 	return mode_k_ && !channel_key_.empty();
 }
 
+// Add a user to the channel with operator status if isOp is true
 void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
 {
-	std::lock_guard<std::mutex> lock(mtx);
-	users_[client] = isOp;
-	usercount_ = users_.size();
+	std::lock_guard<std::mutex> lock(mtx); // Lock the mutex to prevent
+	users_[client] = isOp; // Add the user to the channel with operator status if isOp is true
+	usercount_ = users_.size(); // Update the user count
 }
 
+// Remove a user from the channel
 void Channel::removeUser(std::shared_ptr<Client> client)
 {
 	std::lock_guard<std::mutex> lock(mtx);

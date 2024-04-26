@@ -19,7 +19,7 @@ class Channel
 	private:
 		mutable std::mutex 						mtx;
 		std::string 							name_;
-		std::map<std::shared_ptr<Client>, bool> users_;
+		std::map<std::shared_ptr<Client>, bool> users_; // Users in the channel and their operator status (true if op)
 		unsigned int 							usercount_; // Number of users in the channel
 		std::string 							channel_key_; // Channel key
 		std::pair<std::string, std::string> 	topic_; // Channel topic
