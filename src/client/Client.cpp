@@ -45,6 +45,11 @@ bool Client::getRegisterStatus()
 	return this->registered_;
 }
 
+char Client::getUserMode()
+{
+	return this->usermode_;
+}
+
 // setters
 
 void Client::setFd(int const &fd)
@@ -71,6 +76,11 @@ void Client::setHostname(std::string const &hostname)
 void Client::setRealname(std::string const &realname)
 {
 	this->realname_ = realname;
+}
+
+void Client::setUserMode(char const &usermode)
+{
+	this->usermode_ = usermode;
 }
 
 void Client::setIpAddress(std::string const &ip_address)

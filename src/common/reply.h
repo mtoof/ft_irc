@@ -8,7 +8,7 @@
 
 #define RPL_PRIVMSG(CLIENT, target, text) (CLIENT + " PRIVMSG " + target + " " + text + CRLF)
 #define RPL_NICKCHANGECHANNEL(oldnickname, username, hostname, nickname) (":" + oldnickname + "!~" + username + "@" + hostname + " NICK :" + nickname + CRLF)
-#define RPL_CONNECTED(nickname, username, ipaddress) (": 001 " + nickname + " : Welcome to the IRC server!" nickname + "!~" username + "@" + ipaddress + CRLF)
+#define RPL_CONNECTED(nickname, client_prefix) (": 001 " + nickname + " : Welcome to the IRC server!" + client_prefix + CRLF)
 #define RPL_NICKCHANGE(oldnickname, nickname) (":" + oldnickname + " NICK " + nickname + CRLF)
 #define RPL_UMODEIS(NICK, modes) (NICK + " " + modes + CRLF)
 #define RPL_CREATIONTIME(nickname, channelname, creationtime) (": 329 " + nickname + " #" + channelname + " " + creationtime + CRLF)

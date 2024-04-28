@@ -23,6 +23,7 @@ public:
 
 	void handleJoin(const Message &msg);
 	void handleNick(const Message &msg);
+	void handleUser(const Message &msg);
 	void handlePrivmsg(const Message &msg);
 	void handleQuit(const Message &msg);
 	void handlePass(const Message &msg);

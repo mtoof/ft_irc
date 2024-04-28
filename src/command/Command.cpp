@@ -57,6 +57,30 @@ bool Command::isValidNickname(std::string& nickname)
 	//check with regex for illegal characters
 	return true;
 }
+
+void Command::handleUser(const Message &msg)
+{
+	std::vector<std::string> params = msg.getParameters();
+	int fd = msg.getClientfd();
+	std::shared_ptr client_ptr =  msg.getClientPtr();
+	if (client_ptr->getRegisterStatus() == true)
+		server_->send_response(fd, ERR_ALREADYREGISTERED(client_ptr->getNickname()));
+	else if (params.size() == 3 && !msg.getTrailer().empty())
+	{
+		client_ptr->setUsername(params[0]);
+		if (params[1].length() == 1)
+			client_ptr->setUserMode(params[1].at(0));
+		client_ptr->setRealname(msg.getTrailer());
+		if (!client_ptr->getNickname().empty())
+			server_->send_response(fd, RPL_CONNECTED(client_ptr->getNickname(), client_ptr->getClientPrefix()));
+	}
+	else
+	{
+		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "USER"));
+		return;
+	}
+}
+
 void Command::handleJoin(const Message &msg)
 {
 	std::cout << "handleJoin called" << std::endl;

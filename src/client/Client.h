@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oandelin <oandelin@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/26 19:52:56 by oandelin         ###   ########.fr       */
+/*   Updated: 2024/04/28 18:36:58 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int																fd_;
 	std::string													username_;
 	std::string													hostname_;
 	std::string													realname_;
+	char														usermode_;
 	std::string													ip_address_;
 	std::string													client_prefix_;
 	std::string													buffer;
@@ -50,6 +51,7 @@ int																fd_;
 	std::string getHostname();
 	std::string getRealname();
 	std::string getIpAddress();
+	char		getUserMode();
 	bool		getRegisterStatus();
 	const std::string &getClientPrefix();
 
@@ -60,6 +62,7 @@ int																fd_;
 	void		setUsername(std::string const &username);
 	void		setHostname(std::string const &hostname);
 	void		setRealname(std::string const &realname);
+	void		setUserMode(char const &usermode);
 	void		setIpAddress(std::string const &ip_address);
 	void		setPassword();
 	void        setClientPrefix();
