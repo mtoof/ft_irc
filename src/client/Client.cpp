@@ -125,7 +125,6 @@ void Client::processCommand(Message &message, Server *server_ptr)
     }
 }
 
-
 void	Client::setPassword()
 {
 	password_ = true;
@@ -146,6 +145,10 @@ const std::string &Client::getClientPrefix()
 	return client_prefix_;
 }
 
+const bool Client::hasSentPassword()
+{
+	return password_;
+}
 // this function is supposed to send a message to client
 // void		Client::sendMessage(std::string const &message)
 // {
