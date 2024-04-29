@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <regex>
 #include "../server/Server.h"
 #include "../message/Message.h"
 #include "../channel/Channel.h"
@@ -28,6 +29,9 @@ public:
 	void handleQuit(const Message &msg);
 	void handlePass(const Message &msg);
 	void handleCap(const Message &msg);
+
+	bool isValidNickname(std::string& nickname);
+	bool isNicknameInUse(std::string const &nickname);
 };
 
 #endif

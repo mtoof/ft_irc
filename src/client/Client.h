@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
+/*   By: oandelin <oandelin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/28 18:36:58 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/04/29 17:47:10 by oandelin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ class Message;
 
 class Client{
 	private:
-int																fd_;
+	int															fd_;
 	bool														registered_;
 	bool														password_; //true if server password is set
 	std::string													nickname_;
@@ -75,7 +75,6 @@ int																fd_;
 	void		processCommand(Message &message, Server *server_ptr);
 	bool		hasSentPassword();
 
-	
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?

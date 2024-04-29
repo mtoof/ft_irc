@@ -147,7 +147,7 @@ void Client::appendToBuffer(const std::string &data)
 
 void Client::setClientPrefix()
 {
-	client_prefix_ = ":" + nickname_ + "!~" + username_ + "@" + ip_address_;
+	client_prefix_ = nickname_ + "!~" + username_ + "@" + ip_address_;
 }
 
 const std::string &Client::getClientPrefix()
@@ -155,10 +155,11 @@ const std::string &Client::getClientPrefix()
 	return client_prefix_;
 }
 
-const bool Client::hasSentPassword()
+bool Client::hasSentPassword()
 {
 	return password_;
 }
+
 // this function is supposed to send a message to client
 // void		Client::sendMessage(std::string const &message)
 // {

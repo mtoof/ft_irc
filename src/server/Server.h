@@ -53,10 +53,12 @@ public:
 	void					closeDeletePollFd(int fd);
 	void					closeFds();
 	std::shared_ptr<Client>	findClientUsingFd(int fd) const;
+	std::shared_ptr<Client> findClientUsingNickname(std::string const &nickname) const;
 	void					whoGotDisconnected(int fd);
 	char*					extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
 	void					send_response(int fd, const std::string &response);
 	void					setServerHostname();
+	void 					welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix);
 
 //getter
 
@@ -64,6 +66,8 @@ public:
 	// getter for map of supported commands
 	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;
 	const std::string &getServerHostname() const;
+
+	
 
 };
 

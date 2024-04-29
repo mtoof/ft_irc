@@ -1,5 +1,5 @@
 #include "Channel.h"
-#include "Client.h" // Include the Client class header
+//#include "Client.h" // Include the Client class header
 
 
 Channel::Channel(const std::string &name) : name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false)

@@ -66,6 +66,22 @@ std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 	return nullptr;
 }
 
+std::shared_ptr<Client> Server::findClientUsingNickname(std::string const &nickname) const
+{
+	std::cout << "findClientUsingNickname called" << std::endl;
+	std::cout << "clients_ size = " << clients_.size() << std::endl;
+	if (clients_.empty())
+		return nullptr;
+	for (auto it = clients_.begin(); it != clients_.end(); it++)
+	{
+		if (it->second->getNickname() == nickname)
+			return it->second;
+	}
+	return nullptr;
+}
+
+
+
 void Server::whoGotDisconnected(int fd)
 {
 	std::shared_ptr<Client> client = findClientUsingFd(fd);
@@ -135,4 +151,47 @@ void Server::setServerHostname()
 const std::string &Server::getServerHostname() const
 {
 	return host_;
+}
+
+/// @brief because user needs to feel welcome, they need to receive a welcome message
+/// @param fd 
+/// @param servername 
+/// @param nickname 
+/// @param client_prefix 
+void Server::welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix)
+{
+	send_response(fd, RPL_CONNECTED(servername, nickname, client_prefix));
+	send_response(fd, RPL_MOTDSTART(servername, nickname));
+	send_response(fd, RPL_MOTD(servername, nickname, "███████╗████████╗░░░░░░██╗██████╗░░█████╗░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔════╝╚══██╔══╝░░░░░░██║██╔══██╗██╔══██╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "█████╗░░░░░██║░░░█████╗██║██████╔╝██║░░╚═╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔══╝░░░░░██║░░░╚════╝██║██╔══██╗██║░░██╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░░░░░░░░██║░░░░░░░░░██║██║░░██║╚█████╔╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, "╚═╝░░░░░░░░╚═╝░░░░░░░░░╚═╝╚═╝░░╚═╝░╚════╝░"));
+	send_response(fd, RPL_MOTD(servername, nickname, " "));
+	send_response(fd, RPL_MOTD(servername, nickname, "░█████╗░░█████╗░███╗░░██╗██████╗░███████╗██╗░░░░░██╗███╗░░██╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔══██╗██╔══██╗████╗░██║██╔══██╗██╔════╝██║░░░░░██║████╗░██║"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░░██║███████║██╔██╗██║██║░░██║█████╗░░██║░░░░░██║██╔██╗██║"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░░██║██╔══██║██║╚████║██║░░██║██╔══╝░░██║░░░░░██║██║╚████║"));
+	send_response(fd, RPL_MOTD(servername, nickname, "╚█████╔╝██║░░██║██║░╚███║██████╔╝███████╗███████╗██║██║░╚███║"));
+	send_response(fd, RPL_MOTD(servername, nickname, "░╚════╝░╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░╚══════╝╚══════╝╚═╝╚═╝░░╚══╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, " "));
+	send_response(fd, RPL_MOTD(servername, nickname, "███╗░░░███╗████████╗░█████╗░░█████╗░███████╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "████╗░████║╚══██╔══╝██╔══██╗██╔══██╗██╔════╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔████╔██║░░░██║░░░██║░░██║██║░░██║█████╗░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║╚██╔╝██║░░░██║░░░██║░░██║██║░░██║██╔══╝░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░╚═╝░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░░░░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "╚═╝░░░░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, " "));
+	send_response(fd, RPL_MOTD(servername, nickname, "░█████╗░████████╗░█████╗░░█████╗░███████╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔════╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, "███████║░░░██║░░░██║░░██║██║░░██║█████╗░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔══██║░░░██║░░░██║░░██║██║░░██║██╔══╝░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░░░░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "╚═╝░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, " "));
+	send_response(fd, RPL_MOTD(servername, nickname, "\"Alright, let's see what we can see.. Everybody online, looking good.\""));
+	send_response(fd, RPL_MOTD(servername, nickname, "Lieutenant Gorman to the marines before landing to terraforming colony on exomoon LV-426"));
+	send_response(fd, RPL_MOTD(servername, nickname, "Aliens, 1986"));
+	send_response(fd, RPL_MOTDEND(servername, nickname));
 }

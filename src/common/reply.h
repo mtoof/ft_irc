@@ -7,8 +7,8 @@
 // REPLIES
 
 #define RPL_PRIVMSG(CLIENT, target, text) (CLIENT + " PRIVMSG " + target + " " + text + CRLF)
-#define RPL_NICKCHANGECHANNEL(oldnickname, username, hostname, nickname) (":" + oldnickname + "!~" + username + "@" + hostname + " NICK :" + nickname + CRLF)
-#define RPL_CONNECTED(nickname, client_prefix) (": 001 " + nickname + " : Welcome to the IRC server!" + client_prefix + CRLF)
+#define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
+#define RPL_CONNECTED(servername, nickname, client_prefix) (":" + servername + " 001 " + nickname + " :Welcome to the best ever IRC server! " + client_prefix + CRLF)
 #define RPL_NICKCHANGE(oldnickname, nickname) (":" + oldnickname + " NICK " + nickname + CRLF)
 #define RPL_UMODEIS(NICK, modes) (NICK + " " + modes + CRLF)
 #define RPL_CREATIONTIME(nickname, channelname, creationtime) (": 329 " + nickname + " #" + channelname + " " + creationtime + CRLF)
@@ -28,14 +28,17 @@
 #define RPL_YOURENOTOPER(CLIENT, channel, nickname) (CLIENT + " MODE " + channel + " -o " + nickname + CRLF)
 #define RPL_KICK(CLIENT, channel, nickname, msg) (CLIENT + " KICK " + channel + " " + nickname + " " + msg + CRLF)
 #define RPL_QUIT(CLIENT, msg) (CLIENT + " QUIT " + msg + CRLF)
+#define RPL_MOTDSTART(servername, nickname)(":" + servername + " 375 " + nickname + " :- " + servername + " Message of the day -" + CRLF)
+#define RPL_MOTD(servername, nickname, message)(":" + servername + " 372 " + nickname + " :- " + message + CRLF)
+#define RPL_MOTDEND(servername, nickname)(":" + servername + " 376 " + nickname + " :End of MOTD command" + CRLF)
 
 // ERRORS
 
-#define ERR_NEEDMOREPARAMS(client_prefix, command) (client_prefix + " 461 " + command + " :Not enough parameters." + CRLF)
+#define ERR_NEEDMOREPARAMS(client_prefix, command) (":" + client_prefix + " 461 " + command + " :Not enough parameters." + CRLF)
 #define ERR_NOTREGISTERED(servername) (":" + servername + " 451 " + "*" + " :You have not registered." + CRLF)
-#define ERR_NONICKNAMEGIVEN(client_prefix) (client_prefix + " 431 :No nickname given")
+#define ERR_NONICKNAMEGIVEN(client_prefix) (client_prefix + " 431 :No nickname given" + CRLF)
 #define ERR_NICKINUSE(servername, nickname) (":" + servername + " 433 * " + nickname + " :Nickname is already in use" + CRLF)
-#define ERR_ERRONEUSNICK(nickname) (": 432 " + nickname + " :Erroneus nickname" + CRLF)
+#define ERR_ERRONEUSNICK(servername, nickname, bad_nickname) (":" + servername + " 432 " + nickname + " " + bad_nickname + " :Erroneus nickname" + CRLF)
 #define ERR_ALREADYREGISTERED(nickname) (": 462 " + nickname + " :You are already registered!" + CRLF)
 #define ERR_INCORPASS(nickname) (": 464 " + nickname + " :Password incorrect! try again!" + CRLF)
 #define ERR_NEEDMODEPARM(channelname, mode) (": 696 #" + channelname + " * You must specify a parameter for the key mode. " + mode + CRLF)

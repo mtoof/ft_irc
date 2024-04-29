@@ -7,6 +7,7 @@
 #include <utility>
 #include <mutex>
 #include <memory>
+#include "../client/Client.h"
 
 class Client;
 

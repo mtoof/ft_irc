@@ -25,6 +25,7 @@ Server::Server(int port, std::string password) : host_(""), port_(port), passwor
 	supported_commands_.insert(std::pair("QUIT", &Command::handleQuit));
 	supported_commands_.insert(std::pair("PASS", &Command::handlePass));
 	supported_commands_.insert(std::pair("CAP", &Command::handleCap));
+	supported_commands_.insert(std::pair("USER", &Command::handleUser));
 }
 
 Server::~Server()

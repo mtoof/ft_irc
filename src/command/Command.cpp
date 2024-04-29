@@ -1,5 +1,7 @@
 #include "../server/Server.h"
 #include "Command.h"
+#include "../debug/debug.h"
+
 
 Command::Command(Server *server_ptr) : server_(server_ptr)
 {
@@ -26,17 +28,27 @@ void Command::handleNick(const Message &msg)
 	std::string new_nickname = parameters.front();
 	if (isValidNickname(new_nickname) == false)
 	{
-		server_->send_response(fd, ERR_ERRONEUSNICK(new_nickname));
+		server_->send_response(fd, ERR_ERRONEUSNICK(server_->getServerHostname(), client_ptr->getNickname(), new_nickname));
 		return;
 	}
 	if (isNicknameInUse(new_nickname) == true)
 	{
-		server_->send_response(fd, ERR_NICKINUSE(server_->getServerHostname(), new_nickname))
-		return;
+	 	server_->send_response(fd, ERR_NICKINUSE(server_->getServerHostname(), new_nickname));
+	 	return;
 	}
-	std::string old_prefix = client_ptr->getPrefix(); // this is needed for broadcasting the nickname change
+	std::string old_nick = client_ptr->getNickname();
+	std::string old_prefix = client_ptr->getClientPrefix(); // this is needed for broadcasting the nickname change
 	client_ptr->setNickname(new_nickname);
-	// broadcast nickname change to everyone
+	client_ptr->setClientPrefix();
+	server_->send_response(fd, RPL_NICKCHANGE(old_nick, new_nickname));
+	// TODO: broadcast nickname change to everyone. 
+	// can be done with this macro: RPL_NICKCHANGECHANNEL(old_prefix, nickname)
+	debugWhois(client_ptr);
+}
+
+bool Command::isNicknameInUse(std::string const &nickname)
+{
+	return server_->findClientUsingNickname(nickname) != nullptr;
 }
 
 /**
@@ -50,16 +62,20 @@ void Command::handleNick(const Message &msg)
  */
 bool Command::isValidNickname(std::string& nickname)
 {
-	if (isDigit(nickname.front()) || nickname.front() == '-')
+	if (isdigit(nickname.front()) || nickname.front() == '-')
 		return false;
-	if(nickname->size() > NICK_MAX_LENGTH)
+	if(nickname.size() > NICK_MAX_LENGTH) // if nickname is too long, it gets truncated
 		nickname = nickname.substr(0, NICK_MAX_LENGTH);
-	//check with regex for illegal characters
-	return true;
+	std::regex pattern("([A-Za-z0-9\\[\\]\\\\_\\-\\^|{}])\\w*");
+	if (std::regex_match(nickname, pattern))
+		return true;
+	else
+		return false;
 }
 
 void Command::handleUser(const Message &msg)
 {
+	std::cout << "handleUser called" << std::endl;
 	std::vector<std::string> params = msg.getParameters();
 	int fd = msg.getClientfd();
 	std::shared_ptr client_ptr =  msg.getClientPtr();
@@ -71,8 +87,9 @@ void Command::handleUser(const Message &msg)
 		if (params[1].length() == 1)
 			client_ptr->setUserMode(params[1].at(0));
 		client_ptr->setRealname(msg.getTrailer());
+		client_ptr->setClientPrefix();
 		if (!client_ptr->getNickname().empty())
-			server_->send_response(fd, RPL_CONNECTED(client_ptr->getNickname(), client_ptr->getClientPrefix()));
+			server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
 	}
 	else
 	{
@@ -91,57 +108,48 @@ void Command::handleJoin(const Message &msg)
 		server_->send_response(fd, ERR_NOTREGISTERED(server_->getServerHostname()));
 		return;
 	}
-	std::vector<std::string> parameters = msg.getParameters();
-	if (parameters.empty()) {
-		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
-		return;
-	}
-	std::string channel_name = parameters.front();
-	if (server_->channelExists(channel_name) == true)
-	{
-		std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
-		//create a channel pointer for details from channel
-		if (channel_ptr->isFull() == true)
-		{
-			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
-			return;
-		}
-		if (channel_ptr->isInviteOnly() == true)
-		{
-			if (channel_ptr->isClientInvited(client_ptr->getNickname()) == false)
-			{
-				server_->send_response(fd, ERR_INVITEONLYCHAN(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
-				return;
-			}
-		}
-		if (channel_ptr->isPasswordProtected() == true)
-		{
-			if (parameters.size() == 1) {
-				server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
-				return;				
-			}
-			if (parameters.at(2) != channel_ptr->getPassword())
-			{
-				server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
-				return;
-			}
-		}
-		// in this section we actually join the channel
-		// Implementation for JOIN command
-	}
-	else
-	(
-		// create a new channel, add client to the channel and set client as operator
-	)
-}
-
-void Command::handleNick(const Message &msg)
-{
-	
-	(void)msg;
-	
-	// Implementation for NICK command
-	return;
+// 	std::vector<std::string> parameters = msg.getParameters();
+// 	if (parameters.empty()) {
+// 		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
+// 		return;
+// 	}
+// 	std::string channel_name = parameters.front();
+// 	if (server_->channelExists(channel_name) == true)
+// 	{
+// 		std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
+// 		//create a channel pointer for details from channel
+// 		if (channel_ptr->isFull() == true)
+// 		{
+// 			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
+// 			return;
+// 		}
+// 		if (channel_ptr->isInviteOnly() == true)
+// 		{
+// 			if (channel_ptr->isClientInvited(client_ptr->getNickname()) == false)
+// 			{
+// 				server_->send_response(fd, ERR_INVITEONLYCHAN(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
+// 				return;
+// 			}
+// 		}
+// 		if (channel_ptr->isPasswordProtected() == true)
+// 		{
+// 			if (parameters.size() == 1) {
+// 				server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
+// 				return;				
+// 			}
+// 			if (parameters.at(2) != channel_ptr->getPassword())
+// 			{
+// 				server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
+// 				return;
+// 			}
+// 		}
+// 		// in this section we actually join the channel
+// 		// Implementation for JOIN command
+// 	}
+// 	else
+// 	(
+// 		// create a new channel, add client to the channel and set client as operator
+// 	)
 }
 
 void Command::handlePrivmsg(const Message &msg)
