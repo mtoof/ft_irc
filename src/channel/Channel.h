@@ -61,6 +61,7 @@ class Channel
 		bool isPasswordProtected() const;
 		void addUser(std::shared_ptr<Client> client, bool isOp);
 		void removeUser(std::shared_ptr<Client> client);
+		bool isUserOnChannel(std::string const &nickname);
 };
 
 #endif // CHANNEL_H

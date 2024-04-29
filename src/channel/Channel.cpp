@@ -152,3 +152,23 @@ void Channel::removeUser(std::shared_ptr<Client> client)
 	if (users_.erase(client))
 		usercount_ = users_.size();
 }
+
+/**
+ * @brief helper function for checking if user is on channel
+ * TODO: convert nicks to lowercase when comparing
+ * at the moment the comparison is case sensitive
+ * which it definitely should not be
+ * 
+ * @param nickname 
+ * @return true 
+ * @return false 
+ */
+bool Channel::isUserOnChannel(std::string const &nickname)
+{
+	for (auto it = users_.begin(); it != users_.end(); it++)
+	{
+		if (it->first->getNickname() == nickname)
+			return true;
+	}
+	return false;
+}

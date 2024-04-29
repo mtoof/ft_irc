@@ -11,6 +11,7 @@
 
 
 class Server;
+class Channel;
 class Message;
 class Command
 {
@@ -29,9 +30,12 @@ public:
 	void handleQuit(const Message &msg);
 	void handlePass(const Message &msg);
 	void handleCap(const Message &msg);
-
+	void handlePing(const Message &msg);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);
+	bool channelExists(std::string const &channel_name);
+	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
+
 };
 
 #endif

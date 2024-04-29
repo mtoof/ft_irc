@@ -66,6 +66,13 @@ std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 	return nullptr;
 }
 
+/**
+ * @brief for finding client using nickname
+ * 		  TODO: probably have to convert all names to lowercase when performing search
+ * 		  to make sure nick collisions dont happen
+ * @param nickname 
+ * @return std::shared_ptr<Client> 
+ */
 std::shared_ptr<Client> Server::findClientUsingNickname(std::string const &nickname) const
 {
 	std::cout << "findClientUsingNickname called" << std::endl;
@@ -80,7 +87,22 @@ std::shared_ptr<Client> Server::findClientUsingNickname(std::string const &nickn
 	return nullptr;
 }
 
-
+/**
+ * @brief function for finding channel by name.
+ * this search is currently case sensitive, which it probably should not be
+ * TODO: convert names to lowercase for comparison
+ * @param channel_name 
+ * @return std::shared_ptr<Channel> 
+ */
+std::shared_ptr<Channel> Server::findChannel(std::string const &channel_name)
+{
+	if(channels_.empty())
+		return nullptr;
+	auto iter = channels_.find(channel_name);
+	if (iter != channels_.end())
+		return iter->second;
+	return nullptr;
+}
 
 void Server::whoGotDisconnected(int fd)
 {

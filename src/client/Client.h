@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Client.h                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: oandelin <oandelin@student.hive.fi>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/04/15 12:14:05 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/29 17:47:10 by oandelin         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef __CLIENT_H__
 #define __CLIENT_H__
 
@@ -35,9 +23,10 @@ class Client{
 	std::string													ip_address_;
 	std::string													client_prefix_;
 	std::string													buffer;
-
-//  std::vector<std::shared_ptr<Channel>>	channels_;
-//  do we need to monitor ping pong status?
+	// TODO saving channels where the user is to the client class
+	//  std::vector<std::shared_ptr<Channel>>	channels_;
+	// TODO monitoring ping pong status
+	// clients that have not replied in a long time should be dropped from the server
 
 	public:
 	Client() = default;

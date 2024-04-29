@@ -26,6 +26,7 @@ Server::Server(int port, std::string password) : host_(""), port_(port), passwor
 	supported_commands_.insert(std::pair("PASS", &Command::handlePass));
 	supported_commands_.insert(std::pair("CAP", &Command::handleCap));
 	supported_commands_.insert(std::pair("USER", &Command::handleUser));
+	supported_commands_.insert(std::pair("PING", &Command::handlePing));
 }
 
 Server::~Server()
@@ -132,6 +133,18 @@ void Server::registerNewClient()
 	delete ip;
 	this->clients_.insert(std::make_pair(userfd, newclient));
 	fds_.push_back(userpollfd);
+}
+
+/**
+ * @brief function for creating new channel
+ * could maybe be done by returning a pointer as well
+ * 
+ * @param channel_name 
+ */
+void Server::createNewChannel(std::string const &channel_name)
+{
+	std::shared_ptr<Channel> new_channel = std::make_shared<Channel>(channel_name);
+	this->channels_.insert(std::make_pair(channel_name, new_channel));
 }
 
 void Server::handleClientData(int fd)

@@ -11,37 +11,44 @@ Command::~Command()
 {
 }
 
+/**
+ * @brief handles the NICK command which sets/changes user's nickname
+ * 		  TODO: making sure there is no collision between niCkName and nickname
+ * 		  this should be handled at Server::findClientUsingNickname by converting
+ * 		  all names to lowercase while searching and comparing then
+ * @param msg 
+ */
+
 void Command::handleNick(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	int fd = client_ptr->getFd();
 	if (!server_->getPassword().empty() && client_ptr->hasSentPassword() == false)
 	{
-		server_->send_response(fd, "you must send password first");
-		return;
+		server_->send_response(fd, "you must send password first"); // this is definitely not the correct reply
+	 	return;
 	}
 	std::vector<std::string> parameters = msg.getParameters();
 	if (parameters.empty()) {
 		server_->send_response(fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
 		return;
 	}
-	std::string new_nickname = parameters.front();
+	std::string new_nickname = parameters.front(); // desired nickname is the first parameter, we'll just ignore the rest for now
 	if (isValidNickname(new_nickname) == false)
 	{
 		server_->send_response(fd, ERR_ERRONEUSNICK(server_->getServerHostname(), client_ptr->getNickname(), new_nickname));
 		return;
 	}
-	if (isNicknameInUse(new_nickname) == true)
+	if (isNicknameInUse(new_nickname) == true) 
 	{
 	 	server_->send_response(fd, ERR_NICKINUSE(server_->getServerHostname(), new_nickname));
 	 	return;
 	}
-	std::string old_nick = client_ptr->getNickname();
 	std::string old_prefix = client_ptr->getClientPrefix(); // this is needed for broadcasting the nickname change
 	client_ptr->setNickname(new_nickname);
 	client_ptr->setClientPrefix();
-	server_->send_response(fd, RPL_NICKCHANGE(old_nick, new_nickname));
-	// TODO: broadcast nickname change to everyone. 
+	server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
+	// TODO: broadcast nickname change other users on same channel
 	// can be done with this macro: RPL_NICKCHANGECHANNEL(old_prefix, nickname)
 	debugWhois(client_ptr);
 }
@@ -88,6 +95,7 @@ void Command::handleUser(const Message &msg)
 			client_ptr->setUserMode(params[1].at(0));
 		client_ptr->setRealname(msg.getTrailer());
 		client_ptr->setClientPrefix();
+		client_ptr->registerClient();
 		if (!client_ptr->getNickname().empty())
 			server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
 	}
@@ -100,56 +108,119 @@ void Command::handleUser(const Message &msg)
 
 void Command::handleJoin(const Message &msg)
 {
-	std::cout << "handleJoin called" << std::endl;
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	int fd = client_ptr->getFd();
+	std::string client_nick = client_ptr->getNickname();
 	if (client_ptr->getRegisterStatus() == false)
 	{
 		server_->send_response(fd, ERR_NOTREGISTERED(server_->getServerHostname()));
 		return;
 	}
-// 	std::vector<std::string> parameters = msg.getParameters();
-// 	if (parameters.empty()) {
-// 		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
-// 		return;
-// 	}
-// 	std::string channel_name = parameters.front();
-// 	if (server_->channelExists(channel_name) == true)
-// 	{
-// 		std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
-// 		//create a channel pointer for details from channel
-// 		if (channel_ptr->isFull() == true)
-// 		{
-// 			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
-// 			return;
-// 		}
-// 		if (channel_ptr->isInviteOnly() == true)
-// 		{
-// 			if (channel_ptr->isClientInvited(client_ptr->getNickname()) == false)
-// 			{
-// 				server_->send_response(fd, ERR_INVITEONLYCHAN(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
-// 				return;
-// 			}
-// 		}
-// 		if (channel_ptr->isPasswordProtected() == true)
-// 		{
-// 			if (parameters.size() == 1) {
-// 				server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
-// 				return;				
-// 			}
-// 			if (parameters.at(2) != channel_ptr->getPassword())
-// 			{
-// 				server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
-// 				return;
-// 			}
-// 		}
-// 		// in this section we actually join the channel
-// 		// Implementation for JOIN command
-// 	}
-// 	else
-// 	(
-// 		// create a new channel, add client to the channel and set client as operator
-// 	)
+ 	std::vector<std::string> parameters = msg.getParameters();
+ 	if (parameters.empty()) {
+ 		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
+ 		return;
+ 	}
+ 	std::string channel_name = parameters.front();
+	if (channel_name.front() != '#') // # missing from beginning?? let's add it!
+		channel_name.insert(channel_name.begin(), '#');
+	if (!channelExists(channel_name))
+	{
+		server_->createNewChannel(channel_name);
+		std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
+		channel_ptr->addUser(client_ptr, true);
+		sendNamReplyAfterJoin(channel_ptr, client_nick, fd);
+	}
+	else{
+		std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
+		if (channel_ptr->isUserOnChannel(client_nick) == true)
+		{
+		std::cout << "user " << client_nick << " tried to join to channel " << channel_name << " but they were already there" << std::endl;
+	 	return;
+		}
+		// TODO: these checks. some of the functions might already exist
+		//
+		// this whole section could be separated to another method called canUserJoinChannel
+		// but we need to implement MODE command first
+		// if (channel_ptr->isFull() == true)
+		// {
+		// 	server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
+		// 	return;
+		// }
+		// if (channel_ptr->isInviteOnly() == true)
+		// {
+		// 	if (channel_ptr->isUserInvited(client_ptr->getNickname()) == false)
+		// 	{
+		// 		server_->send_response(fd, ERR_INVITEONLYCHAN(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
+		// 		return;
+		// 	}
+		// }
+		// if (channel_ptr->isPasswordProtected() == true)
+		// {
+		// 	if (parameters.size() == 1) {
+		// 		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
+		// 		return;				
+		// 	}
+		// 	if (parameters.at(2) != channel_ptr->getChannelKey())
+		// 	{
+		// 		server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
+		// 		return;
+		// 	}
+		// }
+		channel_ptr->addUser(client_ptr, false); // let's add the user on channel
+		sendNamReplyAfterJoin(channel_ptr, client_nick, fd); // sends NAMES reply to user after joining
+	}
+	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name)); // sends join message to user
+	// TODO: send join message to other channel members
+}
+
+/**
+ * @brief this function is for sending the names reply to user after joining a new channel
+ * 		  the message lists current users of the channel and their operator status
+ * 
+ * @param channel_ptr 
+ * @param nickname 
+ * @param fd 
+ */
+void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd)
+{
+	std::map<std::shared_ptr<Client>, bool> channel_users = channel_ptr->getUsers(); // get the user list
+	std::string servername = server_->getServerHostname();
+	std::string channel_name = channel_ptr->getName();
+	std::string userlist = "";
+	for (auto it = channel_users.begin(); it != channel_users.end(); it++) // stitching the user list together in this loop
+	{
+		userlist += " ";
+		if (it->second == true)
+			userlist += "@";
+		userlist += it->first->getNickname();
+	}
+	server_->send_response(fd, RPL_NAMREPLY(servername, nickname, channel_name, userlist));
+	server_->send_response(fd, RPL_ENDOFNAMES(servername, nickname, channel_name));
+}
+
+/**
+ * @brief sends back a PONG when client sends a PING
+ * when client sends a PING it contains a token, which has to be sent back to the client
+ * this is done in order to track the latency between client and server
+ * TODO: keeping track of PING PONG status, time of receiving message to the client class?
+ * @param msg 
+ */
+void Command::handlePing(const Message &msg)
+{
+	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	int fd = client_ptr->getFd();
+	std::vector<std::string> parameters = msg.getParameters();
+	if (parameters.empty())
+	{
+		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PING"));
+	}
+	server_->send_response(fd, PONG(server_->getServerHostname(), parameters.front())); // latter parameter is the token received from client
+}
+
+bool	Command::channelExists(std::string const &channel_name)
+{
+	return server_->findChannel(channel_name) != nullptr;
 }
 
 void Command::handlePrivmsg(const Message &msg)

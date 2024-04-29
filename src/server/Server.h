@@ -20,12 +20,14 @@
 #include "../common/reply.h"
 #include "../message/Message.h"
 #include "../command/Command.h"
+#include "../channel/Channel.h"
 
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
 #define CRLF "\r\n"
 
 class Client;
+class Channel;
 class Message;
 class Server
 {
@@ -37,6 +39,7 @@ private:
 	int															socket_;
 	std::vector<struct pollfd> 									fds_; // pollfd structure for the server socket
 	std::map <int, std::shared_ptr<Client>>						clients_;
+	std::map <std::string, std::shared_ptr<Channel>>			channels_;
 	static bool													signal_;
 	std::map<std::string, void (Command::*)(const Message &msg)> supported_commands_;
 	static void								shutdownServer(const std::string& reason);
@@ -59,6 +62,9 @@ public:
 	void					send_response(int fd, const std::string &response);
 	void					setServerHostname();
 	void 					welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix);
+	void					createNewChannel(std::string const &channel_name);
+	std::shared_ptr<Channel>	findChannel(std::string const &channel_name);
+	
 
 //getter
 
