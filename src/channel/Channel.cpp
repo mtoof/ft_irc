@@ -140,7 +140,7 @@ bool Channel::isPasswordProtected() const
 // Add a user to the channel with operator status if isOp is true
 void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
 {
-	std::lock_guard<std::mutex> lock(mtx); // Lock the mutex to prevent
+	std::lock_guard<std::mutex> lock(mtx); // We are modifying the users_ map and usercount_ variable in this function and we don't want other threads to access them at the same time
 	users_[client] = isOp; // Add the user to the channel with operator status if isOp is true
 	usercount_ = users_.size(); // Update the user count
 }
@@ -148,26 +148,31 @@ void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
 // Remove a user from the channel
 void Channel::removeUser(std::shared_ptr<Client> client)
 {
-	std::lock_guard<std::mutex> lock(mtx);
+	std::lock_guard<std::mutex> lock(mtx); // We are modifying the users_ map and usercount_ variable in this function and we don't want other threads to access them at the same time
 	if (users_.erase(client))
 		usercount_ = users_.size();
 }
 
 /**
  * @brief helper function for checking if user is on channel
- * TODO: convert nicks to lowercase when comparing
- * at the moment the comparison is case sensitive
- * which it definitely should not be
  * 
  * @param nickname 
  * @return true 
  * @return false 
+ * 
  */
+
+
+
 bool Channel::isUserOnChannel(std::string const &nickname)
 {
-	for (auto it = users_.begin(); it != users_.end(); it++)
+	std::string lowerCaseNick = nickname;
+	std::transform(lowerCaseNick.begin(), lowerCaseNick.end(), lowerCaseNick.begin(), ::tolower); // Convert the nickname to lowercase
+	for (auto const &user : users_)
 	{
-		if (it->first->getNickname() == nickname)
+		std::string userNick = user.first->getNickname();
+		std::transform(userNick.begin(), userNick.end(), userNick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (userNick == lowerCaseNick)
 			return true;
 	}
 	return false;
