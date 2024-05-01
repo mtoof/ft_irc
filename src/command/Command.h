@@ -13,11 +13,13 @@
 class Server;
 class Channel;
 class Message;
+
 class Command
 {
 private:
 	Server *server_;
-		
+	Channel *channel_;
+
 public:
 
 	Command(Server *server_ptr);
@@ -35,7 +37,7 @@ public:
 	bool isNicknameInUse(std::string const &nickname);
 	bool channelExists(std::string const &channel_name);
 	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
-
+	void broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joiningClient);
 };
 
 #endif

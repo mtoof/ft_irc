@@ -5,10 +5,12 @@
 #include "../server/Server.h"
 #include "../command/Command.h"
 #include "../message/Message.h"
+#include "../channel/Channel.h"
 
 class Server;
 class Commands;
 class Message;
+class Channel;
 
 class Client{
 	private:
@@ -23,6 +25,8 @@ class Client{
 	std::string													ip_address_;
 	std::string													client_prefix_;
 	std::string													buffer;
+	bool														invited_;
+	Channel*													channel;
 	// TODO saving channels where the user is to the client class
 	//  std::vector<std::shared_ptr<Channel>>	channels_;
 	// TODO monitoring ping pong status
@@ -55,7 +59,7 @@ class Client{
 	void		setIpAddress(std::string const &ip_address);
 	void		setPassword();
 	void        setClientPrefix();
-	
+
 	// member functions
 	void		registerClient();
 	void		unregisterClient();
@@ -63,6 +67,8 @@ class Client{
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(Message &message, Server *server_ptr);
 	bool		hasSentPassword();
+	bool 		isInvited() const; // Check if the client is invited to a channel
+	bool 		hasCorrectPassword(const std::string& password) const; // Check if the client has the correct password
 
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();

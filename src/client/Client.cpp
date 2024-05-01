@@ -110,7 +110,7 @@ void Client::processBuffer(Server *server_ptr)
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back(); // Remove the trailing \r
 		//processCommand(line, this->fd_);
-		
+
 		Message message(line, server_ptr, this->fd_); // Parse the message
 		if(message.isValidMessage() == true)
 		{
@@ -158,6 +158,17 @@ const std::string &Client::getClientPrefix()
 bool Client::hasSentPassword()
 {
 	return password_;
+}
+
+bool Client::isInvited() const
+{
+    return invited_;
+}
+
+// Implementation of hasCorrectPassword method to check if the client has the correct password for a channel
+bool Client::hasCorrectPassword(const std::string& password) const
+{
+	return password_ && password == channel->getChannelKey();
 }
 
 // this function is supposed to send a message to client

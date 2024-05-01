@@ -47,24 +47,24 @@ private:
 public:
 	Server(int port, std::string password);
 	virtual ~Server();
-	static void 			signalHandler(int signum);
-	void					createServerSocket();
-	void					registerNewClient();
-	void					handleClientData(int fd);
-	void					initServer();
-	void					deleteClient(int fd);
-	void					closeDeletePollFd(int fd);
-	void					closeFds();
-	std::shared_ptr<Client>	findClientUsingFd(int fd) const;
-	std::shared_ptr<Client> findClientUsingNickname(std::string const &nickname) const;
-	void					whoGotDisconnected(int fd);
-	char*					extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
-	void					send_response(int fd, const std::string &response);
-	void					setServerHostname();
-	void 					welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix);
-	void					createNewChannel(std::string const &channel_name);
+	static void 				signalHandler(int signum);
+	void						createServerSocket();
+	void						registerNewClient();
+	void						handleClientData(int fd);
+	void						initServer();
+	void						deleteClient(int fd);
+	void						closeDeletePollFd(int fd);
+	void						closeFds();
+	std::shared_ptr<Client>		findClientUsingFd(int fd) const;
+	std::shared_ptr<Client> 	findClientUsingNickname(std::string const &nickname) const;
+	void						whoGotDisconnected(int fd);
+	char*						extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
+	void						send_response(int fd, const std::string &response);
+	void						setServerHostname();
+	void 						welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix);
+	std::shared_ptr<Channel>	createNewChannel(std::string const &channel_name);
 	std::shared_ptr<Channel>	findChannel(std::string const &channel_name);
-	
+
 
 //getter
 
@@ -73,7 +73,7 @@ public:
 	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;
 	const std::string &getServerHostname() const;
 
-	
+
 
 };
 

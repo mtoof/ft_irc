@@ -138,10 +138,10 @@ void Server::registerNewClient()
 /**
  * @brief function for creating new channel
  * could maybe be done by returning a pointer as well
- * 
- * @param channel_name 
+ *
+ * @param channel_name
  */
-void Server::createNewChannel(std::string const &channel_name)
+std::shared_ptr<Channel> Server::createNewChannel(std::string const &channel_name)
 {
 	std::shared_ptr<Channel> new_channel = std::make_shared<Channel>(channel_name);
 	this->channels_.insert(std::make_pair(channel_name, new_channel));
@@ -169,14 +169,14 @@ void Server::handleClientData(int fd)
 	{
 		std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
 		deleteClient(fd);
-		closeDeletePollFd(fd); 
+		closeDeletePollFd(fd);
 		return;
 	}
 	else
 	{
 		client->appendToBuffer(std::string(buffer, readbyte));
 		client->processBuffer(this);
-	
+
 	}
 	// when the buffer has been processed and we can construct a message
 	// for (auto &command : commands)

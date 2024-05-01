@@ -137,12 +137,31 @@ bool Channel::isPasswordProtected() const
 	return mode_k_ && !channel_key_.empty();
 }
 
-// Add a user to the channel with operator status if isOp is true
-void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
-{
-	std::lock_guard<std::mutex> lock(mtx); // We are modifying the users_ map and usercount_ variable in this function and we don't want other threads to access them at the same time
-	users_[client] = isOp; // Add the user to the channel with operator status if isOp is true
-	usercount_ = users_.size(); // Update the user count
+// Additional method to update topic with validation
+void Channel::updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin) {
+    if (mode_t_ && !isAdmin) {
+        // If topic lock mode is enabled and user is not admin, do not update topic
+        throw std::runtime_error("Topic is locked.");
+    }
+    topic_ = {author, newTopic}; // Update topic with author and new topic text
+}
+
+// Enhanced addUser method with mode checks
+bool Channel::addUser(std::shared_ptr<Client> client, bool isOp) {
+    std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety
+
+    if (isFull() && !isOp)
+        return false; // Do not add if channel is full and user is not an operator
+
+    if (isInviteOnly() && !client->isInvited())
+        return false; // Check if the channel is invite-only and user is not invited
+
+    if (isPasswordProtected() && !client->hasCorrectPassword(channel_key_))
+        return false; // Check for correct password if channel is password-protected
+
+    users_[client] = isOp; // Add the user with operator status if specified
+    usercount_ = users_.size(); // Update the user count
+    return true; // Return true if user added successfully
 }
 
 // Remove a user from the channel
@@ -155,11 +174,11 @@ void Channel::removeUser(std::shared_ptr<Client> client)
 
 /**
  * @brief helper function for checking if user is on channel
- * 
- * @param nickname 
- * @return true 
- * @return false 
- * 
+ *
+ * @param nickname
+ * @return true
+ * @return false
+ *
  */
 
 
@@ -176,4 +195,11 @@ bool Channel::isUserOnChannel(std::string const &nickname)
 			return true;
 	}
 	return false;
+}
+
+bool Channel::isValidChannelName(const std::string& channelName) const
+{
+    // Regex to match valid channel names
+    std::regex pattern("^[&#\\+!][^ ,\\x07]{1,49}$");  // Adjusted for max length of 50 and disallowed characters
+    return std::regex_match(channelName, pattern);
 }
