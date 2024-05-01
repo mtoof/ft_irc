@@ -145,6 +145,7 @@ std::shared_ptr<Channel> Server::createNewChannel(std::string const &channel_nam
 {
 	std::shared_ptr<Channel> new_channel = std::make_shared<Channel>(channel_name);
 	this->channels_.insert(std::make_pair(channel_name, new_channel));
+	return new_channel;
 }
 
 void Server::handleClientData(int fd)

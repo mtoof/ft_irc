@@ -255,6 +255,12 @@ void Command::handleJoin(const Message &msg)
 	broadcastJoinToChannel(channel_ptr, client_ptr);
 }
 
+/**
+ * @brief Broadcasts a join message to all users in a channel
+ *
+ * @param channel
+ * @param joiningClient
+ */
 void Command::broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joiningClient)
 {
 	auto users = channel->getUsers();

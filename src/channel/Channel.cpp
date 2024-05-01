@@ -139,10 +139,8 @@ bool Channel::isPasswordProtected() const
 
 // Additional method to update topic with validation
 void Channel::updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin) {
-    if (mode_t_ && !isAdmin) {
-        // If topic lock mode is enabled and user is not admin, do not update topic
+    if (mode_t_ && !isAdmin)
         throw std::runtime_error("Topic is locked.");
-    }
     topic_ = {author, newTopic}; // Update topic with author and new topic text
 }
 
