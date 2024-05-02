@@ -47,9 +47,12 @@ void Command::handleNick(const Message &msg)
 	std::string old_prefix = client_ptr->getClientPrefix(); // this is needed for broadcasting the nickname change
 	client_ptr->setNickname(new_nickname);
 	client_ptr->setClientPrefix();
-	if (!client_ptr->getRegisterStatus() && !client_ptr->getUsername().empty() && !client_ptr->getNickname().empty())
+	if (!client_ptr->getRegisterStatus() && !client_ptr->getUsername().empty())
+	{	
+		client_ptr->registerClient();
 		server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
-	else
+	}
+	//else
 		server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
 	// TODO: broadcast nickname change other users on same channel
 	// can be done with this macro: RPL_NICKCHANGECHANNEL(old_prefix, nickname)
@@ -209,7 +212,6 @@ void Command::handleJoin(const Message &msg)
 		 	std::cout << "user " << client_ptr->getNickname() << " tried to join channel " << channel_name << "but they are already there" << std::endl;
 	 		return;
 		}
-		
 		if (channel_ptr->isFull())
 		{
 			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
