@@ -39,16 +39,16 @@ class Client{
 	~Client();
 
 	// getters
-	int			getFd();
-	std::string getNickname();
-	std::string getOldNickname();
-	std::string getUsername();
-	std::string getHostname();
-	std::string getRealname();
-	std::string getIpAddress();
-	char		getUserMode();
-	bool		getRegisterStatus();
-	const std::string &getClientPrefix();
+	int			const	&getFd() const;
+	std::string const	&getNickname() const;
+	std::string const	&getOldNickname() const;
+	std::string const	&getUsername() const;
+	std::string const	&getHostname() const;
+	std::string const	&getRealname() const;
+	std::string const	&getIpAddress() const;
+	char	 	const	&getUserMode() const;
+	bool		const	&getRegisterStatus() const;
+	std::string const	&getClientPrefix() const;
 
 	// setters
 
