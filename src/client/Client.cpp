@@ -60,6 +60,7 @@ void Client::setFd(int const &fd)
 /// 		nickname cannot be longer than 9 characters!
 void Client::setNickname(std::string const &nickname)
 {
+	this->old_nickname_ = this->nickname_;
 	this->nickname_ = nickname;
 }
 

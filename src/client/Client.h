@@ -18,6 +18,7 @@ class Client{
 	bool														registered_;
 	bool														password_; //true if server password is set
 	std::string													nickname_;
+	std::string													old_nickname_;
 	std::string													username_;
 	std::string													hostname_;
 	std::string													realname_;
