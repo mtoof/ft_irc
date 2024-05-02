@@ -171,6 +171,7 @@ void Command::handleJoin(const Message &msg)
 	}
 
 	std::string channel_name = parameters.front();
+	std::string givenPassword = parameters.size() > 1 ? parameters[1] : "";
 	char prefix = channel_name.front();
 
 	if (!channel_->isValidChannelName(channel_name))
@@ -188,7 +189,9 @@ void Command::handleJoin(const Message &msg)
 		case '#': // Standard channels
 		case '&': // Local to server
 			channel_ptr = server_->createNewChannel(channel_name);
-			channel_ptr->addUser(client_ptr, true); // First user becomes the operator
+			if (!givenPassword.empty())
+		        channel_ptr->setChannelKey(givenPassword);
+			channel_ptr->addUser(client_ptr, true);
 			break;
 		case '!': // Safe channels require special handling
 			server_->send_response(fd, ERR_NOSUCHCHANNEL(channel_name));
@@ -209,7 +212,7 @@ void Command::handleJoin(const Message &msg)
 		 	std::cout << "user " << client_ptr->getNickname() << " tried to join channel " << channel_name << "but they are already there" << std::endl;
 	 		return;
 		}
-		
+
 		if (channel_ptr->isFull())
 		{
 			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
@@ -222,7 +225,6 @@ void Command::handleJoin(const Message &msg)
 		}
 		if (channel_ptr->isPasswordProtected())
 		{
-			std::string givenPassword = parameters.size() > 1 ? parameters[1] : "";
 			if (!client_ptr->hasCorrectPassword(givenPassword))
 			{
 				server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
@@ -352,5 +354,11 @@ void Command::handleCap(const Message &msg)
 	(void)msg;
 
 	// Implementation for CAP command
+	return;
+}
+
+void Command::handleMode(const Message &msg)
+{
+	(void)msg;
 	return;
 }

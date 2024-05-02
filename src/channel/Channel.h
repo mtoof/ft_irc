@@ -9,12 +9,9 @@
 #include <memory>
 #include <cctype>
 #include "../client/Client.h"
+#include "../common/MagicNumbers.h"
 
 class Client;
-
-
-#define MAX_CLIENTS 50
-#define MAX_CHANNELS 10
 
 class Channel
 {
@@ -29,7 +26,7 @@ class Channel
 		bool									mode_i_; // Invite-only mode
 		bool									mode_k_; // Key-protected mode
 		bool 									mode_l_; // User limit mode
-
+		unsigned int 							limit_;
 	public:
 		Channel(const std::string &name);
 		~Channel();

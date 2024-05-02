@@ -33,6 +33,7 @@ public:
 	void handlePass(const Message &msg);
 	void handleCap(const Message &msg);
 	void handlePing(const Message &msg);
+	void handleMode(const Message &msg);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);
 	bool channelExists(std::string const &channel_name);
