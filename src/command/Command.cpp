@@ -224,11 +224,12 @@ void Command::handleJoin(const Message &msg)
 		}
 	}
 
-	if (channel_ptr->isUserOnChannel(client_ptr->getNickname()))
-	{
-		server_->send_response(fd, ERR_USERONCHANNEL(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
-		return;
-	}
+	// if (channel_ptr->isUserOnChannel(client_ptr->getNickname()))
+	// {
+	// 	server_->send_response(fd, ERR_USERONCHANNEL(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
+	// 	return;
+	// }
+	
 	if (channel_ptr->isFull())
 	{
 		server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
@@ -251,9 +252,10 @@ void Command::handleJoin(const Message &msg)
 
 	channel_ptr->addUser(client_ptr, false);
 	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
-	// Broadcast the join to all channel members
+	sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), fd);
 	broadcastJoinToChannel(channel_ptr, client_ptr);
 }
+
 
 /**
  * @brief Broadcasts a join message to all users in a channel

@@ -72,6 +72,7 @@ public:
 	// getter for map of supported commands
 	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;
 	const std::string &getServerHostname() const;
+	std::shared_ptr<Channel> findOrCreateChannel(const std::string& name);
 
 
 

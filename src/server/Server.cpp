@@ -190,3 +190,13 @@ const std::string & Server::getPassword() const
 {
 	return password_;
 }
+
+std::shared_ptr<Channel> Server::findOrCreateChannel(const std::string& name) {
+    auto channel = findChannel(name);
+    if (!channel)
+	{
+        channel = std::make_shared<Channel>(name);
+        channels_[name] = channel;
+    }
+    return channel;
+}
