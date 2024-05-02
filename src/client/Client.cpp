@@ -20,6 +20,11 @@ std::string Client::getNickname()
 	return this->nickname_;
 }
 
+std::string Client::getOldNickname()
+{
+	return this->old_nickname_;
+}
+
 std::string Client::getUsername()
 {
 	return this->username_;

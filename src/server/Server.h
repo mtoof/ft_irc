@@ -29,6 +29,7 @@
 class Client;
 class Channel;
 class Message;
+class Command;
 class Server
 {
 private:
@@ -57,6 +58,7 @@ public:
 	void						closeFds();
 	std::shared_ptr<Client>		findClientUsingFd(int fd) const;
 	std::shared_ptr<Client> 	findClientUsingNickname(std::string const &nickname) const;
+	std::shared_ptr<Client> 	findClientUsingOldNickname(std::string const &nickname) const;
 	void						whoGotDisconnected(int fd);
 	char*						extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
 	void						send_response(int fd, const std::string &response);

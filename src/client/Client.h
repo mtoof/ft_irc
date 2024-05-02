@@ -41,6 +41,7 @@ class Client{
 	// getters
 	int			getFd();
 	std::string getNickname();
+	std::string getOldNickname();
 	std::string getUsername();
 	std::string getHostname();
 	std::string getRealname();
