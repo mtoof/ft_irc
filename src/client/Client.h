@@ -54,6 +54,7 @@ class Client{
 
 	void		setFd(int const &fd);
 	void		setNickname(std::string const &nickname);
+	void		setOldNickname(std::string const &nickname);
 	void		setUsername(std::string const &username);
 	void		setHostname(std::string const &hostname);
 	void		setRealname(std::string const &realname);
