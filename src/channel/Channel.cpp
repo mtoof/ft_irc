@@ -144,21 +144,11 @@ void Channel::updateTopic(const std::string& newTopic, const std::string& author
 }
 
 // Enhanced addUser method with mode checks
-bool Channel::addUser(std::shared_ptr<Client> client, bool isOp) {
+void Channel::addUser(std::shared_ptr<Client> client, bool isOp) {
     std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety
-
-    if (isFull() && !isOp)
-        return false; // Do not add if channel is full and user is not an operator
-
-    if (isInviteOnly() && !client->isInvited())
-        return false; // Check if the channel is invite-only and user is not invited
-
-    if (isPasswordProtected() && !client->hasCorrectPassword(channel_key_))
-        return false; // Check for correct password if channel is password-protected
-
     users_[client] = isOp; // Add the user with operator status if specified
     usercount_ = users_.size(); // Update the user count
-    return true; // Return true if user added successfully
+    return; // Return true if user added successfully
 }
 
 // Remove a user from the channel

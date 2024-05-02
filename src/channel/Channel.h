@@ -60,7 +60,7 @@ class Channel
 		bool isFull() const;
 		bool isInviteOnly() const;
 		bool isPasswordProtected() const;
-		bool addUser(std::shared_ptr<Client> client, bool isOp);
+		void addUser(std::shared_ptr<Client> client, bool isOp);
 		void removeUser(std::shared_ptr<Client> client);
 		bool isUserOnChannel(std::string const &nickname);
 		void updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin);
