@@ -47,7 +47,10 @@ void Command::handleNick(const Message &msg)
 	std::string old_prefix = client_ptr->getClientPrefix(); // this is needed for broadcasting the nickname change
 	client_ptr->setNickname(new_nickname);
 	client_ptr->setClientPrefix();
-	server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
+	if (!client_ptr->getRegisterStatus() && !client_ptr->getUsername().empty() && !client_ptr->getNickname().empty())
+		server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
+	else
+		server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
 	// TODO: broadcast nickname change other users on same channel
 	// can be done with this macro: RPL_NICKCHANGECHANNEL(old_prefix, nickname)
 	debugWhois(client_ptr);
@@ -80,31 +83,7 @@ bool Command::isValidNickname(std::string &nickname)
 		return false;
 }
 
-void Command::handleUser(const Message &msg)
-{
-	std::cout << "handleUser called" << std::endl;
-	std::vector<std::string> params = msg.getParameters();
-	int fd = msg.getClientfd();
-	std::shared_ptr client_ptr = msg.getClientPtr();
-	if (client_ptr->getRegisterStatus() == true)
-		server_->send_response(fd, ERR_ALREADYREGISTERED(client_ptr->getNickname()));
-	else if (params.size() == 3 && !msg.getTrailer().empty())
-	{
-		client_ptr->setUsername(params[0]);
-		if (params[1].length() == 1)
-			client_ptr->setUserMode(params[1].at(0));
-		client_ptr->setRealname(msg.getTrailer());
-		client_ptr->setClientPrefix();
-		client_ptr->registerClient();
-		if (!client_ptr->getNickname().empty())
-			server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
-	}
-	else
-	{
-		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "USER"));
-		return;
-	}
-}
+
 
 // void Command::handleJoin(const Message &msg)
 // {
@@ -223,34 +202,35 @@ void Command::handleJoin(const Message &msg)
 			return;
 		}
 	}
-
-	// if (channel_ptr->isUserOnChannel(client_ptr->getNickname()))
-	// {
-	// 	server_->send_response(fd, ERR_USERONCHANNEL(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
-	// 	return;
-	// }
-	
-	if (channel_ptr->isFull())
+	else
 	{
-		server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
-		return;
-	}
-	if (channel_ptr->isInviteOnly() && !client_ptr->isInvited())
-	{
-		server_->send_response(fd, ERR_INVITEONLYCHAN(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
-		return;
-	}
-	if (channel_ptr->isPasswordProtected())
-	{
-		std::string givenPassword = parameters.size() > 1 ? parameters[1] : "";
-		if (!client_ptr->hasCorrectPassword(givenPassword))
+		if (channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-			server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
+		 	std::cout << "user " << client_ptr->getNickname() << " tried to join channel " << channel_name << "but they are already there" << std::endl;
+	 		return;
+		}
+		
+		if (channel_ptr->isFull())
+		{
+			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
 			return;
 		}
+		if (channel_ptr->isInviteOnly() && !client_ptr->isInvited())
+		{
+			server_->send_response(fd, ERR_INVITEONLYCHAN(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
+			return;
+		}
+		if (channel_ptr->isPasswordProtected())
+		{
+			std::string givenPassword = parameters.size() > 1 ? parameters[1] : "";
+			if (!client_ptr->hasCorrectPassword(givenPassword))
+			{
+				server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
+				return;
+			}
+		}
+		channel_ptr->addUser(client_ptr, false);
 	}
-
-	channel_ptr->addUser(client_ptr, false);
 	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
 	sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), fd);
 	broadcastJoinToChannel(channel_ptr, client_ptr);
@@ -263,14 +243,14 @@ void Command::handleJoin(const Message &msg)
  * @param channel
  * @param joiningClient
  */
-void Command::broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joiningClient)
+void Command::broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joining_client)
 {
 	auto users = channel->getUsers();
 	for (const auto &user : users)
 	{
-		if (user.first->getFd() != joiningClient->getFd())
+		if (user.first->getFd() != joining_client->getFd())
 		{ // Exclude the joining client
-			server_->send_response(user.first->getFd(), RPL_JOINMSG(joiningClient->getClientPrefix(), channel->getName()));
+			server_->send_response(user.first->getFd(), RPL_JOINMSG(joining_client->getClientPrefix(), channel->getName()));
 		}
 	}
 }

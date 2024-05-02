@@ -57,7 +57,6 @@ void Server::closeFds()
 
 std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 {
-	std::cout << "clients_ size = " << clients_.size() << std::endl;
 	if (clients_.empty())
 		return nullptr;
 	auto iter = clients_.find(fd);
@@ -75,8 +74,6 @@ std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
  */
 std::shared_ptr<Client> Server::findClientUsingNickname(std::string const &nickname) const
 {
-	std::cout << "findClientUsingNickname called" << std::endl;
-	std::cout << "clients_ size = " << clients_.size() << std::endl;
 	if (clients_.empty())
 		return nullptr;
 	for (auto it = clients_.begin(); it != clients_.end(); it++)
