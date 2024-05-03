@@ -57,5 +57,6 @@
 #define ERR_USERONCHANNEL(hostname, invited, channel) (":" + hostname + " " + invited + " " + channel + " :is already on channel" + CRLF)
 #define ERR_CHANOPRIVSNEEDED(channel) ("482 " + channel + " :You're not a channel operator" + CRLF)
 #define ERR_NOSUCHNICK(nickname) (": 401 " + nickname + " :No such nick/channel" + CRLF)
+#define ERR_CANNOTSENDTOCHAN(channel) ("404 " + channel + " :Cannot send to channel" + CRLF)
 
 #endif

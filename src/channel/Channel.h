@@ -17,7 +17,7 @@ class Channel
 {
 	private:
 		mutable std::mutex 						mtx;
-		std::string 							name_;
+		std::string 							name_; // Channel name
 		std::map<std::shared_ptr<Client>, bool> users_; // Users in the channel and their operator status (true if op)
 		unsigned int 							usercount_; // Number of users in the channel
 		std::string 							channel_key_; // Channel key
@@ -62,6 +62,7 @@ class Channel
 		bool isUserOnChannel(std::string const &nickname);
 		void updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin);
 		bool isValidChannelName(const std::string& channelName) const;
+		void broadcastMessage(const std::string &senderNickname, const std::string &message);
 };
 
 #endif // CHANNEL_H
