@@ -4,6 +4,7 @@
 #define DEFAULTPORT 6667
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>	  // std::vector for pollfd structures in the server class
@@ -27,19 +28,24 @@
 class Bot
 {
 	private:
-	std::string server_addr_;
-	int 		server_port_;
-	std::string server_password_;
-	static bool signal_;
+	std::string 	server_addr_;
+	int 			server_port_;
+	std::string 	server_password_;
+	int				bot_socket_;
+	struct pollfd	poll_fd_;
+	std::string		info_file_;
+	static bool 	signal_;
 
 	public:
 	Bot(std::string &server_address, int &port, std::string &password);
 	~Bot();
-	void init_bot();
-	std::string const &getServerAddr() const;
-	std::string const &getServerPassword() const;
-	int const &getServerPort() const;
-	static void signalhandler(int signum);
+	void 				init_bot();
+	std::string const	&getServerAddr() const;
+	std::string const	&getServerPassword() const;
+	int const			&getServerPort() const;
+	void				sendInfo();
+	static void 		signalhandler(int signum);
+	void 				createBotSocket();
 };
 
 #endif
