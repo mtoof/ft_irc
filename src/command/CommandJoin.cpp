@@ -1,4 +1,5 @@
 #include "Command.h"
+#include "../server/Server.h"
 
 void Command::handleJoin(const Message &msg)
 {

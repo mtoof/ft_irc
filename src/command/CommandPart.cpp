@@ -2,5 +2,5 @@
 
 void handlePart(const Message &msg)
 {
-	
+	(void) msg;
 }

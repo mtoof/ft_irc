@@ -24,17 +24,28 @@ void Command::handleNick(const Message &msg)
 		return;
 	}
 	std::string new_nickname = parameters.front(); // desired nickname is the first parameter, we'll just ignore the rest for now
-	if (isValidNickname(new_nickname) == false)
-	{
-		server_->send_response(fd, ERR_ERRONEUSNICK(server_->getServerHostname(), client_ptr->getNickname(), new_nickname));
+	std::string current_nickname = client_ptr->getNickname();
+	if (new_nickname == current_nickname)
 		return;
-	}
-	if (isNicknameInUse(new_nickname) == true)
+	std::string new_nick_lowercase = new_nickname;
+	std::string current_nick_lowercase = current_nickname;
+	std::transform(new_nick_lowercase.begin(), new_nick_lowercase .end(), new_nick_lowercase.begin(), ::tolower); // Convert the nickname to lowercase
+	std::transform(current_nick_lowercase.begin(), current_nick_lowercase .end(), new_nick_lowercase.begin(), ::tolower); // Convert the nickname to lowercase
+	if (new_nick_lowercase != current_nick_lowercase)
 	{
-		server_->send_response(fd, ERR_NICKINUSE(server_->getServerHostname(), new_nickname));
-		return;
+		if (isValidNickname(new_nickname) == false)
+		{
+			server_->send_response(fd, ERR_ERRONEUSNICK(server_->getServerHostname(), client_ptr->getNickname(), new_nickname));
+			return;
+		}
+		if (isNicknameInUse(new_nickname) == true)
+		{
+			server_->send_response(fd, ERR_NICKINUSE(server_->getServerHostname(), new_nickname));
+			return;
+		}
 	}
-	std::string old_prefix = client_ptr->getClientPrefix(); // this is needed for broadcasting the nickname change
+	std::string old_prefix = client_ptr->getClientPrefix();
+	server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
 	client_ptr->setNickname(new_nickname);
 	client_ptr->setClientPrefix();
 	if (!client_ptr->getRegisterStatus() && !client_ptr->getUsername().empty())
@@ -43,7 +54,7 @@ void Command::handleNick(const Message &msg)
 		server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
 	}
 	//else
-		server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
+	
 	// TODO: broadcast nickname change other users on same channel
 	// can be done with this macro: RPL_NICKCHANGECHANNEL(old_prefix, nickname)
 	debugWhois(client_ptr);
