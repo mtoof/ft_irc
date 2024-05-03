@@ -59,6 +59,7 @@ bool Message::analyzeMessage()
 				trailer_ = param;
 				while (iss >> param)
 					trailer_ += " " + param;
+				trailer_.erase(trailer_.begin());
 			}
 			break;
 		}
