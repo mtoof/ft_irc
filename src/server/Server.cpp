@@ -136,6 +136,7 @@ void Server::registerNewClient()
 	delete ip;
 	this->clients_.insert(std::make_pair(userfd, newclient));
 	fds_.push_back(userpollfd);
+	std::cout << GREEN " <Client " << userfd << "> is trying to establish a connection." RESET << std::endl;
 }
 
 /**
