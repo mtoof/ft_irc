@@ -1,5 +1,6 @@
 #include "Command.h"
 
+//https://tools.ietf.org/html/rfc2812#section-3.3.1
 void Command::handlePrivmsg(const Message &msg)
 {
     std::shared_ptr<Client> client_ptr = msg.getClientPtr();
