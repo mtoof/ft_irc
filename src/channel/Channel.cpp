@@ -1,10 +1,9 @@
 #include "Channel.h"
 
 
-Channel::Channel(const std::string &name) : name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false)
+Channel::Channel(const std::string &name): name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), limit_(DEFAULT_MAX_CLIENTS)
 {
 }
-
 
 Channel::~Channel()
 {
@@ -86,6 +85,10 @@ void Channel::setUserCount(unsigned int usercount)
 void Channel::setChannelKey(const std::string &channel_key)
 {
 	channel_key_ = channel_key;
+	if (channel_key_.size() > 0)
+		setModeK(true);
+	else
+		setModeK(false);
 }
 
 // Set topic
@@ -116,12 +119,16 @@ void Channel::setModeK(bool mode_k)
 void Channel::setModeL(bool mode_l)
 {
 	mode_l_ = mode_l;
+	if (mode_l_)
+		limit_ = DEFAULT_MAX_CLIENTS;
+	else
+		limit_ = 0;
 }
 
 // Check if the channel is full
 bool Channel::isFull() const
 {
-	return usercount_ >= MAX_CLIENTS;
+	return mode_l_ && usercount_ >= limit_;
 }
 
 // Check if the channel is invite only
@@ -143,7 +150,6 @@ void Channel::updateTopic(const std::string& newTopic, const std::string& author
     topic_ = {author, newTopic}; // Update topic with author and new topic text
 }
 
-// Enhanced addUser method with mode checks
 void Channel::addUser(std::shared_ptr<Client> client, bool isOp) {
     std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety
     users_[client] = isOp; // Add the user with operator status if specified
