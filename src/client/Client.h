@@ -27,6 +27,8 @@ class Client{
 	std::string													client_prefix_;
 	std::string													buffer;
 	bool														invited_;
+	bool														awayStatus;
+    std::string													awayMessage;
 	Channel*													channel;
 	// TODO saving channels where the user is to the client class
 	//  std::vector<std::shared_ptr<Channel>>	channels_;
@@ -49,6 +51,7 @@ class Client{
 	char	 	const	&getUserMode() const;
 	bool		const	&getRegisterStatus() const;
 	std::string const	&getClientPrefix() const;
+	std::string 		getAwayMessage() const;
 
 	// setters
 
@@ -62,6 +65,7 @@ class Client{
 	void		setIpAddress(std::string const &ip_address);
 	void		setPassword();
 	void        setClientPrefix();
+	void		setAway(bool status, const std::string& message = "");
 
 	// member functions
 	void		registerClient();
@@ -72,7 +76,7 @@ class Client{
 	bool		hasSentPassword();
 	bool 		isInvited() const; // Check if the client is invited to a channel
 	bool 		hasCorrectPassword(const std::string& password) const; // Check if the client has the correct password
-
+	bool 		isAway() const;
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?

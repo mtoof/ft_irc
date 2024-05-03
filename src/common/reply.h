@@ -32,6 +32,9 @@
 #define RPL_MOTDSTART(servername, nickname)(":" + servername + " 375 " + nickname + " :- " + servername + " Message of the day -" + CRLF)
 #define RPL_MOTD(servername, nickname, message)(":" + servername + " 372 " + nickname + " :- " + message + CRLF)
 #define RPL_MOTDEND(servername, nickname)(":" + servername + " 376 " + nickname + " :End of MOTD command" + CRLF)
+#define RPL_AWAY(nickname, message) (":" + nickname + " AWAY :" + message + CRLF)
+#define RPL_UNAWAY(CLIENT, nickname) (CLIENT + " AWAY :" + CRLF)
+#define RPL_NOWAWAY(CLIENT, nickname) (CLIENT + " AWAY :" + CRLF)
 
 // ERRORS
 
@@ -60,5 +63,9 @@
 #define ERR_CANNOTSENDTOCHAN(channel) ("404 " + channel + " :Cannot send to channel" + CRLF)
 #define ERR_USERNOTINCHANNEL(nickname, channel) (": 441 " + nickname + " " + channel + " :They aren't on that channel" + CRLF)
 #define ERR_BADCHANMASK(channel) (": 476 " + channel + " :Bad Channel Mask" + CRLF)
+#define ERR_NOTEXTTOSEND(nickname) (": 412 " + nickname + " :No text to send" + CRLF)
+#define ERR_NOPRIVILEGES(nickname) (": 481 " + nickname + " :Permission Denied- You're not an IRC operator" + CRLF)
+#define ERR_NORECIPIENT(nickname, command) (": 411 " + nickname + " " + command + " :No recipient given (" + command + ")" + CRLF)
+#define ERR_WILDTOPLEVEL(nickname, mask) (": 414 " + nickname + " " + mask + " :Wild in toplevel domain" + CRLF)
 
 #endif

@@ -196,3 +196,19 @@ bool Client::hasCorrectPassword(const std::string& password) const
 // {
 
 // }
+
+bool Client::isAway() const
+{
+	return awayStatus;
+}
+
+void Client::setAway(bool status, const std::string& message)
+{
+	awayStatus = status;
+	awayMessage = message;
+}
+
+std::string Client::getAwayMessage() const
+{
+	return awayMessage;
+}
