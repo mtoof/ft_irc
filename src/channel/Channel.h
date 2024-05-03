@@ -13,7 +13,7 @@
 #include "../server/Server.h"
 
 class Client;
-
+class Server;
 class Channel
 {
 	private:
