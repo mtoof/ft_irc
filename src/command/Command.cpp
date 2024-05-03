@@ -10,81 +10,6 @@ Command::~Command()
 {
 }
 
-/**
- * @brief handles the NICK command which sets/changes user's nickname
- * 		  TODO: making sure there is no collision between niCkName and nickname
- * 		  this should be handled at Server::findClientUsingNickname by converting
- * 		  all names to lowercase while searching and comparing then
- * @param msg
- */
-
-void Command::handleNick(const Message &msg)
-{
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	int fd = client_ptr->getFd();
-	if (!server_->getPassword().empty() && client_ptr->hasSentPassword() == false)
-	{
-		server_->send_response(fd, "you must send password first"); // this is definitely not the correct reply
-		return;
-	}
-	std::vector<std::string> parameters = msg.getParameters();
-	if (parameters.empty())
-	{
-		server_->send_response(fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
-		return;
-	}
-	std::string new_nickname = parameters.front(); // desired nickname is the first parameter, we'll just ignore the rest for now
-	if (isValidNickname(new_nickname) == false)
-	{
-		server_->send_response(fd, ERR_ERRONEUSNICK(server_->getServerHostname(), client_ptr->getNickname(), new_nickname));
-		return;
-	}
-	if (isNicknameInUse(new_nickname) == true)
-	{
-		server_->send_response(fd, ERR_NICKINUSE(server_->getServerHostname(), new_nickname));
-		return;
-	}
-	std::string old_prefix = client_ptr->getClientPrefix(); // this is needed for broadcasting the nickname change
-	client_ptr->setNickname(new_nickname);
-	client_ptr->setClientPrefix();
-	if (!client_ptr->getRegisterStatus() && !client_ptr->getUsername().empty() && !client_ptr->getNickname().empty())
-		server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
-	else
-		server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
-	// TODO: broadcast nickname change other users on same channel
-	// can be done with this macro: RPL_NICKCHANGECHANNEL(old_prefix, nickname)
-	debugWhois(client_ptr);
-}
-
-bool Command::isNicknameInUse(std::string const &nickname)
-{
-	return server_->findClientUsingNickname(nickname) != nullptr;
-}
-
-/**
- * @brief	checks whether user's desired nickname fits within RFC2812 standard
- *			allowed chars: a-z, A-Z, 0-9, "[", "]", "\", "_", "-", "^", "|", "{", "}"
- *			however, first character is not allowed to be a digit or "-"
- *
- * @param nickname
- * @return true
- * @return false
- */
-bool Command::isValidNickname(std::string &nickname)
-{
-	if (isdigit(nickname.front()) || nickname.front() == '-')
-		return false;
-	if (nickname.size() > NICK_MAX_LENGTH) // if nickname is too long, it gets truncated
-		nickname = nickname.substr(0, NICK_MAX_LENGTH);
-	std::regex pattern("([A-Za-z0-9\\[\\]\\\\_\\-\\^|{}])\\w*");
-	if (std::regex_match(nickname, pattern))
-		return true;
-	else
-		return false;
-}
-
-
-
 // void Command::handleJoin(const Message &msg)
 // {
 // 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
@@ -152,6 +77,7 @@ bool Command::isValidNickname(std::string &nickname)
 // 	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name)); // sends join message to user
 // 	// TODO: send join message to other channel members
 // }
+
 
 void Command::handleJoin(const Message &msg)
 {
@@ -304,49 +230,6 @@ void Command::handlePing(const Message &msg)
 bool Command::channelExists(std::string const &channel_name)
 {
 	return server_->findChannel(channel_name) != nullptr;
-}
-
-void Command::handlePrivmsg(const Message &msg)
-{
-	(void)msg;
-
-	// Implementation for PRIVMSG command
-	return;
-}
-
-void Command::handleQuit(const Message &msg)
-{
-	(void)msg;
-
-	// Implementation for QUIT command
-	return;
-}
-
-void Command::handlePass(const Message &msg)
-{
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	if (server_->getPassword().empty())
-		return;
-	if (client_ptr->getRegisterStatus() == true)
-	{
-		server_->send_response(client_ptr->getFd(), ERR_ALREADYREGISTERED(client_ptr->getNickname()));
-		return;
-	}
-	std::vector<std::string> parameters = msg.getParameters();
-	size_t pos = parameters.front().find_first_not_of(" \t\v");
-
-	if (pos == std::string::npos || parameters.empty())
-		server_->send_response(msg.getClientfd(), ERR_NEEDMOREPARAMS(std::string("*"), "PASS"));
-	else if (!client_ptr->getRegisterStatus())
-	{
-		if (parameters.front() == server_->getPassword())
-		{
-			// client->registerClient(); //This happens when the user has pass username and nick
-			client_ptr->setPassword();
-		}
-		else if (!server_->getPassword().empty() && parameters.front() != server_->getPassword())
-			server_->send_response(client_ptr->getFd(), ERR_INCORPASS(client_ptr->getNickname()));
-	}
 }
 
 void Command::handleCap(const Message &msg)

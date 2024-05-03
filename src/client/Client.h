@@ -18,6 +18,7 @@ class Client{
 	bool														registered_;
 	bool														password_; //true if server password is set
 	std::string													nickname_;
+	std::string													old_nickname_;
 	std::string													username_;
 	std::string													hostname_;
 	std::string													realname_;
@@ -38,20 +39,22 @@ class Client{
 	~Client();
 
 	// getters
-	int			getFd();
-	std::string getNickname();
-	std::string getUsername();
-	std::string getHostname();
-	std::string getRealname();
-	std::string getIpAddress();
-	char		getUserMode();
-	bool		getRegisterStatus();
-	const std::string &getClientPrefix();
+	int			const	&getFd() const;
+	std::string const	&getNickname() const;
+	std::string const	&getOldNickname() const;
+	std::string const	&getUsername() const;
+	std::string const	&getHostname() const;
+	std::string const	&getRealname() const;
+	std::string const	&getIpAddress() const;
+	char	 	const	&getUserMode() const;
+	bool		const	&getRegisterStatus() const;
+	std::string const	&getClientPrefix() const;
 
 	// setters
 
 	void		setFd(int const &fd);
 	void		setNickname(std::string const &nickname);
+	void		setOldNickname(std::string const &nickname);
 	void		setUsername(std::string const &username);
 	void		setHostname(std::string const &hostname);
 	void		setRealname(std::string const &realname);

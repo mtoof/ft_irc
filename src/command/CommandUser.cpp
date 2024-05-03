@@ -16,11 +16,12 @@ void Command::handleUser(const Message &msg)
 		if (params[1].length() == 1)
 			client_ptr->setUserMode(params[1].at(0));
 		client_ptr->setRealname(msg.getTrailer());
-		client_ptr->setClientPrefix();
-		// if (!client_ptr->getNickname().empty())
-		// 	client_ptr->registerClient();
 		if (!client_ptr->getNickname().empty())
+		{
+			client_ptr->registerClient();
+			client_ptr->setClientPrefix();
 			server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
+		}
 	}
 	else
 	{

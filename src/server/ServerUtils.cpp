@@ -67,8 +67,6 @@ std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 
 /**
  * @brief for finding client using nickname
- * 		  TODO: probably have to convert all names to lowercase when performing search
- * 		  to make sure nick collisions dont happen
  * @param nickname 
  * @return std::shared_ptr<Client> 
  */
@@ -76,13 +74,39 @@ std::shared_ptr<Client> Server::findClientUsingNickname(std::string const &nickn
 {
 	if (clients_.empty())
 		return nullptr;
+	std::string lower_case_nickname = nickname;
+	std::transform(lower_case_nickname.begin(), lower_case_nickname.end(), lower_case_nickname.begin(), ::tolower); // Convert the nickname to lowercase
 	for (auto it = clients_.begin(); it != clients_.end(); it++)
 	{
-		if (it->second->getNickname() == nickname)
+		std::string user_nick = it->second->getNickname();
+		std::transform(user_nick.begin(), user_nick.end(), user_nick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (user_nick == lower_case_nickname)
 			return it->second;
 	}
 	return nullptr;
 }
+
+/**
+ * @brief for finding client using old nickname
+ * @param nickname 
+ * @return std::shared_ptr<Client> 
+ */
+std::shared_ptr<Client> Server::findClientUsingOldNickname(std::string const &nickname) const
+{
+	if (clients_.empty())
+		return nullptr;
+	std::string lower_case_nickname = nickname;
+	std::transform(lower_case_nickname.begin(), lower_case_nickname.end(), lower_case_nickname.begin(), ::tolower); // Convert the nickname to lowercase
+	for (auto it = clients_.begin(); it != clients_.end(); it++)
+	{
+		std::string user_nick = it->second->getOldNickname();
+		std::transform(user_nick.begin(), user_nick.end(), user_nick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (user_nick == lower_case_nickname)
+			return it->second;
+	}
+	return nullptr;
+}
+
 
 /**
  * @brief function for finding channel by name.

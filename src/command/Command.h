@@ -33,6 +33,8 @@ public:
 	void handlePass(const Message &msg);
 	void handleCap(const Message &msg);
 	void handlePing(const Message &msg);
+	void handleWhois(const Message &msg);
+	void handlePart(const Message &msg);
 	void handleMode(const Message &msg);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);

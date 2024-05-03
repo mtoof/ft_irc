@@ -10,42 +10,47 @@ Client::~Client()
 
 // getters
 
-int Client::getFd()
+int	const &Client::getFd() const
 {
 	return this->fd_;
 }
 
-std::string Client::getNickname()
+std::string	const &Client::getNickname() const
 {
 	return this->nickname_;
 }
 
-std::string Client::getUsername()
+std::string	const &Client::getOldNickname() const
+{
+	return this->old_nickname_;
+}
+
+std::string	const &Client::getUsername() const
 {
 	return this->username_;
 }
 
-std::string Client::getHostname()
+std::string	const &Client::getHostname() const
 {
 	return this->hostname_;
 }
 
-std::string Client::getRealname()
+std::string	const &Client::getRealname() const
 {
 	return this->realname_;
 }
 
-std::string Client::getIpAddress()
+std::string	const &Client::getIpAddress() const
 {
 	return this->ip_address_;
 }
 
-bool Client::getRegisterStatus()
+bool	const &Client::getRegisterStatus() const
 {
 	return this->registered_;
 }
 
-char Client::getUserMode()
+char	const &Client::getUserMode() const
 {
 	return this->usermode_;
 }
@@ -60,6 +65,7 @@ void Client::setFd(int const &fd)
 /// 		nickname cannot be longer than 9 characters!
 void Client::setNickname(std::string const &nickname)
 {
+	this->old_nickname_ = this->nickname_;
 	this->nickname_ = nickname;
 }
 
@@ -150,7 +156,7 @@ void Client::setClientPrefix()
 	client_prefix_ = nickname_ + "!~" + username_ + "@" + ip_address_;
 }
 
-const std::string &Client::getClientPrefix()
+std::string const &Client::getClientPrefix() const
 {
 	return client_prefix_;
 }

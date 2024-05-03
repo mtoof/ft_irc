@@ -174,8 +174,6 @@ void Channel::removeUser(std::shared_ptr<Client> client)
  *
  */
 
-
-
 bool Channel::isUserOnChannel(std::string const &nickname)
 {
 	std::string lowerCaseNick = nickname;
