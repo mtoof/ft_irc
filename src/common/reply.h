@@ -50,7 +50,7 @@
 #define ERR_NOTOPERATOR(channelname) (": 482 #" + channelname + " :You're not a channel operator" + CRLF)
 #define ERR_NOSUCHCHANNEL(channel) ("403 * " + channel + " :No such channel" + CRLF)
 #define ERR_CMDNOTFOUND(nickname, command) (": 421 " + nickname + " " + command + " :Unknown command" + CRLF)
-#define ERR_NOTONCHANNEL(channel) ("442 " + channel + " :You're not on that channel" + CRLF)
+#define ERR_NOTONCHANNEL(channelname) (": 442 " + channelname + " :You're not on that channel" + CRLF)
 #define ERR_INVITEONLYCHAN(hostname, nickname, channel) (":" + hostname + " 473 " + nickname + " " + channel + " :Cannot join channel (+i)" + CRLF)
 #define ERR_BADCHANNELKEY(channel) ("475 " + channel + " :Cannot join channel (+k)" + CRLF)
 #define ERR_CHANNELISFULL(channel) ("471 " + channel + " :Cannot join channel (+l)" + CRLF)
@@ -58,5 +58,7 @@
 #define ERR_CHANOPRIVSNEEDED(channel) ("482 " + channel + " :You're not a channel operator" + CRLF)
 #define ERR_NOSUCHNICK(nickname) (": 401 " + nickname + " :No such nick/channel" + CRLF)
 #define ERR_CANNOTSENDTOCHAN(channel) ("404 " + channel + " :Cannot send to channel" + CRLF)
+#define ERR_USERNOTINCHANNEL(nickname, channel) (": 441 " + nickname + " " + channel + " :They aren't on that channel" + CRLF)
+#define ERR_BADCHANMASK(channel) (": 476 " + channel + " :Bad Channel Mask" + CRLF)
 
 #endif

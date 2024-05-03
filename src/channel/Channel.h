@@ -10,6 +10,7 @@
 #include <cctype>
 #include "../client/Client.h"
 #include "../common/MagicNumbers.h"
+#include "../server/Server.h"
 
 class Client;
 
@@ -27,6 +28,7 @@ class Channel
 		bool									mode_k_; // Key-protected mode
 		bool 									mode_l_; // User limit mode
 		unsigned int 							limit_;
+		std::shared_ptr<Server>					server_;
 	public:
 		Channel(const std::string &name);
 		~Channel();
@@ -63,6 +65,7 @@ class Channel
 		void updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin);
 		bool isValidChannelName(const std::string& channelName) const;
 		void broadcastMessage(const std::string &senderNickname, const std::string &message);
+		bool isOperator(std::shared_ptr<Client> client_ptr);
 };
 
 #endif // CHANNEL_H

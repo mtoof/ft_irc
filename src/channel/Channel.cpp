@@ -191,8 +191,14 @@ bool Channel::isValidChannelName(const std::string &channelName) const
 	return std::regex_match(channelName, pattern);
 }
 
-// Declare the server variable
-extern Server *server_;
+bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
+{
+	std::lock_guard<std::mutex> lock(mtx);
+	auto user = users_.find(client_ptr);
+	if (user != users_.end())
+		return user->second;
+	return false;
+}
 
 void Channel::broadcastMessage(const std::string &senderNickname, const std::string &message)
 {
