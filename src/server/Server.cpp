@@ -28,7 +28,8 @@ Server::Server(int port, std::string password) : host_(""), port_(port), passwor
 	supported_commands_.insert(std::pair("USER", &Command::handleUser));
 	supported_commands_.insert(std::pair("PING", &Command::handlePing));
 	supported_commands_.insert(std::pair("WHOIS", &Command::handleWhois));
-	//supported_commands_.insert(std::pair("PART", &Command::handlePart));
+	supported_commands_.insert(std::pair("PART", &Command::handlePart));
+	supported_commands_.insert(std::pair("MODE", &Command::handleMode));
 }
 
 Server::~Server()

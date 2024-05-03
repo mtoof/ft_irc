@@ -1,6 +1,6 @@
 #include "Command.h"
 
-void handlePart(const Message &msg)
+void Command::handlePart(const Message &msg)
 {
-	(void) msg;
+	(void)msg;
 }
