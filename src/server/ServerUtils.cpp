@@ -57,11 +57,70 @@ void Server::closeFds()
 
 std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 {
-	std::cout << "clients_ size = " << clients_.size() << std::endl;
 	if (clients_.empty())
 		return nullptr;
 	auto iter = clients_.find(fd);
 	if (iter != clients_.end())
+		return iter->second;
+	return nullptr;
+}
+
+/**
+ * @brief for finding client using nickname
+ * @param nickname 
+ * @return std::shared_ptr<Client> 
+ */
+std::shared_ptr<Client> Server::findClientUsingNickname(std::string const &nickname) const
+{
+	if (clients_.empty())
+		return nullptr;
+	std::string lower_case_nickname = nickname;
+	std::transform(lower_case_nickname.begin(), lower_case_nickname.end(), lower_case_nickname.begin(), ::tolower); // Convert the nickname to lowercase
+	for (auto it = clients_.begin(); it != clients_.end(); it++)
+	{
+		std::string user_nick = it->second->getNickname();
+		std::transform(user_nick.begin(), user_nick.end(), user_nick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (user_nick == lower_case_nickname)
+			return it->second;
+	}
+	return nullptr;
+}
+
+/**
+ * @brief for finding client using old nickname
+ * @param nickname 
+ * @return std::shared_ptr<Client> 
+ */
+std::shared_ptr<Client> Server::findClientUsingOldNickname(std::string const &nickname) const
+{
+	if (clients_.empty())
+		return nullptr;
+	std::string lower_case_nickname = nickname;
+	std::transform(lower_case_nickname.begin(), lower_case_nickname.end(), lower_case_nickname.begin(), ::tolower); // Convert the nickname to lowercase
+	for (auto it = clients_.begin(); it != clients_.end(); it++)
+	{
+		std::string user_nick = it->second->getOldNickname();
+		std::transform(user_nick.begin(), user_nick.end(), user_nick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (user_nick == lower_case_nickname)
+			return it->second;
+	}
+	return nullptr;
+}
+
+
+/**
+ * @brief function for finding channel by name.
+ * this search is currently case sensitive, which it probably should not be
+ * TODO: convert names to lowercase for comparison
+ * @param channel_name 
+ * @return std::shared_ptr<Channel> 
+ */
+std::shared_ptr<Channel> Server::findChannel(std::string const &channel_name)
+{
+	if(channels_.empty())
+		return nullptr;
+	auto iter = channels_.find(channel_name);
+	if (iter != channels_.end())
 		return iter->second;
 	return nullptr;
 }
@@ -120,4 +179,62 @@ void Server::send_response(int fd, const std::string &response)
 std::map<std::string, void (Command::*)(const Message &msg)> const &Server::getSupportedCommands() const
 {
 	return supported_commands_;
+}
+
+void Server::setServerHostname()
+{
+	char hostname[256] = {};
+	if (gethostname(hostname, 256) == 0)
+		host_ = hostname;
+	else
+		debug("gethostname", FAILED);
+	return;
+}
+
+const std::string &Server::getServerHostname() const
+{
+	return host_;
+}
+
+/// @brief because user needs to feel welcome, they need to receive a welcome message
+/// @param fd 
+/// @param servername 
+/// @param nickname 
+/// @param client_prefix 
+void Server::welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix)
+{
+	send_response(fd, RPL_CONNECTED(servername, nickname, client_prefix));
+	send_response(fd, RPL_MOTDSTART(servername, nickname));
+	send_response(fd, RPL_MOTD(servername, nickname, "███████╗████████╗░░░░░░██╗██████╗░░█████╗░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔════╝╚══██╔══╝░░░░░░██║██╔══██╗██╔══██╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "█████╗░░░░░██║░░░█████╗██║██████╔╝██║░░╚═╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔══╝░░░░░██║░░░╚════╝██║██╔══██╗██║░░██╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░░░░░░░░██║░░░░░░░░░██║██║░░██║╚█████╔╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, "╚═╝░░░░░░░░╚═╝░░░░░░░░░╚═╝╚═╝░░╚═╝░╚════╝░"));
+	send_response(fd, RPL_MOTD(servername, nickname, " "));
+	send_response(fd, RPL_MOTD(servername, nickname, "░█████╗░░█████╗░███╗░░██╗██████╗░███████╗██╗░░░░░██╗███╗░░██╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔══██╗██╔══██╗████╗░██║██╔══██╗██╔════╝██║░░░░░██║████╗░██║"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░░██║███████║██╔██╗██║██║░░██║█████╗░░██║░░░░░██║██╔██╗██║"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░░██║██╔══██║██║╚████║██║░░██║██╔══╝░░██║░░░░░██║██║╚████║"));
+	send_response(fd, RPL_MOTD(servername, nickname, "╚█████╔╝██║░░██║██║░╚███║██████╔╝███████╗███████╗██║██║░╚███║"));
+	send_response(fd, RPL_MOTD(servername, nickname, "░╚════╝░╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░╚══════╝╚══════╝╚═╝╚═╝░░╚══╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, " "));
+	send_response(fd, RPL_MOTD(servername, nickname, "███╗░░░███╗████████╗░█████╗░░█████╗░███████╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "████╗░████║╚══██╔══╝██╔══██╗██╔══██╗██╔════╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔████╔██║░░░██║░░░██║░░██║██║░░██║█████╗░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║╚██╔╝██║░░░██║░░░██║░░██║██║░░██║██╔══╝░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░╚═╝░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░░░░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "╚═╝░░░░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, " "));
+	send_response(fd, RPL_MOTD(servername, nickname, "░█████╗░████████╗░█████╗░░█████╗░███████╗"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔════╝"));
+	send_response(fd, RPL_MOTD(servername, nickname, "███████║░░░██║░░░██║░░██║██║░░██║█████╗░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██╔══██║░░░██║░░░██║░░██║██║░░██║██╔══╝░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "██║░░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░░░░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, "╚═╝░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░"));
+	send_response(fd, RPL_MOTD(servername, nickname, " "));
+	send_response(fd, RPL_MOTD(servername, nickname, "\"Alright, let's see what we can see.. Everybody online, looking good.\""));
+	send_response(fd, RPL_MOTD(servername, nickname, "Lieutenant Gorman to the marines before landing to terraforming colony on exomoon LV-426"));
+	send_response(fd, RPL_MOTD(servername, nickname, "Aliens, 1986"));
+	send_response(fd, RPL_MOTDEND(servername, nickname));
 }

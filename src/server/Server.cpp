@@ -14,7 +14,7 @@
 
 bool Server::signal_ = false;
 
-Server::Server(int port, std::string password) : host_("localhost"), port_(port), password_(password)
+Server::Server(int port, std::string password) : host_(""), port_(port), password_(password)
 {
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
@@ -25,6 +25,11 @@ Server::Server(int port, std::string password) : host_("localhost"), port_(port)
 	supported_commands_.insert(std::pair("QUIT", &Command::handleQuit));
 	supported_commands_.insert(std::pair("PASS", &Command::handlePass));
 	supported_commands_.insert(std::pair("CAP", &Command::handleCap));
+	supported_commands_.insert(std::pair("USER", &Command::handleUser));
+	supported_commands_.insert(std::pair("PING", &Command::handlePing));
+	supported_commands_.insert(std::pair("WHOIS", &Command::handleWhois));
+	supported_commands_.insert(std::pair("PART", &Command::handlePart));
+	supported_commands_.insert(std::pair("MODE", &Command::handleMode));
 }
 
 Server::~Server()
@@ -72,6 +77,7 @@ void Server::createServerSocket()
 		debug("Server is listening", SUCCESS);
 	pfds = {this->socket_, POLLIN, 0}; // set the file descriptor for the server socket to the pollfd structure and set the events to POLLIN, this is crucial because we want to check for incoming connections on the server socket and we want to read data from the clients
 	fds_.push_back(pfds); // add the server socket to the pollfd vector
+	setServerHostname();
 	std::cout << GREEN "Server is running on port " << this->port_ << RESET << std::endl; // print a message to the console that the server is running
 }
 
@@ -132,6 +138,19 @@ void Server::registerNewClient()
 	fds_.push_back(userpollfd);
 }
 
+/**
+ * @brief function for creating new channel
+ * could maybe be done by returning a pointer as well
+ *
+ * @param channel_name
+ */
+std::shared_ptr<Channel> Server::createNewChannel(std::string const &channel_name)
+{
+	std::shared_ptr<Channel> new_channel = std::make_shared<Channel>(channel_name);
+	this->channels_.insert(std::make_pair(channel_name, new_channel));
+	return new_channel;
+}
+
 void Server::handleClientData(int fd)
 {
 	ssize_t readbyte = 0;
@@ -154,14 +173,14 @@ void Server::handleClientData(int fd)
 	{
 		std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
 		deleteClient(fd);
-		closeDeletePollFd(fd); 
+		closeDeletePollFd(fd);
 		return;
 	}
 	else
 	{
 		client->appendToBuffer(std::string(buffer, readbyte));
 		client->processBuffer(this);
-	
+
 	}
 	// when the buffer has been processed and we can construct a message
 	// for (auto &command : commands)
@@ -173,4 +192,14 @@ void Server::handleClientData(int fd)
 const std::string & Server::getPassword() const
 {
 	return password_;
+}
+
+std::shared_ptr<Channel> Server::findOrCreateChannel(const std::string& name) {
+    auto channel = findChannel(name);
+    if (!channel)
+	{
+        channel = std::make_shared<Channel>(name);
+        channels_[name] = channel;
+    }
+    return channel;
 }
