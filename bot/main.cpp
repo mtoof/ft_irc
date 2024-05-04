@@ -22,6 +22,7 @@ int main(int ac, char **av)
 	int 		port=-1;
 	std::string server_address;
 	std::string password;
+	std::string info_file_name;
 	try
 	{
 		switch (ac)
@@ -31,8 +32,10 @@ int main(int ac, char **av)
 				server_address = "localhost";
 				break;
 			case 2:
+				port = DEFAULTPORT;
 			case 3:
 			case 4:
+			case 5:
 				convertArgs(server_address, port, password, av);
 				break;
 			default:
@@ -47,15 +50,19 @@ int main(int ac, char **av)
 	}
 	try
 	{
-		Bot bot(server_address, port, password);
-		// std::signal(SIGINT, Bot::signalhandler);
-		// std::signal(SIGQUIT, Bot::signalhandler);
+		if (ac < 4)
+			info_file_name = "test_file";
+		else if (ac == 5)
+			info_file_name = av[4];
+		Bot bot(server_address, port, password, info_file_name);
+		std::signal(SIGINT, Bot::signalhandler);
+		std::signal(SIGQUIT, Bot::signalhandler);
 		bot.init_bot();
 	}
 	catch(std::exception &exp)
 	{
 		std::cout << exp.what() << std::endl;
-		return 0;
+		return (1);
 	}
-	
+	return (0);
 }
