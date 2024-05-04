@@ -22,7 +22,7 @@ class Channel
 		std::map<std::shared_ptr<Client>, bool> users_; // Users in the channel and their operator status (true if op)
 		unsigned int 							usercount_; // Number of users in the channel
 		std::string 							channel_key_; // Channel key
-		std::pair<std::string, std::string> 	topic_; // Channel topic
+		std::pair<std::string, std::string> 	topic_; // Channel topic (author, topic)
 		bool 									mode_t_; // Topic lock mode
 		bool									mode_i_; // Invite-only mode
 		bool									mode_k_; // Key-protected mode
@@ -66,6 +66,7 @@ class Channel
 		bool isValidChannelName(const std::string& channelName) const;
 		void broadcastMessage(const std::string &senderNickname, const std::string &message);
 		bool isOperator(std::shared_ptr<Client> client_ptr);
+		bool canChangeTopic(std::shared_ptr<Client> client_ptr);
 };
 
 #endif // CHANNEL_H

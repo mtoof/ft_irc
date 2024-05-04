@@ -214,3 +214,14 @@ void Channel::broadcastMessage(const std::string &senderNickname, const std::str
 		}
 	}
 }
+
+bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
+{
+	if (isOperator(client_ptr))
+		return true;
+	else if (client_ptr->getNickname() == topic_.first) // Check if the client is the one who set the topic
+		return true;
+	else
+		return false;
+
+}

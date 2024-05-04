@@ -14,7 +14,9 @@ void Command::handleMode(const Message &msg)
 	if (parameters.front() == client_ptr->getNickname())
 		server_->send_response(fd, RPL_UMODEIS(client_ptr->getNickname(), parameters.at(1)));
 	else if (channelExists(parameters.front()))
-	{
 		return;
-	}
+	else
+		server_->send_response(fd, ERR_NOSUCHNICK(client_ptr->getNickname()));
+
+	
 }
