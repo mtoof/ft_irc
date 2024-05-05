@@ -16,16 +16,7 @@ void Bot::readBuffer()
 	else if (!readbyte)
 	{
 		std::cout << RED << "Bot lost its connection with the server" << RESET << std::endl;
-		int counter = 10;
-		while (counter)
-		{
-			std::cout << '\r' << std::setw(2) << std::setfill('0') << counter-- << std::flush;
-			sleep(1);
-		}
-		std::cout << "\nRetry again!!!\n" << std::flush;
-		counter = 10;
-		close(bot_socket_);
-		std::cout << "In readbuffer file name  = " << info_file_ << std::endl;
+		reConnection();
 		init_bot();
 	}
 	if (Bot::signal_)

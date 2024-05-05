@@ -59,6 +59,7 @@ class Bot
 	static void 		signalhandler(int signum);
 	void 				createBotSocket();
 	void 				readBuffer();
+	void				reConnection();
 };
 
 #endif

@@ -14,9 +14,11 @@ Bot::~Bot()
 
 void Bot::init_bot()
 {
+	if (Bot::signal_)
+		return;
 	createBotSocket();
 	poll_fd_.fd = bot_socket_;
-    poll_fd_.events = POLLIN;
+    poll_fd_.events = POLLIN | POLL_OUT;
     poll_fd_.revents = 0;
 	int event;
 	while (!Bot::signal_)
@@ -24,7 +26,7 @@ void Bot::init_bot()
 		event = poll(&poll_fd_, POLL_IN, -1);
 		if (event == -1 && !Bot::signal_)
 			throw std::runtime_error("Error poll");
-		if (poll_fd_.revents && POLL_IN)
+		if (poll_fd_.revents & (POLL_IN | POLL_OUT))
 		{
 			readBuffer();
 		}
@@ -47,22 +49,25 @@ void Bot::createBotSocket()
 	server_socket_addr_.sin_port = htons(server_port_); // Common IRC port
 	inet_pton(AF_INET, server_addr_.c_str(), &(server_socket_addr_.sin_addr));
 	int flags = fcntl(bot_socket_, F_GETFL, 0);
-    if (flags < 0) {
-        close(bot_socket_); // Close the socket if fcntl fails
-        throw std::runtime_error("Error getting socket flags");
-    }
-    if (fcntl(bot_socket_, F_SETFL, flags | O_NONBLOCK) < 0) {
-        close(bot_socket_); // Close the socket if fcntl fails
-        throw std::runtime_error("Error setting socket to NON-BLOCKING");
-    }
+    if (flags < 0)
+	{
+		close(bot_socket_); // Close the socket if fcntl fails
+		throw std::runtime_error("Error getting socket flags");
+	}
+    if (fcntl(bot_socket_, F_SETFL, flags | O_NONBLOCK) < 0)
+	{
+		close(bot_socket_); // Close the socket if fcntl fails
+		throw std::runtime_error("Error setting socket to NON-BLOCKING");
+	}
     // Connect to server
-    if (connect(bot_socket_, (struct sockaddr *)&server_socket_addr_, sizeof(server_socket_addr_)) < 0) {
-        if (errno != EINPROGRESS) { // Check if connection is in progress
-            std::cerr << "Error connecting to server" << std::endl;
-            close(bot_socket_); // Close the socket if connect fails
-            return;
-        }
-    }
+	if (connect(bot_socket_, (struct sockaddr *)&server_socket_addr_, sizeof(server_socket_addr_)) < 0)
+	{
+		if (errno != EINPROGRESS) { // Check if connection is in progress
+			std::cerr << "Error connecting to server" << std::endl;
+			close(bot_socket_); // Close the socket if connect fails
+			return;
+		}
+	}
 	std::cout << "Bot connected to server successfuly" << std::endl;
 	sendInfo();
 }
@@ -95,7 +100,16 @@ void Bot::sendInfo()
 	while (std::getline(info_file, line))
 	{
 		line += "\r\n";
-		send(bot_socket_, line.c_str(), line.length(), 0);
+		if (send(bot_socket_, line.c_str(), line.length(), 0) < 0)
+		{
+			std::cout << RED "Couldn't send data, Check the connection please!" RESET << std::endl;
+			info_file.clear();
+			info_file.seekg(0, info_file.beg);
+			info_file.close();
+			close(bot_socket_);
+			reConnection();
+		}
+		
 	}
 	info_file.clear();
 	info_file.seekg(0, info_file.beg);
@@ -134,4 +148,18 @@ int const &Bot::getServerPort() const
 std::string const	&Bot::getInfoFile() const
 {
 	return info_file_;
+}
+
+void Bot::reConnection()
+{
+	int counter = 10;
+	while (counter && !Bot::signal_)
+	{
+		std::cout << '\r' << std::setw(2) << std::setfill('0') << counter-- << std::flush;
+		sleep(1);
+	}
+	std::cout << "\nRetry again!!!\n" << std::flush;
+	counter = 10;
+	close(bot_socket_);
+	init_bot();
 }
