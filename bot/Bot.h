@@ -4,6 +4,8 @@
 #define DEFAULTPORT 6667
 
 #include <iostream>
+#include <iomanip>
+#include <cstring>
 #include <fstream>
 #include <sstream>
 #include <string>

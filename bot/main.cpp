@@ -28,11 +28,12 @@ int main(int ac, char **av)
 		switch (ac)
 		{
 			case 1:
+				server_address = "127.0.0.1";
 				port = DEFAULTPORT;
-				server_address = "localhost";
 				break;
 			case 2:
 				port = DEFAULTPORT;
+				break;
 			case 3:
 			case 4:
 			case 5:
