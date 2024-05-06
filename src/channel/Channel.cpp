@@ -1,7 +1,6 @@
 #include "Channel.h"
 
-
-Channel::Channel(const std::string &name): name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), limit_(DEFAULT_MAX_CLIENTS)
+Channel::Channel(const std::string &name) : name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), limit_(DEFAULT_MAX_CLIENTS)
 {
 }
 
@@ -9,30 +8,25 @@ Channel::~Channel()
 {
 }
 
-
 std::string Channel::getName() const
 {
 	return name_;
 }
-
 
 std::map<std::shared_ptr<Client>, bool> Channel::getUsers() const
 {
 	return users_;
 }
 
-
 unsigned int Channel::getUserCount() const
 {
 	return usercount_;
 }
 
-
 std::string Channel::getChannelKey() const
 {
 	return channel_key_;
 }
-
 
 std::pair<std::string, std::string> Channel::getTopic() const
 {
@@ -144,17 +138,19 @@ bool Channel::isPasswordProtected() const
 }
 
 // Additional method to update topic with validation
-void Channel::updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin) {
-    if (mode_t_ && !isAdmin)
-        throw std::runtime_error("Topic is locked.");
-    topic_ = {author, newTopic}; // Update topic with author and new topic text
+void Channel::updateTopic(const std::string &newTopic, const std::string &author, bool isAdmin)
+{
+	if (mode_t_ && !isAdmin)
+		throw std::runtime_error("Topic is locked.");
+	topic_ = {author, newTopic}; // Update topic with author and new topic text
 }
 
-void Channel::addUser(std::shared_ptr<Client> client, bool isOp) {
-    std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety
-    users_[client] = isOp; // Add the user with operator status if specified
-    usercount_ = users_.size(); // Update the user count
-    return; // Return true if user added successfully
+void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
+{
+	std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety
+	users_[client] = isOp;				   // Add the user with operator status if specified
+	usercount_ = users_.size();			   // Update the user count
+	return;								   // Return true if user added successfully
 }
 
 // Remove a user from the channel
@@ -188,9 +184,57 @@ bool Channel::isUserOnChannel(std::string const &nickname)
 	return false;
 }
 
+bool Channel::userIsOperator(std::string const &nickname)
+{
+	std::string lowerCaseNick = nickname;
+	std::transform(lowerCaseNick.begin(), lowerCaseNick.end(), lowerCaseNick.begin(), ::tolower); // Convert the nickname to lowercase
+	for (auto const &user : users_)
+	{
+		std::string userNick = user.first->getNickname();
+		std::transform(userNick.begin(), userNick.end(), userNick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (userNick == lowerCaseNick && user.second == true)
+			return true;
+	}
+	return false;
+}
 bool Channel::isValidChannelName(const std::string& channelName) const
 {
-    // Regex to match valid channel names
-    std::regex pattern("^[&#\\+!][^ ,\\x07]{1,49}$");  // Adjusted for max length of 50 and disallowed characters
-    return std::regex_match(channelName, pattern);
+	// Regex to match valid channel names
+	std::regex pattern("^[&#\\+!][^ ,\\x07]{1,49}$"); // Adjusted for max length of 50 and disallowed characters
+	return std::regex_match(channelName, pattern);
+}
+
+bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
+{
+	std::lock_guard<std::mutex> lock(mtx);
+	auto user = users_.find(client_ptr);
+	if (user != users_.end())
+		return user->second;
+	return false;
+}
+
+void Channel::broadcastMessage(const std::string &senderNickname, const std::string &message)
+{
+	std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
+
+	for (const auto &userPair : users_)
+	{
+		std::shared_ptr<Client> user = userPair.first;
+		if (user->getNickname() != senderNickname) // Don't send the message to the sender
+		{
+			std::string fullMessage = ":" + senderNickname + " PRIVMSG " + this->name_ + " :" + message;
+			server_->send_response(user->getFd(), fullMessage);
+		}
+	}
+}
+
+bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
+{
+	if (isOperator(client_ptr))
+		return true;
+	else if (client_ptr->getNickname() == topic_.first) // Check if the client is the one who set the topic
+		return true;
+	else
+		return false;
+
 }

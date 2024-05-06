@@ -196,3 +196,35 @@ bool Client::hasCorrectPassword(const std::string& password) const
 // {
 
 // }
+
+bool Client::isAway() const
+{
+	return awayStatus;
+}
+
+void Client::setAway(bool status, const std::string& message)
+{
+	awayStatus = status;
+	awayMessage = message;
+}
+
+std::string Client::getAwayMessage() const
+{
+	return awayMessage;
+}
+
+bool Client::isOperator()
+{
+	if (channel)
+		return channel->isOperator(std::shared_ptr<Client>(this));
+	else
+		return false;
+}
+
+std::string Client::getChannelName() const
+{
+	if (channel)
+		return channel->getName();
+	else
+		return "";
+}
