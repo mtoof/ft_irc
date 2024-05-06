@@ -1,6 +1,26 @@
 #include "Command.h"
 
+/**
+ * @brief Handles the PRIVMSG command.
+ *
+ * This function is responsible for handling the PRIVMSG command, which is used to send a private message to a user or a channel in an IRC server.
+ * It checks if the client is registered, if the recipient and message body are provided, and if the recipient exists.
+ * If the recipient is a user, it sends the message to the recipient's client.
+ * If the recipient is a channel, it broadcasts the message to all users in the channel.
+ * If the recipient does not exist, it sends an error response.
+ *
+ * @param msg The Message object containing the PRIVMSG command and its parameters.
+ */
+
 //https://tools.ietf.org/html/rfc2812#section-3.3.1
+// PRIVMSG <msgtarget> <text to be sent>
+// <msgtarget> = <to> | <channel>
+// <to> = <nickname> | <servername>
+// <channel> = "#" <channame> | "&" <servername> | "+" <servername> | "!" <servername>
+
+// PRIVMSG #channel :Hello everyone!
+// PRIVMSG user :Hello user!
+
 void Command::handlePrivmsg(const Message &msg)
 {
     std::shared_ptr<Client> client_ptr = msg.getClientPtr();
