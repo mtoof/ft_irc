@@ -36,7 +36,7 @@ void Command::extractMode(const Message &msg, const std::vector<std::string> &pa
 			extracred_modes += mode_string[i];
 		else
 		{
-			server_->send_response(fd, ERR_UNKNOWNMODE(client_ptr->getNickname().c_str(), params[1].c_str() , std::to_string(mode_string[i])));
+			server_->send_response(fd, ERR_UNKNOWNMODE(client_ptr->getNickname(), params[0], mode_string[i]));
 		}
 	}
 }
@@ -159,8 +159,8 @@ void Command::handleMode(const Message &msg)
 				server_->send_response(fd, RPL_CHANGEMODE(client_ptr->getClientPrefix(), channel_ptr->getName(), mode_string, ""));
 				return;
 				}
-			}	
+			}
 		}
-	}		
+	}
 
 

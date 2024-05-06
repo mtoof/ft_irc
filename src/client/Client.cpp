@@ -218,6 +218,4 @@ std::string Client::getChannelName() const
 	if (channel)
 		return channel->getName();
 	return "";
-	else
-		return "";
 }
