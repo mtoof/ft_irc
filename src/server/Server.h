@@ -75,8 +75,9 @@ public:
 	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;
 	const std::string &getServerHostname() const;
 	std::shared_ptr<Channel> findOrCreateChannel(const std::string& name);
-
-
+	std::vector<std::shared_ptr<Client>> findClientsByMask(const std::string &mask) const;
+	std::string createRegexFromMask(const std::string &mask) const;
+	std::string Server::toLower(const std::string& str) const;
 
 };
 

@@ -35,7 +35,10 @@
 #define RPL_AWAY(nickname, message) (":" + nickname + " AWAY :" + message + CRLF)
 #define RPL_UNAWAY(CLIENT, nickname) (CLIENT + " AWAY :" + CRLF)
 #define RPL_NOWAWAY(CLIENT, nickname) (CLIENT + " AWAY :" + CRLF)
-
+#define RPL_WHOISCHANNELS(nickname, channel) (": 319 " + nickname + " :" + channel + CRLF)
+#define RPL_WHOISOPERATOR(nickname) (": 313 " + nickname + " :is an IRC operator" + CRLF)
+#define RPL_WHOISSERVER(nickname, servername, serverinfo) (": 312 " + nickname + " " + servername + " :" + serverinfo + CRLF)
+#define RPL_WHOISIDLE(nickname, seconds, signon) (": 317 " + nickname + " " + seconds + " " + signon + " :seconds idle, signon time" + CRLF)
 // ERRORS
 
 #define ERR_NEEDMOREPARAMS(client_prefix, command) (":" + client_prefix + " 461 " + command + " :Not enough parameters given." + CRLF)
@@ -67,5 +70,5 @@
 #define ERR_NOPRIVILEGES(nickname) (": 481 " + nickname + " :Permission Denied- You're not an IRC operator" + CRLF)
 #define ERR_NORECIPIENT(nickname, command) (": 411 " + nickname + " " + command + " :No recipient given (" + command + ")" + CRLF)
 #define ERR_WILDTOPLEVEL(nickname, mask) (": 414 " + nickname + " " + mask + " :Wild in toplevel domain" + CRLF)
-
+#define ERR_NOSUCHSERVER(servername) (": 402 " + servername + " :No such server" + CRLF)
 #endif

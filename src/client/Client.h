@@ -52,6 +52,7 @@ class Client{
 	bool		const	&getRegisterStatus() const;
 	std::string const	&getClientPrefix() const;
 	std::string 		getAwayMessage() const;
+	std::string 		getChannelName() const;
 
 	// setters
 
@@ -77,6 +78,7 @@ class Client{
 	bool 		isInvited() const; // Check if the client is invited to a channel
 	bool 		hasCorrectPassword(const std::string& password) const; // Check if the client has the correct password
 	bool 		isAway() const;
+	bool		isOperator();
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?
