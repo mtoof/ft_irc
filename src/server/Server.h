@@ -77,7 +77,7 @@ public:
 	std::shared_ptr<Channel> findOrCreateChannel(const std::string& name);
 	std::vector<std::shared_ptr<Client>> findClientsByMask(const std::string &mask) const;
 	std::string createRegexFromMask(const std::string &mask) const;
-	std::string Server::toLower(const std::string& str) const;
+	std::string toLower(const std::string& str) const;
 
 };
 
