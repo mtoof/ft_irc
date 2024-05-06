@@ -70,7 +70,6 @@ void Command::handleWhois(const Message &msg) {
         return;
     }
 
-    // Check if a target server is specified
     if (parameters.size() > 1 && server_->getServerHostname() == parameters[0])
 	{
 		std::string normalizedServerName = server_->toLower(parameters[0]);
@@ -88,7 +87,6 @@ void Command::handleWhois(const Message &msg) {
         }
     }
 
-    // Split the masks based on the comma separator
     std::vector<std::string> masks = split(parameters.front(), ',');
 
     for (const auto& mask : masks)
@@ -98,15 +96,12 @@ void Command::handleWhois(const Message &msg) {
         for (const auto& whois_client_ptr : matchedClients)
 		{
             found = true;
-            // Respond with RPL_WHOISUSER
             server_->send_response(fd, RPL_WHOISUSER(server_->getServerHostname(), client_ptr->getNickname(),
                                                     whois_client_ptr->getNickname(), whois_client_ptr->getUsername(),
                                                     whois_client_ptr->getHostname(), whois_client_ptr->getRealname()));
 
-            // Check if the user is away
-            if (whois_client_ptr->isAway()) {
+            if (whois_client_ptr->isAway())
                 server_->send_response(fd, RPL_AWAY(whois_client_ptr->getNickname(), whois_client_ptr->getAwayMessage()));
-            }
 
             if (whois_client_ptr->isOperator())
                 server_->send_response(fd, RPL_WHOISOPERATOR(whois_client_ptr->getNickname()));
