@@ -105,8 +105,6 @@ bool Command::channelExists(std::string const &channel_name)
 void Command::handleCap(const Message &msg)
 {
 	(void)msg;
-
-	// Implementation for CAP command
 	return;
 }
 
