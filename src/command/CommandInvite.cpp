@@ -31,7 +31,7 @@ void Command::handleInvite(const Message &msg)
 	std::shared_ptr<Client> target = server_->findClientUsingNickname(nickname);
 	if (!target)
 	{
-		server_->send_response(fd, ERR_NOSUCHNICK(nickname));
+		server_->send_response(fd, ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), nickname));
 		return;
 	}
 

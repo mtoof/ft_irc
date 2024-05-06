@@ -20,7 +20,7 @@ void Command::handlePart(const Message &msg)
 		std::shared_ptr<Channel> channel = server_->findChannel(channelName);
 		if (!channel)
 		{
-			server_->send_response(fd, ERR_NOSUCHCHANNEL(channelName));
+			server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channelName));
 			continue;
 		}
 
