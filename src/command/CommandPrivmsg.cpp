@@ -26,20 +26,20 @@ void Command::handlePrivmsg(const Message &msg)
     std::shared_ptr<Client> client_ptr = msg.getClientPtr();
     int fd = client_ptr->getFd();
 
-
+	// Check if the client is registered, which is not necessary for the PRIVMSG command and can be removed
     if (!client_ptr->getRegisterStatus())
 	{
         server_->send_response(fd, ERR_NOTREGISTERED(server_->getServerHostname()));
         return;
     }
-
+	// Check if the recipient and message body are provided
     std::vector<std::string> parameters = msg.getParameters();
     if (parameters.empty())
 	{
         server_->send_response(fd, ERR_NORECIPIENT(client_ptr->getClientPrefix(), "PRIVMSG"));
         return;
     }
-
+	// Check if the recipient exists and is a user or a channel
     if (parameters.size() < 2)
 	{
         server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PRIVMSG"));
@@ -47,16 +47,17 @@ void Command::handlePrivmsg(const Message &msg)
     }
 
     std::string recipient = parameters[0];         // Private message in IRC is like: <user> <message>
-    std::string message_body = msg.getTrailer();
+    std::string message_body = msg.getTrailer();   // The message body is the last parameter in the message
 
 	if (message_body.empty())
 	{
-		server_->send_response(fd, ERR_NOTEXTTOSEND(client_ptr->getClientPrefix()));
+		server_->send_response(fd, ERR_NOTEXTTOSEND(client_ptr->getClientPrefix()));	// No text to send
 		return;
 	}
 
 	// Check for host or server mask targeting, which is reserved for operators
-    if ((recipient[0] == '#' || recipient[0] == '$') && !channel_->isOperator(client_ptr)) {
+    if ((recipient[0] == '#' || recipient[0] == '$') && !channel_->isOperator(client_ptr)) // if the recipient is a channel and the client is not an operator
+	{
         server_->send_response(fd, ERR_NOPRIVILEGES(client_ptr->getClientPrefix()));
         return;
     }
@@ -71,23 +72,23 @@ void Command::handlePrivmsg(const Message &msg)
     std::shared_ptr<Client> recipient_ptr = server_->findClientUsingNickname(recipient);
     if (recipient_ptr)
 	{
-		if (recipient_ptr->isAway())
+		if (recipient_ptr->isAway()) // if the recipient is away from the server
             server_->send_response(fd, RPL_AWAY(client_ptr->getNickname(), recipient_ptr->getAwayMessage()));
-        server_->send_response(recipient_ptr->getFd(), "PRIVMSG " + client_ptr->getNickname() + " :" + message_body);
+        server_->send_response(recipient_ptr->getFd(), "PRIVMSG " + client_ptr->getNickname() + " :" + message_body); // send the message to the recipient
         return;
     }
 
     std::shared_ptr<Channel> channel_ptr = server_->findChannel(recipient);
-    if (channel_ptr)
+    if (channel_ptr)	// if the recipient is a channel
 	{
         if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
             server_->send_response(fd, ERR_CANNOTSENDTOCHAN(recipient));
             return;
         }
-        channel_ptr->broadcastMessage(client_ptr->getNickname(), message_body);
+        channel_ptr->broadcastMessage(client_ptr->getNickname(), message_body); // broadcast the message to all users in the channel except the sender
         return;
     }
 
-    server_->send_response(fd, ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), recipient));
+    server_->send_response(fd, ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), recipient));  // if the recipient does not exist in the server or the channel does not exist
 }
