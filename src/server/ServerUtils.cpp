@@ -203,6 +203,7 @@ const std::string &Server::getServerHostname() const
 void Server::welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix)
 {
 	send_response(fd, RPL_CONNECTED(servername, nickname, client_prefix));
+	send_response(fd, RPL_ISUPPORT(servername, nickname));
 	send_response(fd, RPL_MOTDSTART(servername, nickname));
 	send_response(fd, RPL_MOTD(servername, nickname, "███████╗████████╗░░░░░░██╗██████╗░░█████╗░"));
 	send_response(fd, RPL_MOTD(servername, nickname, "██╔════╝╚══██╔══╝░░░░░░██║██╔══██╗██╔══██╗"));
