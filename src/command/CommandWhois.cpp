@@ -55,7 +55,7 @@ void Command::handleWhois(const Message &msg) {
             server_->send_response(fd, RPL_WHOISCHANNELS(whois_client_ptr->getNickname(), whois_client_ptr->getChannelName()));
         }
         if (!found)
-            server_->send_response(fd, ERR_NOSUCHNICK(mask));
+            server_->send_response(fd, ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), mask));
     }
 
     server_->send_response(fd, RPL_ENDOFWHOIS(server_->getServerHostname(), client_ptr->getNickname(), parameters.front()));

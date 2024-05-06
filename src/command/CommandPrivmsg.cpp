@@ -89,5 +89,5 @@ void Command::handlePrivmsg(const Message &msg)
         return;
     }
 
-    server_->send_response(fd, ERR_NOSUCHNICK(recipient));
+    server_->send_response(fd, ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), recipient));
 }
