@@ -44,13 +44,13 @@ void Command::handleWhois(const Message &msg) {
                                                     whois_client_ptr->getNickname(), whois_client_ptr->getUsername(),
                                                     whois_client_ptr->getHostname(), whois_client_ptr->getRealname()));
 
-            if (whois_client_ptr->isAway())
-                server_->send_response(fd, RPL_AWAY(whois_client_ptr->getNickname(), whois_client_ptr->getAwayMessage()));
+            // if (whois_client_ptr->isAway())
+            //     server_->send_response(fd, RPL_AWAY(whois_client_ptr->getNickname(), whois_client_ptr->getAwayMessage()));
 
-            if (whois_client_ptr->isOperator())
-                server_->send_response(fd, RPL_WHOISOPERATOR(whois_client_ptr->getNickname()));
-            server_->send_response(fd, RPL_WHOISSERVER(whois_client_ptr->getNickname(), server_->getServerHostname(), "Server Info"));
-            //TODO: server_->send_response(fd, RPL_WHOISIDLE(whois_client_ptr->getNickname(),  whois_client_ptr->getIdleTime(), "Server Info"));
+            // if (whois_client_ptr->isOperator())
+            //     server_->send_response(fd, RPL_WHOISOPERATOR(whois_client_ptr->getNickname()));
+            // server_->send_response(fd, RPL_WHOISSERVER(whois_client_ptr->getNickname(), server_->getServerHostname(), "Server Info"));
+            // //TODO: server_->send_response(fd, RPL_WHOISIDLE(whois_client_ptr->getNickname(),  whois_client_ptr->getIdleTime(), "Server Info"));
 
             server_->send_response(fd, RPL_WHOISCHANNELS(whois_client_ptr->getNickname(), whois_client_ptr->getChannelName()));
         }
