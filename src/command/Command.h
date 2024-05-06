@@ -46,6 +46,7 @@ public:
 	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
 	void broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joiningClient);
 	std::vector<std::string> split(const std::string &s, char delim);
+	void extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string);
 };
 
 #endif

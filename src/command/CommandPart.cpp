@@ -29,8 +29,9 @@ void Command::handlePart(const Message &msg)
 			server_->send_response(fd, ERR_NOTONCHANNEL(client_ptr->getNickname()));
 			continue;
 		}
-
-		channel->removeUser(client_ptr);
+		server_->send_response(fd, ":" + client_ptr->getClientPrefix() + " PART " + channelName);
+		std::cout << "raw response = " << ":" + client_ptr->getClientPrefix() + " PART " + channelName << std::endl;
 		channel->broadcastMessage(client_ptr->getNickname(), "PART " + channelName + " :" + partMessage);
+		channel->removeUser(client_ptr);
 	}
 }

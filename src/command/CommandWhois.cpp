@@ -3,7 +3,9 @@
 /*
 	TODO: getIdleTime()
 */
-void Command::handleWhois(const Message &msg) {
+// https://datatracker.ietf.org/doc/html/rfc2812#section-3.6.2
+void Command::handleWhois(const Message &msg)
+{
     std::shared_ptr<Client> client_ptr = msg.getClientPtr();
     int fd = client_ptr->getFd();
     std::vector<std::string> parameters = msg.getParameters();

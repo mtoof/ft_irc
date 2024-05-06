@@ -66,6 +66,7 @@ public:
 	void 						welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix);
 	std::shared_ptr<Channel>	createNewChannel(std::string const &channel_name);
 	std::shared_ptr<Channel>	findChannel(std::string const &channel_name);
+	void						removeChannel(std::string const &channel_name);
 
 
 //getter

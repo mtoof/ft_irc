@@ -4,6 +4,6 @@
 #include <limits>
 
 #define NICK_MAX_LENGTH 9
-#define DEFAULT_MAX_CLIENTS std::numeric_limits<unsigned int>::max() // No limit by default
+#define DEFAULT_MAX_CLIENTS std::numeric_limits<unsigned int>::max()
 
 #endif

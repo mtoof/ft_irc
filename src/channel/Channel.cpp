@@ -238,3 +238,14 @@ bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
 		return false;
 
 }
+
+std::string const &Channel::getMode() const
+{
+	return mode_;
+}
+
+void Channel::setMode(const std::string &mode)
+{
+	mode_ = mode;
+}
+
