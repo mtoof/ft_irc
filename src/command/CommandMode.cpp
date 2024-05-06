@@ -77,7 +77,7 @@ void Command::handleMode(const Message &msg)
 					server_->send_response(fd, ERR_NOTONCHANNEL(target));
 					return;
 				}
-				if (!channel_ptr->userIsOperator(client_ptr->getNickname()))
+				if (!channel_ptr->isOperator(client_ptr))
 				{
 					server_->send_response(fd, ERR_NOTOPERATOR(target));
 					return;

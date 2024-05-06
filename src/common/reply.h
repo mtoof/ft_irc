@@ -33,7 +33,13 @@
 #define RPL_MOTDSTART(servername, nickname)(":" + servername + " 375 " + nickname + " :- " + servername + " Message of the day -" + CRLF)
 #define RPL_MOTD(servername, nickname, message)(":" + servername + " 372 " + nickname + " :- " + message + CRLF)
 #define RPL_MOTDEND(servername, nickname)(":" + servername + " 376 " + nickname + " :End of MOTD command" + CRLF)
-
+#define RPL_AWAY(nickname, message) (":" + nickname + " AWAY :" + message + CRLF)
+#define RPL_UNAWAY(CLIENT, nickname) (CLIENT + " AWAY :" + CRLF)
+#define RPL_NOWAWAY(CLIENT, nickname) (CLIENT + " AWAY :" + CRLF)
+#define RPL_WHOISCHANNELS(nickname, channel) (": 319 " + nickname + " :" + channel + CRLF)
+#define RPL_WHOISOPERATOR(nickname) (": 313 " + nickname + " :is an IRC operator" + CRLF)
+#define RPL_WHOISSERVER(nickname, servername, serverinfo) (": 312 " + nickname + " " + servername + " :" + serverinfo + CRLF)
+#define RPL_WHOISIDLE(nickname, seconds, signon) (": 317 " + nickname + " " + seconds + " " + signon + " :seconds idle, signon time" + CRLF)
 // ERRORS
 
 #define ERR_NEEDMOREPARAMS(client_prefix, command) (":" + client_prefix + " 461 " + command + " :Not enough parameters given." + CRLF)
@@ -51,7 +57,7 @@
 #define ERR_NOTOPERATOR(channelname) (": 482 " + channelname + " :You're not a channel operator" + CRLF)
 #define ERR_NOSUCHCHANNEL(servername, nickname, channel) (":" + servername + " 403 " + nickname + " " + channel + " :No such channel" + CRLF)
 #define ERR_CMDNOTFOUND(nickname, command) (": 421 " + nickname + " " + command + " :Unknown command" + CRLF)
-#define ERR_NOTONCHANNEL(channel) ("442 " + channel + " :You're not on that channel" + CRLF)
+#define ERR_NOTONCHANNEL(channelname) (": 442 " + channelname + " :You're not on that channel" + CRLF)
 #define ERR_INVITEONLYCHAN(hostname, nickname, channel) (":" + hostname + " 473 " + nickname + " " + channel + " :Cannot join channel (+i)" + CRLF)
 #define ERR_BADCHANNELKEY(channel) ("475 " + channel + " :Cannot join channel (+k)" + CRLF)
 #define ERR_CHANNELISFULL(channel) ("471 " + channel + " :Cannot join channel (+l)" + CRLF)
@@ -59,4 +65,12 @@
 #define ERR_CHANOPRIVSNEEDED(channel) ("482 " + channel + " :You're not a channel operator" + CRLF)
 #define ERR_NOSUCHNICK(servername, nickname, target) (":" + servername + " 401 " + nickname + " " + target +" :No such nick/channel" + CRLF)
 #define ERR_USERSDONTMATCH(servername, nickname) (":" + servername + " 502 " + nickname + ":Can't change mode for other users" + CRLF)
+#define ERR_CANNOTSENDTOCHAN(channel) ("404 " + channel + " :Cannot send to channel" + CRLF)
+#define ERR_USERNOTINCHANNEL(nickname, channel) (": 441 " + nickname + " " + channel + " :They aren't on that channel" + CRLF)
+#define ERR_BADCHANMASK(channel) (": 476 " + channel + " :Bad Channel Mask" + CRLF)
+#define ERR_NOTEXTTOSEND(nickname) (": 412 " + nickname + " :No text to send" + CRLF)
+#define ERR_NOPRIVILEGES(nickname) (": 481 " + nickname + " :Permission Denied- You're not an IRC operator" + CRLF)
+#define ERR_NORECIPIENT(nickname, command) (": 411 " + nickname + " " + command + " :No recipient given (" + command + ")" + CRLF)
+#define ERR_WILDTOPLEVEL(nickname, mask) (": 414 " + nickname + " " + mask + " :Wild in toplevel domain" + CRLF)
+#define ERR_NOSUCHSERVER(servername) (": 402 " + servername + " :No such server" + CRLF)
 #endif

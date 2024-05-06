@@ -67,8 +67,8 @@ std::shared_ptr<Client> Server::findClientUsingFd(int fd) const
 
 /**
  * @brief for finding client using nickname
- * @param nickname 
- * @return std::shared_ptr<Client> 
+ * @param nickname
+ * @return std::shared_ptr<Client>
  */
 std::shared_ptr<Client> Server::findClientUsingNickname(std::string const &nickname) const
 {
@@ -88,8 +88,8 @@ std::shared_ptr<Client> Server::findClientUsingNickname(std::string const &nickn
 
 /**
  * @brief for finding client using old nickname
- * @param nickname 
- * @return std::shared_ptr<Client> 
+ * @param nickname
+ * @return std::shared_ptr<Client>
  */
 std::shared_ptr<Client> Server::findClientUsingOldNickname(std::string const &nickname) const
 {
@@ -107,17 +107,16 @@ std::shared_ptr<Client> Server::findClientUsingOldNickname(std::string const &ni
 	return nullptr;
 }
 
-
 /**
  * @brief function for finding channel by name.
  * this search is currently case sensitive, which it probably should not be
  * TODO: convert names to lowercase for comparison
- * @param channel_name 
- * @return std::shared_ptr<Channel> 
+ * @param channel_name
+ * @return std::shared_ptr<Channel>
  */
 std::shared_ptr<Channel> Server::findChannel(std::string const &channel_name)
 {
-	if(channels_.empty())
+	if (channels_.empty())
 		return nullptr;
 	auto iter = channels_.find(channel_name);
 	if (iter != channels_.end())
@@ -169,10 +168,10 @@ char *Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress)
 
 void Server::send_response(int fd, const std::string &response)
 {
-	std::cout << "Response:\n" << response;
+	std::cout << "Response:\n"
+			  << response;
 	if (send(fd, response.c_str(), response.length(), 0) < 0)
 		debug("Response send() faild", FAILED);
-
 }
 
 // getter for map of supported commands
@@ -197,10 +196,10 @@ const std::string &Server::getServerHostname() const
 }
 
 /// @brief because user needs to feel welcome, they need to receive a welcome message
-/// @param fd 
-/// @param servername 
-/// @param nickname 
-/// @param client_prefix 
+/// @param fd
+/// @param servername
+/// @param nickname
+/// @param client_prefix
 void Server::welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix)
 {
 	send_response(fd, RPL_CONNECTED(servername, nickname, client_prefix));
@@ -238,4 +237,63 @@ void Server::welcomeAndMOTD(int fd, std::string const &servername, std::string c
 	send_response(fd, RPL_MOTD(servername, nickname, "Lieutenant Gorman to the marines before landing to terraforming colony on exomoon LV-426"));
 	send_response(fd, RPL_MOTD(servername, nickname, "Aliens, 1986"));
 	send_response(fd, RPL_MOTDEND(servername, nickname));
+}
+
+std::vector<std::shared_ptr<Client>> Server::findClientsByMask(const std::string &mask) const
+{
+	std::vector<std::shared_ptr<Client>> matchedClients;
+	std::regex pattern(createRegexFromMask(mask)); // Convert mask to regex pattern, assuming you have a function to handle this
+
+	for (const auto &clientPair : clients_)
+	{
+		std::string user_nick = clientPair.second->getNickname();
+		if (std::regex_match(user_nick, pattern))
+			matchedClients.push_back(clientPair.second);
+	}
+	return matchedClients;
+}
+
+std::string Server::createRegexFromMask(const std::string &mask) const
+{
+	std::string regex;
+	regex.reserve(mask.size() * 2); // Reserve enough space to avoid frequent reallocations
+
+	for (char ch : mask)
+	{
+		switch (ch)
+		{
+		case '*':
+			regex.append(".*"); // Replace * with .* in the regex pattern (matches any sequence of characters)
+			break;
+		case '?':
+			regex.append("."); // Replace ? with . in the regex pattern (matches any single character)
+			break;
+		case '\\':
+		case '^':
+		case '$':
+		case '.':
+		case '|':
+		case '(':
+		case ')':
+		case '[':
+		case ']':
+		case '{':
+		case '}':
+		case '+':
+			regex.append("\\"); // Escape special characters
+		default:
+			regex.push_back(ch); // Append the character as is to the regex pattern
+			break;
+		}
+	}
+
+	return regex;
+}
+
+std::string Server::toLower(const std::string& str) const
+{
+    std::string lowerStr = str;
+    std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
+                   [](unsigned char c){ return std::tolower(c); });
+    return lowerStr;
 }
