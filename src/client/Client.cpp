@@ -213,12 +213,6 @@ std::string Client::getAwayMessage() const
 	return awayMessage;
 }
 
-bool Client::isOperator()
-{
-	if (channel)
-		return channel->isOperator(std::shared_ptr<Client>(this));
-}
-
 std::string Client::getChannelName() const
 {
 	if (channel)

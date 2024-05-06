@@ -20,7 +20,7 @@ void Command::handleTopic(const Message &msg)
 
 	if (!channel)
 	{
-		server_->send_response(fd, ERR_NOSUCHCHANNEL(channelName));
+		server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channelName));
 		return;
 	}
 

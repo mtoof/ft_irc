@@ -47,7 +47,7 @@ void Command::handleWhois(const Message &msg) {
             if (whois_client_ptr->isAway())
                 server_->send_response(fd, RPL_AWAY(whois_client_ptr->getNickname(), whois_client_ptr->getAwayMessage()));
 
-            if (whois_client_ptr->isOperator())
+            if (channel_->isOperator(whois_client_ptr))
                 server_->send_response(fd, RPL_WHOISOPERATOR(whois_client_ptr->getNickname()));
             server_->send_response(fd, RPL_WHOISSERVER(whois_client_ptr->getNickname(), server_->getServerHostname(), "Server Info"));
             //TODO: server_->send_response(fd, RPL_WHOISIDLE(whois_client_ptr->getNickname(),  whois_client_ptr->getIdleTime(), "Server Info"));
