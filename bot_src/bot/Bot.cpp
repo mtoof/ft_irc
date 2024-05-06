@@ -17,7 +17,7 @@ void Bot::init_bot()
 	if (Bot::signal_)
 		return;
 	createBotSocket();
-	poll_fd_.fd = bot_socket_;
+	poll_fd_.fd = server_fd_;
     poll_fd_.events = POLLIN | POLL_OUT;
     poll_fd_.revents = 0;
 	int event;
@@ -32,52 +32,76 @@ void Bot::init_bot()
 		}
 	}
 	close(poll_fd_.fd);
-	close(bot_socket_);
+	close(server_fd_);
 }
 
 void Bot::createBotSocket()
 {
-	// Create a socket
-	bot_socket_ = socket(AF_INET, SOCK_STREAM, 0);
-	if (bot_socket_ < 0) {
+	memset(&addr_info_, 0, sizeof addr_info_);
+	addr_info_.ai_family = AF_UNSPEC;
+	addr_info_.ai_socktype = SOCK_STREAM;
+	// first, load up address structs with getaddrinfo():
+	getaddrinfo(server_addr_.c_str(), std::to_string(server_port_).c_str(), &addr_info_, &serv_addr_info_);
+	server_fd_ = socket(serv_addr_info_->ai_family, serv_addr_info_->ai_socktype, serv_addr_info_->ai_protocol);
+	if (server_fd_ < 0) {
 		std::cerr << "Error creating socket" << std::endl;
 		return ;
 	}
 	std::cout << "Bot created a socket successfuly" << std::endl;
-	// Set server address
-	server_socket_addr_.sin_family = AF_INET;
-	server_socket_addr_.sin_port = htons(server_port_); // Common IRC port
-	inet_pton(AF_INET, server_addr_.c_str(), &(server_socket_addr_.sin_addr));
-	int flags = fcntl(bot_socket_, F_GETFL, 0);
+	int flags = fcntl(server_fd_, F_GETFL, 0);
     if (flags < 0)
 	{
-		close(bot_socket_); // Close the socket if fcntl fails
+		close(server_fd_); // Close the socket if fcntl fails
 		throw std::runtime_error("Error getting socket flags");
 	}
-    if (fcntl(bot_socket_, F_SETFL, flags | O_NONBLOCK) < 0)
+    if (fcntl(server_fd_, F_SETFL, flags | O_NONBLOCK) < 0)
 	{
-		close(bot_socket_); // Close the socket if fcntl fails
+		close(server_fd_); // Close the socket if fcntl fails
 		throw std::runtime_error("Error setting socket to NON-BLOCKING");
 	}
     // Connect to server
-	if (connect(bot_socket_, (struct sockaddr *)&server_socket_addr_, sizeof(server_socket_addr_)) < 0)
+	if (connect(server_fd_, serv_addr_info_->ai_addr, serv_addr_info_->ai_addrlen) < 0)
 	{
 		if (errno != EINPROGRESS) { // Check if connection is in progress
 			std::cerr << "Error connecting to server" << std::endl;
-			close(bot_socket_); // Close the socket if connect fails
+			close(server_fd_); // Close the socket if connect fails
 			return;
 		}
 	}
 	std::cout << "Bot connected to server successfuly" << std::endl;
+	free(serv_addr_info_);
 	sendInfo();
 }
 
 void Bot::sendInfo()
 {
-	std::cout << "info_file_ = " << getInfoFile() << std::endl;
 	if (info_file_.empty())
-		throw std::runtime_error("Need a config file");
+	throw std::runtime_error("Need a config file");
 	std::ifstream info_file(info_file_);
+	readFile(info_file);
+	std::string line;
+	line.clear();
+	while (std::getline(info_file, line))
+	{
+		line += "\r\n";
+		if (send(server_fd_, line.c_str(), line.length(), 0) < 0)
+		{
+			std::cout << RED "Couldn't send data, Check the connection please!" RESET << std::endl;
+			info_file.clear();
+			info_file.seekg(0, info_file.beg);
+			info_file.close();
+			close(server_fd_);
+			reConnection();
+		}
+		
+	}
+	info_file.clear();
+	info_file.seekg(0, info_file.beg);
+	info_file.close();
+}
+
+void Bot::readFile(std::ifstream &info_file)
+{
 	if (!info_file.is_open())
 	{
 		throw std::runtime_error("Error opening the file!");
@@ -91,29 +115,10 @@ void Bot::sendInfo()
 			throw std::runtime_error(" Is a directory");
 		}
 	}
-	std::string line;
 	if (info_file.eof())
 	{
 		throw std::runtime_error("Config file is empty");	
 	}
-	line.clear();
-	while (std::getline(info_file, line))
-	{
-		line += "\r\n";
-		if (send(bot_socket_, line.c_str(), line.length(), 0) < 0)
-		{
-			std::cout << RED "Couldn't send data, Check the connection please!" RESET << std::endl;
-			info_file.clear();
-			info_file.seekg(0, info_file.beg);
-			info_file.close();
-			close(bot_socket_);
-			reConnection();
-		}
-		
-	}
-	info_file.clear();
-	info_file.seekg(0, info_file.beg);
-	info_file.close();
 }
 
 void Bot::signalhandler(int signum)
@@ -160,6 +165,6 @@ void Bot::reConnection()
 	}
 	std::cout << "\nRetry again!!!\n" << std::flush;
 	counter = 10;
-	close(bot_socket_);
+	close(server_fd_);
 	init_bot();
 }

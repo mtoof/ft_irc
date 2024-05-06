@@ -15,7 +15,7 @@ BOT_NAME = bot_v1
 SRC_DIR = src
 OBJ_DIR = obj/
 BOT_OBJ_DIR = obj/bot/
-BOT_DIR = bot
+BOT_DIR = bot_src
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++17 #-g -fsanitize=address
 
@@ -46,8 +46,7 @@ $(BOT_NAME): $(BOT_OBJS)
 
 
 $(BOT_OBJ_DIR)%.o: $(BOT_DIR)/%.cpp $(BOT_HEADERS)
-	@mkdir -p $(OBJ_DIR)
-	@mkdir -p $(BOT_OBJ_DIR)
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

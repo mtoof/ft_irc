@@ -1,6 +1,6 @@
-#include "Bot.h"
-#include "../src/headers.h"
-#include "../src/server/Server.h"
+#include "bot/Bot.h"
+#include "headers.h"
+
 void convertArgs(std::string &server_address, int &port, std::string &password, char **av)
 {
 	int index;
