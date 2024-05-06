@@ -62,6 +62,7 @@ class Channel
 		void addUser(std::shared_ptr<Client> client, bool isOp);
 		void removeUser(std::shared_ptr<Client> client);
 		bool isUserOnChannel(std::string const &nickname);
+		bool userIsOperator(std::string const &nickname);
 		void updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin);
 		bool isValidChannelName(const std::string& channelName) const;
 		void broadcastMessage(const std::string &senderNickname, const std::string &message);

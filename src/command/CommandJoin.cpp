@@ -19,7 +19,6 @@ void Command::handleJoin(const Message &msg)
 	}
 
 	std::string channel_name = parameters.front();
-
 	if (channel_name == "0")
 	{
 		// leave all channels
@@ -29,7 +28,7 @@ void Command::handleJoin(const Message &msg)
 
 	if (!channel_->isValidChannelName(channel_name))
 	{
-		server_->send_response(fd, ERR_NOSUCHCHANNEL(channel_name));
+		server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 		return;
 	}
 
@@ -45,14 +44,14 @@ void Command::handleJoin(const Message &msg)
 			channel_ptr->addUser(client_ptr, true); // First user becomes the operator
 			break;
 		case '!': // Safe channels require special handling
-			server_->send_response(fd, ERR_NOSUCHCHANNEL(channel_name));
+			server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			return;
 		case '+': // No modes can be set
 			channel_ptr = server_->createNewChannel(channel_name);
 			channel_ptr->addUser(client_ptr, false);
 			break;
 		default:
-			server_->send_response(fd, ERR_NOSUCHCHANNEL(channel_name));
+			server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			return;
 		}
 	}

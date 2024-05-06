@@ -184,7 +184,20 @@ bool Channel::isUserOnChannel(std::string const &nickname)
 	return false;
 }
 
-bool Channel::isValidChannelName(const std::string &channelName) const
+bool Channel::userIsOperator(std::string const &nickname)
+{
+	std::string lowerCaseNick = nickname;
+	std::transform(lowerCaseNick.begin(), lowerCaseNick.end(), lowerCaseNick.begin(), ::tolower); // Convert the nickname to lowercase
+	for (auto const &user : users_)
+	{
+		std::string userNick = user.first->getNickname();
+		std::transform(userNick.begin(), userNick.end(), userNick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (userNick == lowerCaseNick && user.second == true)
+			return true;
+	}
+	return false;
+}
+bool Channel::isValidChannelName(const std::string& channelName) const
 {
 	// Regex to match valid channel names
 	std::regex pattern("^[&#\\+!][^ ,\\x07]{1,49}$"); // Adjusted for max length of 50 and disallowed characters
