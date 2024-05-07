@@ -13,24 +13,25 @@ void Command::handlePart(const Message &msg)
 	}
 
 	std::vector<std::string> channels = split(parameters[0], ',');
-	std::string partMessage = parameters.size() > 1 ? parameters[1] : client_ptr->getNickname(); // default part message is the nickname
+	std::string part_message = msg.getTrailer().empty() ? client_ptr->getNickname() : msg.getTrailer(); // default part message is the nickname
 
-	for (const std::string &channelName : channels)
+	for (const std::string &channel_name : channels)
 	{
-		std::shared_ptr<Channel> channel = server_->findChannel(channelName);
-		if (!channel)
+		std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
+		if (!channel_ptr)
 		{
-			server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channelName));
+			server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			continue;
 		}
 
-		if (!channel->isUserOnChannel(client_ptr->getNickname()))
+		if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
 			server_->send_response(fd, ERR_NOTONCHANNEL(client_ptr->getNickname()));
 			continue;
 		}
-
-		channel->removeUser(client_ptr);
-		channel->broadcastMessage(client_ptr->getNickname(), client_ptr->getClientPrefix(), "PART " + channelName + " :" + partMessage);
+		channel_ptr->removeUser(client_ptr);
+		client_ptr->leaveChannel(channel_ptr);
+		server_->send_response(fd, ":" + client_ptr->getClientPrefix() + " PART " + channel_name + " :" + part_message + CRLF);
+		channel_ptr->broadcastMessage(client_ptr, ":" + client_ptr->getClientPrefix() + " PART " + channel_name + " :" + part_message + CRLF);
 	}
 }

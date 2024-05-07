@@ -210,17 +210,17 @@ bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
 	return false;
 }
 
-void Channel::broadcastMessage(const std::string &sender_nickname, const std::string &sender_prefix, const std::string &message)
+void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message)
 {
 	std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
 
 	for (const auto &userPair : users_)
 	{
 		std::shared_ptr<Client> user = userPair.first;
-		if (user->getNickname() != sender_nickname) // Don't send the message to the sender
+		if (user != sender_ptr) // Don't send the message to the sender
 		{
-			std::string fullMessage = ":" + sender_prefix + " PRIVMSG " + this->name_ + " :" + message + CRLF;
-			server_->send_response(user->getFd(), fullMessage);
+			//std::string fullMessage = ":" + sender_prefix + " PRIVMSG " + this->name_ + " :" + message + CRLF;
+			server_->send_response(user->getFd(), message);
 		}
 	}
 }

@@ -7,7 +7,7 @@
 
 // REPLIES
 
-#define RPL_PRIVMSG(CLIENT, target, text) (CLIENT + " PRIVMSG " + target + " " + text + CRLF)
+#define RPL_PRIVMSG(client_prefix, target, message) (":" + client_prefix + " PRIVMSG " + target + " :" + message + CRLF)
 #define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
 #define RPL_CONNECTED(servername, nickname, client_prefix) (":" + servername + " 001 " + nickname + " :Welcome to the best ever IRC server! " + client_prefix + CRLF)
 #define RPL_NICKCHANGE(oldprefix, nickname) (":" + oldprefix + " NICK " + nickname + CRLF)
@@ -40,6 +40,7 @@
 #define RPL_WHOISOPERATOR(nickname) (": 313 " + nickname + " :is an IRC operator" + CRLF)
 #define RPL_WHOISSERVER(nickname, servername, serverinfo) (": 312 " + nickname + " " + servername + " :" + serverinfo + CRLF)
 #define RPL_WHOISIDLE(nickname, seconds, signon) (": 317 " + nickname + " " + seconds + " " + signon + " :seconds idle, signon time" + CRLF)
+
 // ERRORS
 
 #define ERR_NEEDMOREPARAMS(client_prefix, command) (":" + client_prefix + " 461 " + command + " :Not enough parameters given." + CRLF)

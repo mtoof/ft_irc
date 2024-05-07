@@ -53,8 +53,14 @@ void Command::handleNick(const Message &msg)
 		client_ptr->registerClient();
 		server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
 	}
-	//else
-	
+	std::vector<std::shared_ptr<Channel>> channel_list = client_ptr->getChannels();//else
+	if (!channel_list.empty())
+	{
+		for (auto channel: channel_list)
+		{
+			channel->broadcastMessage(client_ptr, RPL_NICKCHANGECHANNEL(old_prefix, new_nickname));
+		}
+	}
 	// TODO: broadcast nickname change other users on same channel
 	// can be done with this macro: RPL_NICKCHANGECHANNEL(old_prefix, nickname)
 	//debugWhois(client_ptr);

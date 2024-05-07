@@ -65,7 +65,7 @@ class Channel
 		bool userIsOperator(std::string const &nickname);
 		void updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin);
 		bool isValidChannelName(const std::string& channelName) const;
-		void broadcastMessage(const std::string &sender_nickname, const std::string &sender_prefix, const std::string &message);
+		void broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message);
 		bool isOperator(std::shared_ptr<Client> client_ptr);
 		bool canChangeTopic(std::shared_ptr<Client> client_ptr);
 		bool isCorrectPassword(const std::string& given_password);
