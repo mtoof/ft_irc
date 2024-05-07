@@ -7,12 +7,12 @@
 
 // REPLIES
 
-#define RPL_PRIVMSG(CLIENT, target, text) (CLIENT + " PRIVMSG " + target + " " + text + CRLF)
+#define RPL_PRIVMSG(client_prefix, target, message) (":" + client_prefix + " PRIVMSG " + target + " :" + message + CRLF)
 #define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
 #define RPL_CONNECTED(servername, nickname, client_prefix) (":" + servername + " 001 " + nickname + " :Welcome to the best ever IRC server! " + client_prefix + CRLF)
 #define RPL_NICKCHANGE(oldprefix, nickname) (":" + oldprefix + " NICK " + nickname + CRLF)
 #define RPL_UMODEIS(NICK, modes) (":" + NICK + " MODE " + NICK + " :" + modes + CRLF)
-#define RPL_ISUPPORT(servername, nickname) (":" + servername + " 005 " + nickname + " AWAYLEN=200 NICKLEN=9 TOPICLEN=307 MODES=4 KICKLEN=255 CHANTYPES=# CHANNELLEN=32 :are supported on this server" + CRLF)
+#define RPL_ISUPPORT(servername, nickname) (":" + servername + " 005 " + nickname + " AWAYLEN=200 NICKLEN=NICK_MAX_LENGTH TOPICLEN=307 MODES=4 KICKLEN=255 CHANTYPES=# CHANNELLEN=32 :are supported on this server" + CRLF)
 #define RPL_CREATIONTIME(nickname, channelname, creationtime) (": 329 " + nickname + " #" + channelname + " " + creationtime + CRLF)
 #define RPL_CHANNELMODEIS(servername, nickname, channelname, modes) (":" + servername + " 324 " + nickname + " " + channelname + " " + modes + CRLF)
 #define RPL_CHANGEMODE(client_prefix, channelname, mode, arguments) (":" + client_prefix + " MODE " + channelname + " " + mode + " " + arguments + CRLF)
@@ -42,6 +42,7 @@
 #define RPL_WHOISOPERATOR(nickname) (": 313 " + nickname + " :is an IRC operator" + CRLF)
 #define RPL_WHOISSERVER(nickname, servername, serverinfo) (": 312 " + nickname + " " + servername + " :" + serverinfo + CRLF)
 #define RPL_WHOISIDLE(nickname, seconds, signon) (": 317 " + nickname + " " + seconds + " " + signon + " :seconds idle, signon time" + CRLF)
+
 // ERRORS
 
 #define ERR_NEEDMOREPARAMS(client_prefix, command) (":" + client_prefix + " 461 " + command + " :Not enough parameters given." + CRLF)

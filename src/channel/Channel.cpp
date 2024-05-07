@@ -188,13 +188,10 @@ bool Channel::isUserOnChannel(std::string const &nickname)
 
 bool Channel::userIsOperator(std::string const &nickname)
 {
-	std::string lowerCaseNick = nickname;
-	std::transform(lowerCaseNick.begin(), lowerCaseNick.end(), lowerCaseNick.begin(), ::tolower); // Convert the nickname to lowercase
+	//std::string lowerCaseNick = ;
 	for (auto const &user : users_)
 	{
-		std::string userNick = user.first->getNickname();
-		std::transform(userNick.begin(), userNick.end(), userNick.begin(), ::tolower); // Convert the user's nickname to lowercase
-		if (userNick == lowerCaseNick && user.second == true)
+		if (server_->toLower(user.first->getNickname()) == server_->toLower(nickname) && user.second == true)
 			return true;
 	}
 	return false;
@@ -215,17 +212,17 @@ bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
 	return false;
 }
 
-void Channel::broadcastMessage(const std::string &senderNickname, const std::string &message)
+void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message)
 {
 	std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
 
 	for (const auto &userPair : users_)
 	{
 		std::shared_ptr<Client> user = userPair.first;
-		if (user->getNickname() != senderNickname) // Don't send the message to the sender
+		if (user != sender_ptr) // Don't send the message to the sender
 		{
-			std::string fullMessage = ":" + senderNickname + " PRIVMSG " + this->name_ + " :" + message;
-			server_->send_response(user->getFd(), fullMessage);
+			//std::string fullMessage = ":" + sender_prefix + " PRIVMSG " + this->name_ + " :" + message + CRLF;
+			server_->send_response(user->getFd(), message);
 		}
 	}
 }
@@ -241,12 +238,7 @@ bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
 
 }
 
-bool const &Channel::getDisableStatus() const
+bool Channel::isCorrectPassword(const std::string& given_password)
 {
-	return disabled_;
-}
-
-void Channel::setDisableStatus(bool const &status)
-{
-	disabled_ = status;
+	return channel_key_ == given_password;
 }

@@ -172,10 +172,10 @@ bool Client::isInvited() const
 }
 
 // Implementation of hasCorrectPassword method to check if the client has the correct password for a channel
-bool Client::hasCorrectPassword(const std::string& password) const
-{
-	return password_ && password == channel->getChannelKey();
-}
+// bool Client::hasCorrectPassword(const std::string& password) const
+// {
+// 	return password_ && password == channel->getChannelKey();
+// }
 
 // this function is supposed to send a message to client
 // void		Client::sendMessage(std::string const &message)
@@ -213,18 +213,39 @@ std::string Client::getAwayMessage() const
 	return awayMessage;
 }
 
-bool Client::isOperator()
+// bool Client::isOperator()
+// {
+// 	if (channel)
+// 		return channel->isOperator(std::shared_ptr<Client>(this));
+// 	else
+// 		return false;
+// }
+
+// std::string Client::getChannelName() const
+// {
+// 	if (channel)
+// 		return channel->getName();
+// 	else
+// 		return "";
+// }
+
+bool	Client::joinChannel(const std::shared_ptr<Channel>& channel_ptr)
 {
-	if (channel)
-		return channel->isOperator(std::shared_ptr<Client>(this));
-	else
+	if (channels_.size() >= CLIENT_MAX_CHANNELS)
 		return false;
+    std::lock_guard<std::mutex> lock(channels_mutex_);
+    channels_.push_back(channel_ptr);
+	return true;
 }
 
-std::string Client::getChannelName() const
+void Client::leaveChannel(const std::shared_ptr<Channel>& channel_ptr)
 {
-	if (channel)
-		return channel->getName();
-	else
-		return "";
+	std::lock_guard<std::mutex> lock(channels_mutex_);
+    channels_.erase(std::remove(channels_.begin(), channels_.end(), channel_ptr), channels_.end());
+}
+
+std::vector<std::shared_ptr<Channel>> Client::getChannels() const 
+{
+        std::lock_guard<std::mutex> lock(channels_mutex_);
+        return channels_;
 }

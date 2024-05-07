@@ -74,8 +74,8 @@ void Command::handleJoin(const Message &msg)
 		}
 		if (channel_ptr->isPasswordProtected())
 		{
-			std::string givenPassword = parameters.size() > 1 ? parameters[1] : "";
-			if (!client_ptr->hasCorrectPassword(givenPassword))
+			std::string given_password = parameters.size() > 1 ? parameters[1] : "";
+			if (!channel_ptr->isCorrectPassword(given_password))
 			{
 				server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
 				return;
@@ -87,6 +87,7 @@ void Command::handleJoin(const Message &msg)
 		channel_ptr->setDisableStatus(false);
 		channel_ptr->addUser(client_ptr, false);
 	}
+	client_ptr->joinChannel(channel_ptr);
 	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
 	sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), fd);
 	broadcastJoinToChannel(channel_ptr, client_ptr);
