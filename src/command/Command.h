@@ -49,6 +49,7 @@ public:
 	std::vector<std::string> split(const std::string &s, char delim);
 	void extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string);
 	void applyChannelModes(std::shared_ptr<Channel> channel, const std::string &mode_string, const std::string &mode_arguments, int fd);
+	
 };
 
 #endif
