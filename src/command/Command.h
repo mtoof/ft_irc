@@ -40,10 +40,12 @@ public:
 	void handleTopic(const Message &msg);
 	void handleInvite(const Message &msg);
 	void handleAway(const Message &msg);
+	void handleWho(const Message &msg);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);
 	bool channelExists(std::string const &channel_name);
 	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
+	void sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
 	void broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joiningClient);
 	std::vector<std::string> split(const std::string &s, char delim);
 };

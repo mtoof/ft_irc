@@ -55,7 +55,7 @@ void Command::handleJoin(const Message &msg)
 			return;
 		}
 	}
-	else
+	else if (channel_ptr && channel_ptr->getDisableStatus())
 	{
 		if (channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
@@ -81,6 +81,10 @@ void Command::handleJoin(const Message &msg)
 				return;
 			}
 		}
+	}
+	else
+	{
+		channel_ptr->setDisableStatus(false);
 		channel_ptr->addUser(client_ptr, false);
 	}
 	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));

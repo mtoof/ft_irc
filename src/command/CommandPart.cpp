@@ -30,7 +30,10 @@ void Command::handlePart(const Message &msg)
 			continue;
 		}
 
-		channel->removeUser(client_ptr);
 		channel->broadcastMessage(client_ptr->getNickname(), "PART " + channelName + " :" + partMessage);
+		channel->removeUser(client_ptr);
+		server_->send_response(fd, ":" + client_ptr->getClientPrefix() + " PART " + channelName + " :" + client_ptr->getNickname());
+		// if (!channel->getUserCount())
+		// 	server_->deleteChannel(channelName);
 	}
 }

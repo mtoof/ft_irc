@@ -297,3 +297,9 @@ std::string Server::toLower(const std::string& str) const
                    [](unsigned char c){ return std::tolower(c); });
     return lowerStr;
 }
+
+void Server::deleteChannel(std::string const &channelname)
+{
+	if (this->findChannel(channelname))
+		channels_.erase(channelname);
+}

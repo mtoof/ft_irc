@@ -159,6 +159,8 @@ void Channel::removeUser(std::shared_ptr<Client> client)
 	std::lock_guard<std::mutex> lock(mtx); // We are modifying the users_ map and usercount_ variable in this function and we don't want other threads to access them at the same time
 	if (users_.erase(client))
 		usercount_ = users_.size();
+	if (!usercount_)
+		setDisableStatus(true);
 }
 
 /**
@@ -237,4 +239,14 @@ bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
 	else
 		return false;
 
+}
+
+bool const &Channel::getDisableStatus() const
+{
+	return disabled_;
+}
+
+void Channel::setDisableStatus(bool const &status)
+{
+	disabled_ = status;
 }

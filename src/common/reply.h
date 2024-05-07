@@ -18,6 +18,8 @@
 #define RPL_CHANGEMODE(client_prefix, channelname, mode, arguments) (":" + client_prefix + " MODE " + channelname + " " + mode + " " + arguments + CRLF)
 #define RPL_JOINMSG(clientprefix, channelname) (":" + clientprefix + " JOIN " + channelname + CRLF)
 #define RPL_NAMREPLY(servername, nickname, channelname, clientslist) (":" + servername + " 353 " + nickname + " = " + channelname + " :" + clientslist + CRLF)
+#define RPL_WHOREPLY(servername, nick, channelname, username, host, userlist, flag, realname) (servername + " 352 " + nick + " " + channelname + " ~" + username + " " + host + " " + userlist + " " + flag + "H" + " " + ":0 " + realname + CRLF)
+#define RPL_ENDOFWHO(servername, nickname, channelname) (servername + " 315 " + nickname + " " + channelname + " " + ":End of /WHO list." + CRLF)
 #define RPL_ENDOFNAMES(servername, nickname, channelname) (":" + servername + " 366 " + nickname + " " + channelname + " :END of /NAMES list" + CRLF)
 #define RPL_TOPICIS(nickname, channelname, topic) (": 332 " + nickname + " " + channelname + " :" + topic + CRLF)
 #define RPL_INVITING(nickname, channelname, invited) ("341 " + nickname + " " + invited + " " + channelname + CRLF)

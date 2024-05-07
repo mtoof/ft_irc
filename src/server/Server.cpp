@@ -34,6 +34,7 @@ Server::Server(int port, std::string password) : host_(""), port_(port), passwor
 	supported_commands_.insert(std::pair("TOPIC", &Command::handleTopic));
 	supported_commands_.insert(std::pair("INVITE", &Command::handleInvite));
 	supported_commands_.insert(std::pair("AWAY", &Command::handleAway));
+	supported_commands_.insert(std::pair("WHO", &Command::handleWho));
 
 }
 

@@ -13,7 +13,7 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 		debug("Find client in message constructor", FAILED);
 		return;
 	}
-	std::cout << "Message constructor. Raw message: " << raw_message_ << "\t received from fd: " << client_fd_ << std::endl;
+	// std::cout << "Message constructor. Raw message: " << raw_message_ << "\t received from fd: " << client_fd_ << std::endl;
 	
 	valid_message_ = analyzeMessage();
 	printMessageContents();
@@ -25,7 +25,7 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 
 Message::~Message()
 {
-	std::cout << "Message destructor" << std::endl;
+	// std::cout << "Message destructor" << std::endl;
 }
 
 bool Message::analyzeMessage()
