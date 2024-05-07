@@ -2,6 +2,8 @@
 
 // Extracts additional mode parameters from the command line input starting from the given index.
 static std::string extractModeArguments(const std::vector<std::string> &parameters, size_t start)
+// Extracts additional mode parameters from the command line input starting from the given index.
+static std::string extractModeArguments(const std::vector<std::string> &parameters, size_t start)
 {
 	std::string mode_arguments;
 	for (size_t i = start; i < parameters.size(); ++i)
@@ -13,6 +15,7 @@ static std::string extractModeArguments(const std::vector<std::string> &paramete
 	return mode_arguments;
 }
 
+// Returns a string representing the active modes of a channel.
 // Returns a string representing the active modes of a channel.
 static std::string getChannelModes(std::shared_ptr<Channel> channel_ptr)
 {
@@ -49,10 +52,34 @@ void Command::extractMode(const Message &msg, const std::vector<std::string> &pa
 }
 
 // Handles the MODE command, directing the processing and application of modes on channels.
+// Filters and validates the mode string from a command, ensuring only supported modes are processed.
+void Command::extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string)
+{
+	std::string supported_modes = getChannelModes(server_->findChannel(params[0]));
+	std::string validated_modes;
+	mode_string = params[1];
+	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	int fd = client_ptr->getFd();
+	std::shared_ptr<Channel> channel_ptr = server_->findChannel(params[0]);
+
+	for (char c : mode_string)
+	{
+		if (c == '+' || c == '-' || supported_modes.find(c) != std::string::npos)
+			validated_modes += c;
+		else
+			server_->send_response(fd, ERR_UNKNOWNMODE(client_ptr->getNickname(), channel_ptr->getName(), c));
+	}
+	mode_string = validated_modes;
+}
+
+// Handles the MODE command, directing the processing and application of modes on channels.
 void Command::handleMode(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	int fd = client_ptr->getFd();
+	std::vector<std::string> parameters = msg.getParameters();
+
+	if (parameters.size() < 2)
 	std::vector<std::string> parameters = msg.getParameters();
 
 	if (parameters.size() < 2)
@@ -111,12 +138,33 @@ void Command::applyChannelModes(std::shared_ptr<Channel> channel, const std::str
 			break;
 		case 'l': // Limit the number of users in the channel
 			if (setting)
+		case 'i':
+			channel->setModeI(setting);
+			break;
+		case 't': // Topic change restricted to channel operators
+			channel->setModeT(setting);
+			break;
+		case 'l': // Limit the number of users in the channel
+			if (setting)
 			{
+				if (arg_index < args.size()) // Check if a limit is provided
 				if (arg_index < args.size()) // Check if a limit is provided
 				{
 					int limit = std::stoi(args[arg_index++]);
 					channel->setModeL(true, limit);
+					int limit = std::stoi(args[arg_index++]);
+					channel->setModeL(true, limit);
 				}
+				else
+					server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));
+			}
+			else
+				channel->setModeL(false);
+			break;
+		case 'k': // Set a password for the channel
+			if (setting)
+			{
+				if (arg_index < args.size())
 				else
 					server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));
 			}
@@ -132,6 +180,24 @@ void Command::applyChannelModes(std::shared_ptr<Channel> channel, const std::str
 					channel->setChannelKey(args[arg_index++]);
 					// server_->send_response(fd, )
 				}
+				else
+					// Send an error if no password is provided when setting 'k'
+					server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));
+			}
+			else
+			{
+				channel->setModeK(false);
+				channel->setChannelKey("");
+			}
+			break;
+		default:
+			// If an unsupported mode is encountered, send an error message.
+			server_->send_response(fd, ERR_UNKNOWNMODE(client_ptr->getNickname(), channel->getName(), mode));
+			break;
+		}
+	}
+}
+
 				else
 					// Send an error if no password is provided when setting 'k'
 					server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));

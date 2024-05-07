@@ -8,6 +8,7 @@
 #include "../message/Message.h"
 #include "../channel/Channel.h"
 #include "../common/MagicNumbers.h"
+#include "../common/reply.h"
 
 
 class Server;

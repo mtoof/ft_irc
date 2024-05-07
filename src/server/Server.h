@@ -66,6 +66,11 @@ public:
 	void 						welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix);
 	std::shared_ptr<Channel>	createNewChannel(std::string const &channel_name);
 	std::shared_ptr<Channel>	findChannel(std::string const &channel_name);
+	void						removeChannel(std::string const &channel_name);
+	std::shared_ptr<Channel> 	findOrCreateChannel(const std::string& name);
+	std::string 				createRegexFromMask(const std::string &mask) const;
+	std::string 				toLower(const std::string& str) const;
+	std::vector<std::shared_ptr<Client>> findClientsByMask(const std::string &mask) const;
 
 
 //getter
@@ -74,10 +79,7 @@ public:
 	// getter for map of supported commands
 	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;
 	const std::string &getServerHostname() const;
-	std::shared_ptr<Channel> findOrCreateChannel(const std::string& name);
-	std::vector<std::shared_ptr<Client>> findClientsByMask(const std::string &mask) const;
-	std::string createRegexFromMask(const std::string &mask) const;
-	std::string toLower(const std::string& str) const;
+	std::map<std::string, std::shared_ptr<Channel>> const &getChannels() const;
 
 };
 
