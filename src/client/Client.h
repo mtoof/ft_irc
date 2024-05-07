@@ -29,7 +29,7 @@ class Client{
 	bool														invited_;
 	bool														awayStatus;
     std::string													awayMessage;
-	Channel*													channel;
+	Channel														*channel;
 	// TODO saving channels where the user is to the client class
 	//  std::vector<std::shared_ptr<Channel>>	channels_;
 	// TODO monitoring ping pong status

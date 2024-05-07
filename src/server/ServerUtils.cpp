@@ -297,3 +297,8 @@ std::string Server::toLower(const std::string& str) const
                    [](unsigned char c){ return std::tolower(c); });
     return lowerStr;
 }
+
+std::map<std::string, std::shared_ptr<Channel>> const &Server::getChannels() const
+{
+	return channels_;
+}

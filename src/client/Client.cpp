@@ -215,7 +215,11 @@ std::string Client::getAwayMessage() const
 
 std::string Client::getChannelName() const
 {
-	if (channel)
+	if (channel != nullptr)
 		return channel->getName();
-	return "";
+	else
+	{
+		std::cerr << "Client is not in any channel" << std::endl;
+		return "";
+	}
 }

@@ -1,0 +1,65 @@
+<< CAP LS 302
+<< JOIN :
+>> :Poorias-MacBook-Air.local 451 * :You have not registered.
+<< NICK pooriatoof
+<< USER pooriatoof pooriatoof localhost :Pooria Toof
+>> : NICK pooriatoo
+>> :Poorias-MacBook-Air.local 001 pooriatoo :Welcome to the best ever IRC server! pooriatoo!~pooriatoof@127.0.0.1
+<< MODE pooriatoo +i
+>> :Poorias-MacBook-Air.local 005 pooriatoo AWAYLEN=200 NICKLEN=9 TOPICLEN=307 MODES=4 KICKLEN=255 CHANTYPES=# CHANNELLEN=32 :are supported on this server
+>> :Poorias-MacBook-Air.local 375 pooriatoo :- Poorias-MacBook-Air.local Message of the day -
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ███████╗████████╗░░░░░░██╗██████╗░░█████╗░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██╔════╝╚══██╔══╝░░░░░░██║██╔══██╗██╔══██╗
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- █████╗░░░░░██║░░░█████╗██║██████╔╝██║░░╚═╝
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██╔══╝░░░░░██║░░░╚════╝██║██╔══██╗██║░░██╗
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██║░░░░░░░░██║░░░░░░░░░██║██║░░██║╚█████╔╝
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ╚═╝░░░░░░░░╚═╝░░░░░░░░░╚═╝╚═╝░░╚═╝░╚════╝░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :-  
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ░█████╗░░█████╗░███╗░░██╗██████╗░███████╗██╗░░░░░██╗███╗░░██╗
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██╔══██╗██╔══██╗████╗░██║██╔══██╗██╔════╝██║░░░░░██║████╗░██║
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██║░░██║███████║██╔██╗██║██║░░██║█████╗░░██║░░░░░██║██╔██╗██║
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██║░░██║██╔══██║██║╚████║██║░░██║██╔══╝░░██║░░░░░██║██║╚████║
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ╚█████╔╝██║░░██║██║░╚███║██████╔╝███████╗███████╗██║██║░╚███║
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ░╚════╝░╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░╚══════╝╚══════╝╚═╝╚═╝░░╚══╝
+>> :Poorias-MacBook-Air.local 372 pooriatoo :-  
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ███╗░░░███╗████████╗░█████╗░░█████╗░███████╗
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ████╗░████║╚══██╔══╝██╔══██╗██╔══██╗██╔════╝
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██╔████╔██║░░░██║░░░██║░░██║██║░░██║█████╗░░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██║╚██╔╝██║░░░██║░░░██║░░██║██║░░██║██╔══╝░░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██║░╚═╝░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░░░░░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ╚═╝░░░░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :-  
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ░█████╗░████████╗░█████╗░░█████╗░███████╗
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔════╝
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ███████║░░░██║░░░██║░░██║██║░░██║█████╗░░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██╔══██║░░░██║░░░██║░░██║██║░░██║██╔══╝░░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ██║░░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░░░░░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- ╚═╝░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░
+>> :Poorias-MacBook-Air.local 372 pooriatoo :-  
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- "Alright, let's see what we can see.. Everybody online, looking good."
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- Lieutenant Gorman to the marines before landing to terraforming colony on exomoon LV-426
+>> :Poorias-MacBook-Air.local 372 pooriatoo :- Aliens, 1986
+>> :Poorias-MacBook-Air.local 376 pooriatoo :End of MOTD command
+>> :Poorias-MacBook-Air.local 403 pooriatoo pooriatoo :No such channel
+<< WHOIS pooriatoof
+>> :Poorias-MacBook-Air.local 401 pooriatoo pooriatoof :No such nick/channel
+--> event empty
+>> :Poorias-MacBook-Air.local 318 pooriatoo pooriatoof :End of WHOIS list.
+--> event empty
+<< PING Poorias-MacBook-Air.local
+>> :Poorias-MacBook-Air.local PONG Poorias-MacBook-Air.local :Poorias-MacBook-Air.local
+--> lag pong
+<< JOIN #m1
+>> :pooriatoo!~pooriatoof@127.0.0.1 JOIN #m1
+>> :Poorias-MacBook-Air.local 353 pooriatoo = #m1 : @pooriatoo
+>> :Poorias-MacBook-Air.local 366 pooriatoo #m1 :END of /NAMES list
+<< JOIN #m2
+>> :pooriatoo!~pooriatoof@127.0.0.1 JOIN #m2
+>> :Poorias-MacBook-Air.local 353 pooriatoo = #m2 : @pooriatoo
+>> :Poorias-MacBook-Air.local 366 pooriatoo #m2 :END of /NAMES list
+<< JOIN #m3
+>> :pooriatoo!~pooriatoof@127.0.0.1 JOIN #m3
+>> :Poorias-MacBook-Air.local 353 pooriatoo = #m3 : @pooriatoo
+>> :Poorias-MacBook-Air.local 366 pooriatoo #m3 :END of /NAMES list
+<< MODE #m1
+>> :pooriatoo!~pooriatoof@127.0.0.1 461 MODE :Not enough parameters given.

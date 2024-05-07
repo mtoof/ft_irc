@@ -1,0 +1,149 @@
+<< CAP LS 302
+<< JOIN :
+>> :lair.nl.eu.dal.net NOTICE AUTH :*** Looking up your hostname...
+>> :lair.nl.eu.dal.net NOTICE AUTH :*** Checking Ident
+>> :lair.nl.eu.dal.net NOTICE AUTH :*** Found your hostname
+>> :lair.nl.eu.dal.net NOTICE AUTH :*** No Ident response
+>> :lair.nl.eu.dal.net 451 * JOIN :You must finish connecting with another nickname first.
+<< NICK pooriatoof
+<< USER pooriatoof pooriatoof irc.dal.net :Pooria Toof
+>> :lair.nl.eu.dal.net 001 pooriatoof :Welcome to the DALnet IRC Network pooriatoof!~pooriatoo@194.136.126.35
+<< MODE pooriatoof +i
+>> :lair.nl.eu.dal.net 002 pooriatoof :Your host is lair.nl.eu.dal.net, running version bahamut-2.2.3
+>> :lair.nl.eu.dal.net 003 pooriatoof :This server was created Tue Dec 19 2023 at 22:45:40 CET
+>> :lair.nl.eu.dal.net 004 pooriatoof lair.nl.eu.dal.net bahamut-2.2.3 aAbcCdefFghHiIjkKmnoOPrRsSwxXy AbceiIjklLmMnoOpPrRsStv beIjklov
+>> :lair.nl.eu.dal.net 005 pooriatoof NETWORK=DALnet SAFELIST MAXBANS=200 MAXCHANNELS=50 CHANNELLEN=32 KICKLEN=307 NICKLEN=30 TOPICLEN=307 MODES=6 CHANTYPES=# CHANLIMIT=#:50 PREFIX=(ohv)@%+ STATUSMSG=@%+ :are available on this server
+>> :lair.nl.eu.dal.net 005 pooriatoof CASEMAPPING=ascii WATCH=128 SILENCE=10 ELIST=cmntu EXCEPTS INVEX CHANMODES=beI,k,jl,ciPAmMnOprRsSt MAXLIST=b:200,e:100,I:100 TARGMAX=DCCALLOW:,JOIN:,KICK:4,KILL:20,NOTICE:20,PART:,PRIVMSG:20,WHOIS:,WHOWAS: :are available on this server
+>> :lair.nl.eu.dal.net 251 pooriatoof :There are 64 users and 7134 invisible on 36 servers
+>> :lair.nl.eu.dal.net 252 pooriatoof 80 :IRC Operators online
+>> :lair.nl.eu.dal.net 254 pooriatoof 3638 :channels formed
+>> :lair.nl.eu.dal.net 255 pooriatoof :I have 843 clients and 1 servers
+>> :lair.nl.eu.dal.net 265 pooriatoof :Current local users: 843 Max: 1274
+>> :lair.nl.eu.dal.net 266 pooriatoof :Current global users: 7198 Max: 8222
+>> :lair.nl.eu.dal.net NOTICE pooriatoof :*** Notice -- motd was last changed at 19/6/2023 18:18
+>> :lair.nl.eu.dal.net 375 pooriatoof :- lair.nl.eu.dal.net Message of the Day - 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-19/6/2023 18:18
+>> :lair.nl.eu.dal.net 372 pooriatoof :-     Welcome to,
+>> :lair.nl.eu.dal.net 372 pooriatoof :-      _       _      
+>> :lair.nl.eu.dal.net 372 pooriatoof :-     | |     (_)     
+>> :lair.nl.eu.dal.net 372 pooriatoof :-     | | __ _ _ _ __ 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-     | |/ _` | | '__|
+>> :lair.nl.eu.dal.net 372 pooriatoof :-     | | (_| | | |   
+>> :lair.nl.eu.dal.net 372 pooriatoof :-     |_|\__,_|_|_|.nl.eu.dal.net    
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    *  Host.............: lair.dal.net | lair-v6.dal.net   
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    *  Ports............: 6667 - 6669, 7000 | SSL - 6697  
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-      Welcome to DALnet, by connecting to this network you agree to 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    abide by its acceptable use policy, visit : http://www.dal.net/aup
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-        "This server has been sponsored by Psychz Networks"
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-              ---===[https://www.psychz.net/]===---
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    -------------------------------------------------------------------
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    [%] Server Staff  =-
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    .::. Administrator....:
+>> :lair.nl.eu.dal.net 372 pooriatoof :-                           sps
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    .::. Operators........:
+>> :lair.nl.eu.dal.net 372 pooriatoof :-                           eddyk0ng
+>> :lair.nl.eu.dal.net 372 pooriatoof :-                           Nando
+>> :lair.nl.eu.dal.net 372 pooriatoof :-                           RallyMaster
+>> :lair.nl.eu.dal.net 372 pooriatoof :-                           Wagoo
+>> :lair.nl.eu.dal.net 372 pooriatoof :-                           Wheemp
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    -------------------------------------------------------------------
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    [%] Server Policies  =-
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    a. No spamming or advertising allowed, if found you will be banned 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-       from this server/network.
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    b. No malicious bots, including flood and nick/channel chasers
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    c. No channel filler bots/clients/psybncs
+>> :lair.nl.eu.dal.net 372 pooriatoof :-       #  A channel filler is a client, bnc, or bot which is connected
+>> :lair.nl.eu.dal.net 372 pooriatoof :-          just to fill a channel and make it look bigger
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    d. Operator impersonation will not be tolerated and cause you to be
+>> :lair.nl.eu.dal.net 372 pooriatoof :-       banned from this server/network.
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-            "REMEMBER IRC IS A PRIVILEGE, NOT A RIGHT"
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    -------------------------------------------------------------------
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    For IRC Operator assistance /join #Operhelp
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    For DALnet and General IRC related help, goto #Help
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    For multi-lingual documentation - [http://docs.dal.net]
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    If you have any questions/issues related to this server,
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    contact us using: lion-staff@dal.net
+>> :lair.nl.eu.dal.net 372 pooriatoof :- 
+>> :lair.nl.eu.dal.net 372 pooriatoof :-    Thank you for using DALnet, we hope you enjoy the stay with us.
+>> :lair.nl.eu.dal.net 376 pooriatoof :End of /MOTD command.
+>> :pooriatoof MODE pooriatoof :+iH
+<< JOIN #m1
+>> :pooriatoof!~pooriatoo@ce31-1c28-ce92-25bf-5553.136.194.ip JOIN :#m1
+>> :lair.nl.eu.dal.net 353 pooriatoof = #m1 :@pooriatoof 
+>> :lair.nl.eu.dal.net 366 pooriatoof #m1 :End of /NAMES list.
+<< MODE #m1
+>> :lair.nl.eu.dal.net 324 pooriatoof #m1 + 
+--> chanquery mode
+>> :lair.nl.eu.dal.net 329 pooriatoof #m1 1715074594
+--> event 329
+<< JOIN #m2
+>> :pooriatoof!~pooriatoo@ce31-1c28-ce92-25bf-5553.136.194.ip JOIN :#m2
+>> :lair.nl.eu.dal.net 353 pooriatoof = #m2 :@pooriatoof 
+>> :lair.nl.eu.dal.net 366 pooriatoof #m2 :End of /NAMES list.
+<< WHO #m1
+>> :lair.nl.eu.dal.net 352 pooriatoof #m1 ~pooriatoo ce31-1c28-ce92-25bf-5553.136.194.ip lair.nl.eu.dal.net pooriatoof H@ :0 Pooria Toof
+--> silent event who
+>> :lair.nl.eu.dal.net 315 pooriatoof #m1 :End of /WHO list.
+--> chanquery who end
+<< MODE #m2
+<< JOIN #m3
+>> :lair.nl.eu.dal.net 324 pooriatoof #m2 + 
+--> chanquery mode
+>> :lair.nl.eu.dal.net 329 pooriatoof #m2 1715074599
+--> event 329
+>> :pooriatoof!~pooriatoo@ce31-1c28-ce92-25bf-5553.136.194.ip JOIN :#m3
+>> :lair.nl.eu.dal.net 353 pooriatoof = #m3 :@pooriatoof 
+>> :lair.nl.eu.dal.net 366 pooriatoof #m3 :End of /NAMES list.
+<< WHO #m2
+>> :lair.nl.eu.dal.net 352 pooriatoof #m2 ~pooriatoo ce31-1c28-ce92-25bf-5553.136.194.ip lair.nl.eu.dal.net pooriatoof H@ :0 Pooria Toof
+--> silent event who
+>> :lair.nl.eu.dal.net 315 pooriatoof #m2 :End of /WHO list.
+--> chanquery who end
+<< MODE #m3
+>> :lair.nl.eu.dal.net 324 pooriatoof #m3 + 
+--> chanquery mode
+>> :lair.nl.eu.dal.net 329 pooriatoof #m3 1715074604
+--> event 329
+<< WHO #m3
+>> :lair.nl.eu.dal.net 352 pooriatoof #m3 ~pooriatoo ce31-1c28-ce92-25bf-5553.136.194.ip lair.nl.eu.dal.net pooriatoof H@ :0 Pooria Toof
+--> silent event who
+>> :lair.nl.eu.dal.net 315 pooriatoof #m3 :End of /WHO list.
+--> chanquery who end
+<< MODE #m1 b
+>> :lair.nl.eu.dal.net 368 pooriatoof #m1 :End of Channel Ban List
+--> chanquery ban end
+<< WHOIS pooriatoof
+>> :lair.nl.eu.dal.net 311 pooriatoof pooriatoof ~pooriatoo ce31-1c28-ce92-25bf-5553.136.194.ip * :Pooria Toof
+--> whois event
+>> :lair.nl.eu.dal.net 338 pooriatoof pooriatoof :is actually ~pooriatoo@194.136.126.35 [194.136.126.35]
+--> whois default event
+>> :lair.nl.eu.dal.net 319 pooriatoof pooriatoof :@#m3 @#m2 @#m1 
+--> whois default event
+>> :lair.nl.eu.dal.net 312 pooriatoof pooriatoof lair.nl.eu.dal.net :light the lamp within!
+--> whois default event
+>> :lair.nl.eu.dal.net 317 pooriatoof pooriatoof 24 1715074561 :seconds idle, signon time
+--> whois default event
+>> :lair.nl.eu.dal.net 318 pooriatoof pooriatoof :End of /WHOIS list.
+--> whois end
+<< MODE #m2 b
+>> :lair.nl.eu.dal.net 368 pooriatoof #m2 :End of Channel Ban List
+--> chanquery ban end
+<< MODE #m3 b
+>> :lair.nl.eu.dal.net 368 pooriatoof #m3 :End of Channel Ban List
+--> chanquery ban end
+<< PING lair.nl.eu.dal.net
+>> :lair.nl.eu.dal.net PONG lair.nl.eu.dal.net :pooriatoof
+--> lag pong

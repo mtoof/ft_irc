@@ -56,11 +56,11 @@ void Command::handlePrivmsg(const Message &msg)
 	}
 
 	// Check for host or server mask targeting, which is reserved for operators
-    if ((recipient[0] == '#' || recipient[0] == '$') && !channel_->isOperator(client_ptr)) // if the recipient is a channel and the client is not an operator
-	{
-        server_->send_response(fd, ERR_NOPRIVILEGES(client_ptr->getClientPrefix()));
-        return;
-    }
+    // if ((recipient[0] == '#' || recipient[0] == '$') && !channel_->isOperator(client_ptr)) // if the recipient is a channel and the client is not an operator
+	// {
+    //     server_->send_response(fd, ERR_NOPRIVILEGES(client_ptr->getClientPrefix()));
+    //     return;
+    // }
 
 	    // Handling wildcards in top-level domain
     if (recipient.find('.') != std::string::npos && recipient.find_last_of('.') < recipient.size() - 2) // we need to make sure there is at least 2 characters after the last dot
