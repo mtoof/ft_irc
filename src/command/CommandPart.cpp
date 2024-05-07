@@ -31,6 +31,6 @@ void Command::handlePart(const Message &msg)
 		}
 
 		channel->removeUser(client_ptr);
-		channel->broadcastMessage(client_ptr->getNickname(), "PART " + channelName + " :" + partMessage);
+		channel->broadcastMessage(client_ptr->getNickname(), client_ptr->getClientPrefix(), "PART " + channelName + " :" + partMessage);
 	}
 }

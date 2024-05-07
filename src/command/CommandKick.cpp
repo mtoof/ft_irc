@@ -55,6 +55,6 @@ void Command::handleKick(const Message &msg)
         }
 		channel->removeUser(target);
         server_->send_response(target->getFd(), "KICK " + channelName + " " + client_ptr->getNickname() + " :" + reason);
-        channel->broadcastMessage(client_ptr->getNickname(), userName + " has been kicked from " + channelName + " (" + reason + ")");
+        channel->broadcastMessage(client_ptr->getNickname(), client_ptr->getClientPrefix(), userName + " has been kicked from " + channelName + " (" + reason + ")");
 	}
 }

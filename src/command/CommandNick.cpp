@@ -57,7 +57,7 @@ void Command::handleNick(const Message &msg)
 	
 	// TODO: broadcast nickname change other users on same channel
 	// can be done with this macro: RPL_NICKCHANGECHANNEL(old_prefix, nickname)
-	debugWhois(client_ptr);
+	//debugWhois(client_ptr);
 }
 
 bool Command::isNicknameInUse(std::string const &nickname)

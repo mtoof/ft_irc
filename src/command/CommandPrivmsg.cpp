@@ -40,7 +40,7 @@ void Command::handlePrivmsg(const Message &msg)
         return;
     }
 	// Check if the recipient exists and is a user or a channel
-    if (parameters.size() < 2)
+    if (parameters.size() < 1)
 	{
         server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PRIVMSG"));
         return;
@@ -55,26 +55,26 @@ void Command::handlePrivmsg(const Message &msg)
 		return;
 	}
 
-	// Check for host or server mask targeting, which is reserved for operators
-    if ((recipient[0] == '#' || recipient[0] == '$') && !channel_->isOperator(client_ptr)) // if the recipient is a channel and the client is not an operator
-	{
-        server_->send_response(fd, ERR_NOPRIVILEGES(client_ptr->getClientPrefix()));
-        return;
-    }
+	// // Check for host or server mask targeting, which is reserved for operators
+    // if ((recipient[0] == '#' || recipient[0] == '$') && !channel_->userIsOperator(client_ptr->getNickname())) // if the recipient is a channel and the client is not an operator
+	// {
+    //     server_->send_response(fd, ERR_NOPRIVILEGES(client_ptr->getClientPrefix()));
+    //     return;
+    // }
 
-	    // Handling wildcards in top-level domain
-    if (recipient.find('.') != std::string::npos && recipient.find_last_of('.') < recipient.size() - 2) // we need to make sure there is at least 2 characters after the last dot
-	{
-        server_->send_response(fd, ERR_WILDTOPLEVEL(client_ptr->getClientPrefix(), recipient));
-        return;
-    }
+	//     // Handling wildcards in top-level domain
+    // if (recipient.find('.') != std::string::npos && recipient.find_last_of('.') < recipient.size() - 2) // we need to make sure there is at least 2 characters after the last dot
+	// {
+    //     server_->send_response(fd, ERR_WILDTOPLEVEL(client_ptr->getClientPrefix(), recipient));
+    //     return;
+    // }
 
     std::shared_ptr<Client> recipient_ptr = server_->findClientUsingNickname(recipient);
     if (recipient_ptr)
 	{
 		if (recipient_ptr->isAway()) // if the recipient is away from the server
             server_->send_response(fd, RPL_AWAY(client_ptr->getNickname(), recipient_ptr->getAwayMessage()));
-        server_->send_response(recipient_ptr->getFd(), "PRIVMSG " + client_ptr->getNickname() + " :" + message_body); // send the message to the recipient
+        server_->send_response(recipient_ptr->getFd(), ":" + client_ptr->getClientPrefix() + " PRIVMSG " + client_ptr->getNickname() + " :" + message_body + CRLF); // send the message to the recipient
         return;
     }
 
@@ -86,7 +86,7 @@ void Command::handlePrivmsg(const Message &msg)
             server_->send_response(fd, ERR_CANNOTSENDTOCHAN(recipient));
             return;
         }
-        channel_ptr->broadcastMessage(client_ptr->getNickname(), message_body); // broadcast the message to all users in the channel except the sender
+        channel_ptr->broadcastMessage(client_ptr->getNickname(), client_ptr->getClientPrefix(), message_body); // broadcast the message to all users in the channel except the sender
         return;
     }
 

@@ -29,9 +29,10 @@ class Client{
 	bool														invited_;
 	bool														awayStatus;
     std::string													awayMessage;
-	Channel*													channel;
+	//Channel*													channel;
 	// TODO saving channels where the user is to the client class
-	//  std::vector<std::shared_ptr<Channel>>	channels_;
+	std::vector<std::shared_ptr<Channel>>						channels_;
+	mutable std::mutex 											channels_mutex_;
 	// TODO monitoring ping pong status
 	// clients that have not replied in a long time should be dropped from the server
 
@@ -81,7 +82,8 @@ class Client{
 	bool		isOperator();
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
-	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?
+	bool		joinChannel(const std::shared_ptr<Channel>& channel_ptr);
+	void		leaveChannel(const std::shared_ptr<Channel>& channel_ptr);
+	std::vector<std::shared_ptr<Channel>> getChannels() const;
 };
-
 #endif
