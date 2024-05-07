@@ -19,11 +19,7 @@ void Command::handleJoin(const Message &msg)
 	}
 
 	std::string channel_name = parameters.front();
-	if (channel_name == "0")
-	{
-		// leave all channels
-		return;
-	}
+
 	char prefix = channel_name.front();
 
 	if (!channel_->isValidChannelName(channel_name))
@@ -132,3 +128,4 @@ void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::s
 	server_->send_response(fd, RPL_NAMREPLY(servername, nickname, channel_name, userlist));
 	server_->send_response(fd, RPL_ENDOFNAMES(servername, nickname, channel_name));
 }
+
