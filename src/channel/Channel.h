@@ -53,7 +53,7 @@ class Channel
 		void setModeT(bool mode_t);
 		void setModeI(bool mode_i);
 		void setModeK(bool mode_k);
-		void setModeL(bool mode_l);
+		void setModeL(bool mode_l, unsigned int limit = DEFAULT_MAX_CLIENTS);
 
 		// Functional methods
 		bool isFull() const;

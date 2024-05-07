@@ -109,14 +109,14 @@ void Channel::setModeK(bool mode_k)
 	mode_k_ = mode_k;
 }
 
-// Set mode_l
-void Channel::setModeL(bool mode_l)
+
+void Channel::setModeL(bool mode_l, unsigned int limit)
 {
 	mode_l_ = mode_l;
 	if (mode_l_)
-		limit_ = DEFAULT_MAX_CLIENTS;
+		limit_ = limit;
 	else
-		limit_ = 0;
+		limit_ = DEFAULT_MAX_CLIENTS;
 }
 
 // Check if the channel is full
