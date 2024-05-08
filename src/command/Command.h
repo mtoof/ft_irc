@@ -5,7 +5,7 @@
 #include <string>
 #include <regex>
 #include <vector>
-#include <algorithm>	
+#include <algorithm>
 #include "../server/Server.h"
 #include "../message/Message.h"
 #include "../channel/Channel.h"
@@ -52,7 +52,7 @@ public:
 	std::vector<std::string> split(const std::string &s, char delim);
 	void extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string);
 	void applyChannelModes(std::shared_ptr<Channel> channel, const std::string &mode_string, const std::string &mode_arguments, int fd);
-	
+	void send_responses_based_on_client_info(const std::shared_ptr<Client> &whois_client_ptr, int fd);
 };
 
 #endif

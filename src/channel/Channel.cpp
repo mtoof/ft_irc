@@ -101,8 +101,6 @@ void Channel::setModeK(bool mode_k)
 }
 
 void Channel::setModeL(bool mode_l, unsigned int limit)
-
-void Channel::setModeL(bool mode_l, unsigned int limit)
 {
 	mode_l_ = mode_l;
 	if (mode_l_)
