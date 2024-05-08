@@ -43,15 +43,19 @@ public:
 	void handleTopic(const Message &msg);
 	void handleInvite(const Message &msg);
 	void handleAway(const Message &msg);
+	void handleWho(const Message &msg);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);
 	bool channelExists(std::string const &channel_name);
 	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
+	void sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
 	void broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joiningClient);
 	void leaveAllChannels(std::shared_ptr<Client> client_ptr, const std::string &command);
 	std::vector<std::string> split(const std::string &s, char delim);
 	void extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string);
-	void applyChannelModes(std::shared_ptr<Channel> channel, const std::string &mode_string, const std::string &mode_arguments, int fd);
+	void applyUserMode(std::shared_ptr<Client> client_ptr, std::string mode_string);
+	void applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, const std::string &mode_string, const std::string &mode_arguments);
+	bool applyModeO(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, std::string target, bool mode);
 	void send_responses_based_on_client_info(const std::shared_ptr<Client> &whois_client_ptr, int fd);
 };
 

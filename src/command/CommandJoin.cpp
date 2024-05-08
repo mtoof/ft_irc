@@ -60,7 +60,7 @@ void Command::handleJoin(const Message &msg)
 		}
 		if (channel_ptr->isFull())
 		{
-			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
+			server_->send_response(fd, ERR_CHANNELISFULL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			return;
 		}
 		if (channel_ptr->isInviteOnly() && !channel_ptr->isUserInvited(client_ptr->getNickname()))
@@ -128,4 +128,3 @@ void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::s
 	server_->send_response(fd, RPL_NAMREPLY(servername, nickname, channel_name, userlist));
 	server_->send_response(fd, RPL_ENDOFNAMES(servername, nickname, channel_name));
 }
-

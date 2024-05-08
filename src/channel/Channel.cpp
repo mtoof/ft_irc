@@ -147,6 +147,7 @@ void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
 void Channel::removeUser(std::shared_ptr<Client> client)
 {
 	users_.erase(client);				   // Remove the user from the channel
+	std::cout << GREEN << "users_.size() = " << users_.size() << RESET << std::endl;
 }
 
 /**
@@ -211,6 +212,17 @@ void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const 
 	}
 }
 
+void Channel::broadcastMessageToAll(const std::string &message)
+{
+	//std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
+
+	for (const auto &userPair : users_)
+	{
+		std::shared_ptr<Client> user = userPair.first;
+			server_->send_response(user->getFd(), message);
+	}
+}
+
 bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
 {
 	if (isOperator(client_ptr))
@@ -227,19 +239,16 @@ bool Channel::isCorrectPassword(const std::string& given_password)
 	return channel_key_ == given_password;
 }
 
-void Channel::broadcasting(std::shared_ptr<Client> client, const std::string &message)
+bool Channel::changeOpStatus(std::shared_ptr<Client> client_ptr, bool status)
 {
-    std::string prefix = ":" + client->getClientPrefix() + " ";
-    for (const auto &userPair : users_)
-        server_->send_response(userPair.first->getFd(), prefix + message + CRLF);
-}
-
-bool Channel::isUserInvited(const std::string &nickname) const
-{
-    return invited_users_.find(nickname) != invited_users_.end();
-}
-
-void Channel::addUserToInvitedList(const std::string &nickname)
-{
-	invited_users_.insert(nickname);
+	auto user = users_.find(client_ptr);
+	if (user != users_.end())
+	{
+		if (user->second != status)
+		{
+			user->second = status;
+			return true;
+		}
+	}
+	return false;
 }

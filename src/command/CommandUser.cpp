@@ -13,8 +13,6 @@ void Command::handleUser(const Message &msg)
 	else if (params.size() == 3 && !msg.getTrailer().empty())
 	{
 		client_ptr->setUsername(params[0]);
-		if (params[1].length() == 1)
-			client_ptr->setUserMode(params[1].at(0));
 		client_ptr->setRealname(msg.getTrailer());
 		if (!client_ptr->getNickname().empty())
 		{

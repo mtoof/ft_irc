@@ -302,3 +302,9 @@ std::map<std::string, std::shared_ptr<Channel>> const &Server::getChannels() con
 {
 	return channels_;
 }
+
+void Server::deleteChannel(std::string const &channelname)
+{
+	if (this->findChannel(channelname))
+		channels_.erase(channelname);
+}

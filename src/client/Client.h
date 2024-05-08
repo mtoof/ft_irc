@@ -23,10 +23,10 @@ class Client{
 	std::string													username_;
 	std::string													hostname_;
 	std::string													realname_;
-	char														usermode_;
 	std::string													ip_address_;
 	std::string													client_prefix_;
 	std::string													buffer;
+	bool														mode_i_;
 	// bool														invited_;
 	bool														awayStatus;
     std::string													awayMessage;
@@ -48,11 +48,12 @@ class Client{
 	std::string const	&getHostname() const;
 	std::string const	&getRealname() const;
 	std::string const	&getIpAddress() const;
-	char	 	const	&getUserMode() const;
+	bool	 	const	&getModeI() const;
 	bool		const	&getRegisterStatus() const;
 	std::string const	&getClientPrefix() const;
 	std::string 		getAwayMessage() const;
 	std::string 		getChannelName() const;
+	
 
 	// setters
 
@@ -67,6 +68,7 @@ class Client{
 	void		setPassword();
 	void        setClientPrefix();
 	void		setAway(bool status, const std::string& message = "");
+	void		setModeI(bool status);
 
 	// member functions
 	void		registerClient();
