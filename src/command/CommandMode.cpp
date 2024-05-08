@@ -66,86 +66,115 @@ void Command::handleMode(const Message &msg)
 	std::string mode_arguments = parameters.size() > 2 ? extractModeArguments(parameters, 2) : "";
 
 	std::shared_ptr<Channel> channel_ptr = server_->findChannel(target);
-    if (!channel_ptr) {
-        server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), target));
-        return;
-    }
+	if (!channel_ptr)
+	{
+		server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), target));
+		return;
+	}
 
-    applyChannelModes(channel_ptr, mode_string, mode_arguments, fd);
-
+	applyChannelModes(channel_ptr, mode_string, mode_arguments, fd);
 }
 
 // Applies extracted and validated modes to the specified channel.
 void Command::applyChannelModes(std::shared_ptr<Channel> channel, const std::string &mode_string, const std::string &mode_arguments, int fd)
 {
-	bool setting = true; // True when adding a mode, false when removing.
-	size_t arg_index = 0;
 	std::vector<std::string> args;
 	std::istringstream arg_stream(mode_arguments);
 	std::string arg;
-	std::shared_ptr<Client> client_ptr = server_->findClientUsingFd(fd);
-	// Split mode arguments into a vector
-	while (arg_stream >> arg) // Extract arguments from the mode string
+	while (arg_stream >> arg)
 		args.push_back(arg);
 
+	std::shared_ptr<Client> client_ptr = server_->findClientUsingFd(fd);
+	std::map<char, bool> modeChanges; // Final state for each mode
+	std::string modesToSet = "";
+	std::string modesToUnset = "";
+	std::string params = "";
+	size_t arg_index = 0;
+
+	char lastSign = '+';
 	for (char mode : mode_string)
 	{
 		if (mode == '+')
-		{
-			setting = true;
-			continue;
-		}
+			lastSign = '+';
 		else if (mode == '-')
-		{
-			setting = false;
-			continue;
-		}
+			lastSign = '-';
+		else
+			modeChanges[mode] = (lastSign == '+');
+	}
 
-		switch (mode)
+	for (const auto &[mode, isSetting] : modeChanges)
+	{
+		if (isSetting)
 		{
-		case 'i':
-			channel->setModeI(setting);
-			break;
-		case 't': // Topic change restricted to channel operators
-			channel->setModeT(setting);
-			break;
-		case 'l': // Limit the number of users in the channel
-			if (setting)
+			switch (mode)
 			{
-				if (arg_index < args.size()) // Check if a limit is provided
-				{
-					int limit = std::stoi(args[arg_index++]);
-					channel->setModeL(true, limit);
-				}
-				else
-					server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));
-			}
-			else
-				channel->setModeL(false);
-			break;
-		case 'k': // Set a password for the channel
-			if (setting)
-			{
+			case 'k':
 				if (arg_index < args.size())
 				{
 					channel->setModeK(true);
-					channel->setChannelKey(args[arg_index++]);
-					// server_->send_response(fd, )
+					channel->setChannelKey(args[arg_index]);
+					modesToSet += mode;
+					params += args[arg_index++] + " ";
 				}
-				else
-					// Send an error if no password is provided when setting 'k'
-					server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));
+				break;
+			case 'l':
+				if (arg_index < args.size())
+				{
+					int limit = std::stoi(args[arg_index]);
+					channel->setModeL(true, limit);
+					modesToSet += mode;
+					params += args[arg_index++] + " ";
+				}
+				break;
+			case 'i':
+				channel->setModeI(true);
+				modesToSet += mode;
+				break;
+			case 't':
+				channel->setModeT(true);
+				modesToSet += mode;
+				break;
+			default:
+				break; // Ignore unknown modes
 			}
-			else
+		}
+		else
+		{
+			switch (mode)
 			{
+			case 'k':
 				channel->setModeK(false);
 				channel->setChannelKey("");
+				modesToUnset += mode;
+				break;
+			case 'l':
+				channel->setModeL(false, 0);
+				modesToUnset += mode;
+				break;
+			case 'i':
+				channel->setModeI(false);
+				modesToUnset += mode;
+				break;
+			case 't':
+				channel->setModeT(false);
+				modesToUnset += mode;
+				break;
+			default:
+				break; // Ignore unknown modes
 			}
-			break;
-		default:
-			// If an unsupported mode is encountered, send an error message.
-			server_->send_response(fd, ERR_UNKNOWNMODE(client_ptr->getNickname(), channel->getName(), mode));
-			break;
 		}
+	}
+
+	std::string modeResult;
+	if (!modesToSet.empty())
+		modeResult += "+" + modesToSet;
+	if (!modesToUnset.empty())
+		modeResult += "-" + modesToUnset;
+
+	if (!modeResult.empty())
+	{
+		std::string response = RPL_CHANGEMODE(client_ptr->getClientPrefix(), channel->getName(), modeResult, params);
+		server_->send_response(fd, response);
+		channel->broadcastMessage(client_ptr, response);
 	}
 }
