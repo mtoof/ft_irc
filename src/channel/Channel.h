@@ -73,7 +73,6 @@ class Channel
 		bool isOperator(std::shared_ptr<Client> client_ptr);
 		bool canChangeTopic(std::shared_ptr<Client> client_ptr);
 		bool isCorrectPassword(const std::string& given_password);
-		void broadcasting(std::shared_ptr<Client> client, const std::string &message);
 		bool isUserInvited(const std::string &nickname) const;
 		void addUserToInvitedList(const std::string &nickname);
 
