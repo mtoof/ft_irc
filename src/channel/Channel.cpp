@@ -238,3 +238,17 @@ bool Channel::isCorrectPassword(const std::string& given_password)
 {
 	return channel_key_ == given_password;
 }
+
+bool Channel::changeOpStatus(std::shared_ptr<Client> client_ptr, bool status)
+{
+	auto user = users_.find(client_ptr);
+	if (user != users_.end())
+	{
+		if (user->second != status)
+		{
+			user->second = status;
+			return true;
+		}
+	}
+	return false;
+}

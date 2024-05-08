@@ -71,7 +71,7 @@
 #define ERR_NOSUCHNICK(servername, nickname, target) (":" + servername + " 401 " + nickname + " " + target +" :No such nick/channel" + CRLF)
 #define ERR_USERSDONTMATCH(servername, nickname) (":" + servername + " 502 " + nickname + ":Can't change mode for other users" + CRLF)
 #define ERR_CANNOTSENDTOCHAN(channel) ("404 " + channel + " :Cannot send to channel" + CRLF)
-#define ERR_USERNOTINCHANNEL(nickname, channel) (": 441 " + nickname + " " + channel + " :They aren't on that channel" + CRLF)
+#define ERR_USERNOTINCHANNEL(client_prefix, nickname, target_nick, channel) (":" + client_prefix + " 441 " + nickname + " " + target_nick + " " + channel + " :They aren't on that channel" + CRLF)
 #define ERR_BADCHANMASK(channel) (": 476 " + channel + " :Bad Channel Mask" + CRLF)
 #define ERR_NOTEXTTOSEND(nickname) (": 412 " + nickname + " :No text to send" + CRLF)
 #define ERR_NOPRIVILEGES(nickname) (": 481 " + nickname + " :Permission Denied- You're not an IRC operator" + CRLF)

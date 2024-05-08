@@ -49,16 +49,21 @@ void Command::handleKick(const Message &msg)
 			server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
 			continue;
 		}
-		std::shared_ptr<Client> target = server_->findClientUsingNickname(userName);
-		if (!target || !channel->isUserOnChannel(userName))
+		std::shared_ptr<Client> target_ptr = server_->findClientUsingNickname(userName);
+		if (!target_ptr)
 		{
-			server_->send_response(fd, ERR_USERNOTINCHANNEL(userName, channelName));
+		server_->send_response(client_ptr->getFd(), ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), userName));
+			continue;
+		}
+		if (!channel->isUserOnChannel(userName))
+		{
+			server_->send_response(fd, ERR_USERNOTINCHANNEL(client_ptr->getClientPrefix(), client_ptr->getNickname(), userName, channelName));
 			continue;
 		}
 
-		server_->send_response(fd, RPL_KICK(client_ptr->getClientPrefix(), channelName, target->getNickname(), reason));
-		channel->broadcastMessage(client_ptr, RPL_KICK(client_ptr->getClientPrefix(), channelName, target->getNickname(), reason));
-		channel->removeUser(target);
-		target->leaveChannel(channel);
+		server_->send_response(fd, RPL_KICK(client_ptr->getClientPrefix(), channelName, target_ptr->getNickname(), reason));
+		channel->broadcastMessage(client_ptr, RPL_KICK(client_ptr->getClientPrefix(), channelName, target_ptr->getNickname(), reason));
+		channel->removeUser(target_ptr);
+		target_ptr->leaveChannel(channel);
 	}
 }
