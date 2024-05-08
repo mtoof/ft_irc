@@ -56,6 +56,7 @@ public:
 	void						deleteClient(int fd);
 	void						closeDeletePollFd(int fd);
 	void						closeFds();
+	void						disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr);
 	std::shared_ptr<Client>		findClientUsingFd(int fd) const;
 	std::shared_ptr<Client> 	findClientUsingNickname(std::string const &nickname) const;
 	std::shared_ptr<Client> 	findClientUsingOldNickname(std::string const &nickname) const;

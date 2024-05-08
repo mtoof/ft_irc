@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <vector>
+#include <algorithm>	
 #include "../server/Server.h"
 #include "../message/Message.h"
 #include "../channel/Channel.h"
@@ -46,6 +48,7 @@ public:
 	bool channelExists(std::string const &channel_name);
 	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
 	void broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joiningClient);
+	void leaveAllChannels(std::shared_ptr<Client> client_ptr, const std::string &command);
 	std::vector<std::string> split(const std::string &s, char delim);
 	void extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string);
 	void applyChannelModes(std::shared_ptr<Channel> channel, const std::string &mode_string, const std::string &mode_arguments, int fd);

@@ -17,6 +17,7 @@ class Client{
 	int															fd_;
 	bool														registered_;
 	bool														password_; //true if server password is set
+
 	std::string													nickname_;
 	std::string													old_nickname_;
 	std::string													username_;
@@ -29,8 +30,6 @@ class Client{
 	bool														invited_;
 	bool														awayStatus;
     std::string													awayMessage;
-	//Channel*													channel;
-	// TODO saving channels where the user is to the client class
 	std::vector<std::shared_ptr<Channel>>						channels_;
 	mutable std::mutex 											channels_mutex_;
 	// TODO monitoring ping pong status
