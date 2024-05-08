@@ -13,42 +13,6 @@ static std::string extractModeArguments(const std::vector<std::string> &paramete
 	return mode_arguments;
 }
 
-// Returns a string representing the active modes of a channel.
-static std::string getChannelModes(std::shared_ptr<Channel> channel_ptr)
-{
-	std::string modes = "+";
-	if (channel_ptr->getModeI())
-		modes += "i";
-	if (channel_ptr->getModeL())
-		modes += "l";
-	if (channel_ptr->getModeT())
-		modes += "t";
-	if (channel_ptr->getModeK())
-		modes += "k";
-	return modes;
-}
-
-// Filters and validates the mode string from a command, ensuring only supported modes are processed.
-void Command::extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string)
-{
-	std::string supported_modes = getChannelModes(server_->findChannel(params[0]));
-	std::string validated_modes;
-	mode_string = params[1];
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	int fd = client_ptr->getFd();
-	std::shared_ptr<Channel> channel_ptr = server_->findChannel(params[0]);
-
-	for (char c : mode_string)
-	{
-		if (c == '+' || c == '-' || supported_modes.find(c) != std::string::npos)
-			validated_modes += c;
-		else
-			server_->send_response(fd, ERR_UNKNOWNMODE(client_ptr->getNickname(), channel_ptr->getName(), c));
-	}
-	mode_string = validated_modes;
-}
-
-// Handles the MODE command, directing the processing and application of modes on channels.
 void Command::handleMode(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
