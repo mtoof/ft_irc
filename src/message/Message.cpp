@@ -1,9 +1,9 @@
 #include "Message.h"
 
 /// @brief constructor for receiving a message from client and getting ready to parse it
-/// @param raw_message 
-/// @param server 
-/// @param clientfd 
+/// @param raw_message
+/// @param server
+/// @param clientfd
 Message::Message(std::string raw_message, Server *server, int clientfd)
 : raw_message_(raw_message), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
 {
@@ -24,15 +24,13 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 }
 
 Message::~Message()
-{
-	// std::cout << "Message destructor" << std::endl;
-}
+{}
 
 bool Message::analyzeMessage()
 {
 	std::istringstream iss(raw_message_);
 	std::string prefix;
-	
+
 	// Extract prefix if present
 	if (raw_message_.front() == ':')
 	{
@@ -47,7 +45,7 @@ bool Message::analyzeMessage()
 	}
 
 	std::string command, param;
-		
+
 	iss >> command;
 	command_ = command;
 	while (iss >> param)
@@ -80,7 +78,7 @@ void	Message::printMessageContents()
 		std::cout << param << "\n";
 	}
 	std::cout << "Trailer trash: " << trailer_ << std::endl;
-	
+
 }
 
 std::string Message::getCommand() const

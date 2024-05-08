@@ -298,6 +298,11 @@ std::string Server::toLower(const std::string& str) const
     return lowerStr;
 }
 
+std::map<std::string, std::shared_ptr<Channel>> const &Server::getChannels() const
+{
+	return channels_;
+}
+
 void Server::deleteChannel(std::string const &channelname)
 {
 	if (this->findChannel(channelname))

@@ -5,7 +5,6 @@
 #include <string>
 #include <map>
 #include <utility>
-#include <mutex>
 #include <memory>
 #include <cctype>
 #include "../client/Client.h"
@@ -17,16 +16,15 @@ class Server;
 class Channel
 {
 	private:
-		mutable std::mutex 						mtx;
 		std::string 							name_; // Channel name
 		std::map<std::shared_ptr<Client>, bool> users_; // Users in the channel and their operator status (true if op)
-		unsigned int 							usercount_; // Number of users in the channel
 		std::string 							channel_key_; // Channel key
 		std::pair<std::string, std::string> 	topic_; // Channel topic (author, topic)
 		bool 									mode_t_; // Topic lock mode
 		bool									mode_i_; // Invite-only mode
 		bool									mode_k_; // Key-protected mode
 		bool 									mode_l_; // User limit mode
+		std::string 							mode_; // Channel modes
 		unsigned int 							limit_;
 		std::shared_ptr<Server>					server_;
 
@@ -37,13 +35,13 @@ class Channel
 		// Accessor methods
 		std::string getName() const;
 		std::map<std::shared_ptr<Client>, bool> getUsers() const;
-		unsigned int getUserCount() const;
 		std::string getChannelKey() const;
 		std::pair<std::string, std::string> getTopic() const;
 		bool getModeT() const;
 		bool getModeI() const;
 		bool getModeK() const;
 		bool getModeL() const;
+		std::string const &getMode() const;
 
 		// Mutator methods
 		void setName(const std::string &name);
@@ -54,7 +52,7 @@ class Channel
 		void setModeT(bool mode_t);
 		void setModeI(bool mode_i);
 		void setModeK(bool mode_k);
-		void setModeL(bool mode_l);
+		void setModeL(bool mode_l, unsigned int limit = DEFAULT_MAX_CLIENTS);
 
 
 		// Functional methods

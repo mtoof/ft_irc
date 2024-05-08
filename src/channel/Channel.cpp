@@ -1,6 +1,6 @@
 #include "Channel.h"
 
-Channel::Channel(const std::string &name) : name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), limit_(DEFAULT_MAX_CLIENTS)
+Channel::Channel(const std::string &name) : name_(name), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), limit_(DEFAULT_MAX_CLIENTS)
 {
 }
 
@@ -10,17 +10,14 @@ Channel::~Channel()
 
 std::string Channel::getName() const
 {
+	if (name_.empty())
+		throw std::runtime_error("Channel name is empty.");
 	return name_;
 }
 
 std::map<std::shared_ptr<Client>, bool> Channel::getUsers() const
 {
 	return users_;
-}
-
-unsigned int Channel::getUserCount() const
-{
-	return usercount_;
 }
 
 std::string Channel::getChannelKey() const
@@ -69,12 +66,6 @@ void Channel::setUsers(const std::map<std::shared_ptr<Client>, bool> &users)
 	users_ = users;
 }
 
-// Set user count
-void Channel::setUserCount(unsigned int usercount)
-{
-	usercount_ = usercount;
-}
-
 // Set channel key
 void Channel::setChannelKey(const std::string &channel_key)
 {
@@ -109,19 +100,19 @@ void Channel::setModeK(bool mode_k)
 	mode_k_ = mode_k;
 }
 
-// Set mode_l
-void Channel::setModeL(bool mode_l)
+void Channel::setModeL(bool mode_l, unsigned int limit)
 {
 	mode_l_ = mode_l;
 	if (mode_l_)
-		limit_ = DEFAULT_MAX_CLIENTS;
+		limit_ = limit;
 	else
-		limit_ = 0;
+		limit_ = DEFAULT_MAX_CLIENTS;
 }
 
 // Check if the channel is full
 bool Channel::isFull() const
 {
+	unsigned int usercount_ = users_.size();
 	return mode_l_ && usercount_ >= limit_;
 }
 
@@ -145,20 +136,17 @@ void Channel::updateTopic(const std::string &newTopic, const std::string &author
 	topic_ = {author, newTopic}; // Update topic with author and new topic text
 }
 
+
 void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
 {
-	std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety
 	users_[client] = isOp;				   // Add the user with operator status if specified
-	usercount_ = users_.size();			   // Update the user count
 	return;								   // Return true if user added successfully
 }
 
 // Remove a user from the channel
 void Channel::removeUser(std::shared_ptr<Client> client)
 {
-	std::lock_guard<std::mutex> lock(mtx); // We are modifying the users_ map and usercount_ variable in this function and we don't want other threads to access them at the same time
-	if (users_.erase(client))
-		usercount_ = users_.size();
+	users_.erase(client);				   // Remove the user from the channel
 }
 
 /**
@@ -203,7 +191,6 @@ bool Channel::isValidChannelName(const std::string& channelName) const
 
 bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
 {
-	std::lock_guard<std::mutex> lock(mtx);
 	auto user = users_.find(client_ptr);
 	if (user != users_.end())
 		return user->second;
@@ -212,7 +199,6 @@ bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
 
 void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message)
 {
-	std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
 
 	for (const auto &userPair : users_)
 	{

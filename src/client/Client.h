@@ -78,7 +78,6 @@ class Client{
 	bool 		isInvited() const; // Check if the client is invited to a channel
 	bool 		hasCorrectPassword(const std::string& password) const; // Check if the client has the correct password
 	bool 		isAway() const;
-	bool		isOperator();
 	// void		sendMessage(std::string const &message);
 	// std::string	receiveMessage();
 	bool		joinChannel(const std::shared_ptr<Channel>& channel_ptr);
