@@ -1,5 +1,6 @@
 #include "Command.h"
 
+// Kick format: KICK <channel> <user> [comment] , https://tools.ietf.org/html/rfc2812#section-3.2.8
 void Command::handleKick(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
@@ -11,10 +12,11 @@ void Command::handleKick(const Message &msg)
 		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "KICK"));
 		return;
 	}
-	// Kick format: KICK <channel> <user> [comment] , https://tools.ietf.org/html/rfc2812#section-3.2.8
 	std::vector<std::string> channels = split(parameters[0], ',');
 	std::vector<std::string> users = split(parameters[1], ',');
-	std::string reason = parameters.size() > 2 ? parameters[2] : client_ptr->getNickname();
+	std::string reason = msg.getTrailer();
+	if (reason == "")
+		reason = "no reason";
 
 	if (channels.size() != users.size() && channels.size() != 1)
 	{
@@ -27,9 +29,9 @@ void Command::handleKick(const Message &msg)
 		std::string userName = users[i];
 		if (!channel_->isValidChannelName(channelName))
 		{
-            server_->send_response(fd, ERR_BADCHANMASK(channelName));
-            continue;
-        }
+			server_->send_response(fd, ERR_BADCHANMASK(channelName));
+			continue;
+		}
 		std::shared_ptr<Channel> channel = server_->findChannel(channelName);
 		if (!channel)
 		{
@@ -39,22 +41,24 @@ void Command::handleKick(const Message &msg)
 		if (!channel->isUserOnChannel(client_ptr->getNickname()))
 		{
 			server_->send_response(fd, ERR_NOTONCHANNEL(channelName));
-            continue;
-        }
+			continue;
+		}
 
 		if (!channel->isOperator(client_ptr))
 		{
-            server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
-            continue;
-        }
+			server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
+			continue;
+		}
 		std::shared_ptr<Client> target = server_->findClientUsingNickname(userName);
-        if (!target || !channel->isUserOnChannel(userName))
+		if (!target || !channel->isUserOnChannel(userName))
 		{
-            server_->send_response(fd, ERR_USERNOTINCHANNEL(userName, channelName));
-            continue;
-        }
+			server_->send_response(fd, ERR_USERNOTINCHANNEL(userName, channelName));
+			continue;
+		}
+
+		server_->send_response(fd, RPL_KICK(client_ptr->getClientPrefix(), channelName, target->getNickname(), reason));
+		channel->broadcastMessage(client_ptr, RPL_KICK(client_ptr->getClientPrefix(), channelName, target->getNickname(), reason));
 		channel->removeUser(target);
-        server_->send_response(target->getFd(), "KICK " + channelName + " " + client_ptr->getNickname() + " :" + reason);
-       // channel->broadcastMessage(client_ptr->getNickname(), client_ptr->getClientPrefix(), userName + " has been kicked from " + channelName + " (" + reason + ")");
+		target->leaveChannel(channel);
 	}
 }
