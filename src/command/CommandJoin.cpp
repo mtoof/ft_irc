@@ -60,7 +60,7 @@ void Command::handleJoin(const Message &msg)
 		}
 		if (channel_ptr->isFull())
 		{
-			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
+			server_->send_response(fd, ERR_CHANNELISFULL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			return;
 		}
 		if (channel_ptr->isInviteOnly() && !client_ptr->isInvited())

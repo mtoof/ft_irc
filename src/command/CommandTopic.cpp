@@ -36,7 +36,7 @@ void Command::handleTopic(const Message &msg)
 
 		if (user_topic == " ")
 		{ // Request to clear the topic
-			if (!channel->canChangeTopic(client_ptr))
+			if (channel->getModeT() && !channel->userIsOperator(client_ptr->getNickname()))
 			{
 				server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
 				return;
@@ -47,7 +47,7 @@ void Command::handleTopic(const Message &msg)
 		}
 		else
 		{ // Request to set a new topic
-			if (!channel->canChangeTopic(client_ptr))
+			if (channel->getModeT() && !channel->userIsOperator(client_ptr->getNickname()))
 			{
 				server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
 				return;

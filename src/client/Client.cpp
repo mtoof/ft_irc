@@ -1,6 +1,6 @@
 #include "Client.h"
 
-Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(false), nickname_(nickname), username_(username), ip_address_(ipaddress)
+Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(false), nickname_(nickname), username_(username), ip_address_(ipaddress), mode_i_(false)
 {
 }
 
@@ -50,9 +50,9 @@ bool	const &Client::getRegisterStatus() const
 	return this->registered_;
 }
 
-char	const &Client::getUserMode() const
+bool	const &Client::getModeI() const
 {
-	return this->usermode_;
+	return this->mode_i_;
 }
 
 // setters
@@ -84,9 +84,9 @@ void Client::setRealname(std::string const &realname)
 	this->realname_ = realname;
 }
 
-void Client::setUserMode(char const &usermode)
+void Client::setModeI(bool status)
 {
-	this->usermode_ = usermode;
+	this->mode_i_ = status;
 }
 
 void Client::setIpAddress(std::string const &ip_address)
@@ -240,12 +240,12 @@ bool	Client::joinChannel(const std::shared_ptr<Channel>& channel_ptr)
 
 void Client::leaveChannel(const std::shared_ptr<Channel>& channel_ptr)
 {
-	std::lock_guard<std::mutex> lock(channels_mutex_);
+	//std::lock_guard<std::mutex> lock(channels_mutex_);
     channels_.erase(std::remove(channels_.begin(), channels_.end(), channel_ptr), channels_.end());
 }
 
 std::vector<std::shared_ptr<Channel>> Client::getChannels() const 
 {
-        std::lock_guard<std::mutex> lock(channels_mutex_);
+       // std::lock_guard<std::mutex> lock(channels_mutex_);
         return channels_;
 }

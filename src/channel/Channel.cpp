@@ -147,6 +147,7 @@ void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
 void Channel::removeUser(std::shared_ptr<Client> client)
 {
 	users_.erase(client);				   // Remove the user from the channel
+	std::cout << GREEN << "users_.size() = " << users_.size() << RESET << std::endl;
 }
 
 /**
@@ -213,7 +214,7 @@ void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const 
 
 void Channel::broadcastMessageToAll(const std::string &message)
 {
-	std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
+	//std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
 
 	for (const auto &userPair : users_)
 	{
