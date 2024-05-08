@@ -135,6 +135,7 @@ void Command::applyChannelModes(std::shared_ptr<Channel> channel, const std::str
 				modesToSet += mode;
 				break;
 			default:
+				server_->send_response(fd, ERR_UNKNOWNMODE(server_->getServerHostname(), client_ptr->getNickname(), mode));
 				break; // Ignore unknown modes
 			}
 		}
@@ -160,6 +161,7 @@ void Command::applyChannelModes(std::shared_ptr<Channel> channel, const std::str
 				modesToUnset += mode;
 				break;
 			default:
+				server_->send_response(fd, ERR_UNKNOWNMODE(server_->getServerHostname(), client_ptr->getNickname(), mode));
 				break; // Ignore unknown modes
 			}
 		}
