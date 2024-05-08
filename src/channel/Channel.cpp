@@ -252,3 +252,18 @@ bool Channel::changeOpStatus(std::shared_ptr<Client> client_ptr, bool status)
 	}
 	return false;
 }
+
+bool Channel::isUserInvited(const std::string &nickname) const
+{
+    return invited_users_.find(nickname) != invited_users_.end();
+}
+
+void Channel::addUserToInvitedList(const std::string &nickname)
+{
+	invited_users_.insert(nickname);
+}
+
+void Channel::removeUserFromInvitedList(const std::string &nickname)
+{
+	invited_users_.erase(nickname);
+}

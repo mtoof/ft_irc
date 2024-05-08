@@ -75,6 +75,7 @@ class Channel
 		bool isCorrectPassword(const std::string& given_password);
 		bool isUserInvited(const std::string &nickname) const;
 		void addUserToInvitedList(const std::string &nickname);
+		void removeUserFromInvitedList(const std::string &nickname);
 
 };
 

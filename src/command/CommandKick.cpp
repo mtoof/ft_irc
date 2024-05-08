@@ -65,5 +65,7 @@ void Command::handleKick(const Message &msg)
 		channel->broadcastMessage(client_ptr, RPL_KICK(client_ptr->getClientPrefix(), channelName, target_ptr->getNickname(), reason));
 		channel->removeUser(target_ptr);
 		target_ptr->leaveChannel(channel);
+		if (channel->isUserInvited(target_ptr->getNickname()))
+			channel->removeUserFromInvitedList(target_ptr->getNickname());
 	}
 }
