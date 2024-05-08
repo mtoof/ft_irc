@@ -178,9 +178,7 @@ void Server::handleClientData(int fd)
 	}
 	else if (!readbyte)
 	{
-		std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
-		deleteClient(fd);
-		closeDeletePollFd(fd);
+		disconnectAndDeleteClient(client);
 		return;
 	}
 	else
@@ -209,4 +207,12 @@ std::shared_ptr<Channel> Server::findOrCreateChannel(const std::string& name) {
         channels_[name] = channel;
     }
     return channel;
+}
+
+void Server::disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr)
+{
+	int fd = client_ptr->getFd();
+	std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
+	deleteClient(fd);
+	closeDeletePollFd(fd);
 }
