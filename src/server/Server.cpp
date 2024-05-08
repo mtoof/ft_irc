@@ -34,6 +34,7 @@ Server::Server(int port, std::string password) : host_(""), port_(port), passwor
 	supported_commands_.insert(std::pair("TOPIC", &Command::handleTopic));
 	supported_commands_.insert(std::pair("INVITE", &Command::handleInvite));
 	supported_commands_.insert(std::pair("AWAY", &Command::handleAway));
+	supported_commands_.insert(std::pair("WHO", &Command::handleWho));
 
 }
 
@@ -141,6 +142,7 @@ void Server::registerNewClient()
 	delete ip;
 	this->clients_.insert(std::make_pair(userfd, newclient));
 	fds_.push_back(userpollfd);
+	std::cout << GREEN " <Client " << userfd << "> is trying to establish a connection." RESET << std::endl;
 }
 
 /**

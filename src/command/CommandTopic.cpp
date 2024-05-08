@@ -3,9 +3,8 @@
 void Command::handleTopic(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	int fd = client_ptr->getFd();
 	std::vector<std::string> parameters = msg.getParameters();
-
+	int fd = client_ptr->getFd();
 	if (parameters.empty())
 	{
 		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "TOPIC"));
@@ -14,9 +13,7 @@ void Command::handleTopic(const Message &msg)
 
 	std::string channelName = parameters[0];
 	std::shared_ptr<Channel> channel = server_->findChannel(channelName);
-	std::pair<std::string, std::string> topic = channel->getTopic();
-	std::string currentTopic = topic.second;
-	std::string currentTopicSetter = topic.first;
+	std::pair<std::string, std::string> topic;
 
 	if (!channel)
 	{
@@ -30,11 +27,14 @@ void Command::handleTopic(const Message &msg)
 		return;
 	}
 
-	if (parameters.size() > 1)
+	topic = channel->getTopic();
+	std::string currentTopic = topic.second;
+	std::string currentTopicSetter = topic.first;
+	std::string user_topic = msg.getTrailer();
+	if (parameters.size() && !user_topic.empty())
 	{
-		std::string topic = parameters[1];
 
-		if (topic.empty())
+		if (user_topic == " ")
 		{ // Request to clear the topic
 			if (!channel->canChangeTopic(client_ptr))
 			{
@@ -42,7 +42,8 @@ void Command::handleTopic(const Message &msg)
 				return;
 			}
 			channel->setTopic(make_pair(client_ptr->getNickname(), ""));
-			server_->send_response(fd, RPL_TOPIC(client_ptr->getNickname(), channelName, "Topic cleared"));
+			channel->broadcastMessageToAll(RPL_TOPIC(":" + client_ptr->getClientPrefix(), channelName, "Topic cleared"));
+			//must be broadcast to everyone
 		}
 		else
 		{ // Request to set a new topic
@@ -51,15 +52,20 @@ void Command::handleTopic(const Message &msg)
 				server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
 				return;
 			}
-			channel->setTopic(make_pair(client_ptr->getNickname(), topic));
-			server_->send_response(fd, RPL_TOPIC(client_ptr->getNickname(), channelName, topic));
+			channel->setTopic(make_pair(client_ptr->getNickname(), user_topic));
+			channel->broadcastMessageToAll(RPL_TOPIC(":" + client_ptr->getClientPrefix(), channelName, user_topic));
+			//moj89 changed the topic of #test22 to: "new topic"
+			//Topic for #test22: "new topic"
+			//21:29 -!- Topic set by moj89 [~sepehr@da1c-55f3-94dc-acbc-ee7.bb.dnainternet.fi] [Tue May  7 21:24:26 2024]
+			//must be broadcast to everyone
 		}
 	}
 	else
 	{
 		if (currentTopic.empty())
-			server_->send_response(fd, RPL_NOTOPIC(client_ptr->getNickname(), channelName));
+			server_->send_response(client_ptr->getFd(), RPL_NOTOPIC(":"+client_ptr->getClientPrefix(), channelName));
 		else
-			server_->send_response(fd, RPL_TOPIC(client_ptr->getNickname(), channelName, currentTopic));
+			server_->send_response(client_ptr->getFd(), RPL_TOPIC(":" + client_ptr->getClientPrefix(), channelName, currentTopic));
 	}
 }
+

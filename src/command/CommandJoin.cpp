@@ -128,4 +128,3 @@ void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::s
 	server_->send_response(fd, RPL_NAMREPLY(servername, nickname, channel_name, userlist));
 	server_->send_response(fd, RPL_ENDOFNAMES(servername, nickname, channel_name));
 }
-

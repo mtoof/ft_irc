@@ -225,6 +225,17 @@ void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const 
 	}
 }
 
+void Channel::broadcastMessageToAll(const std::string &message)
+{
+	std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
+
+	for (const auto &userPair : users_)
+	{
+		std::shared_ptr<Client> user = userPair.first;
+			server_->send_response(user->getFd(), message);
+	}
+}
+
 bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
 {
 	if (isOperator(client_ptr))

@@ -54,6 +54,7 @@ public:
 	void						handleClientData(int fd);
 	void						initServer();
 	void						deleteClient(int fd);
+	void						deleteChannel(std::string const &channelname);
 	void						closeDeletePollFd(int fd);
 	void						closeFds();
 	void						disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr);

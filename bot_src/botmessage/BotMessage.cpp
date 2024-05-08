@@ -1,34 +1,27 @@
-#include "Message.h"
+#include "BotMessage.h"
 
 /// @brief constructor for receiving a message from client and getting ready to parse it
 /// @param raw_message 
 /// @param server 
 /// @param clientfd 
-Message::Message(std::string raw_message, Server *server, int clientfd)
-: raw_message_(raw_message), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
+BotMessage::BotMessage(std::string raw_message)
+: raw_message_(raw_message), valid_message_(false)
 {
-	client_ptr_ = server_ptr_->findClientUsingFd(client_fd_);
-	if (!client_ptr_)
-	{
-		debug("Find client in message constructor", FAILED);
-		return;
-	}
-	// std::cout << "Message constructor. Raw message: " << raw_message_ << "\t received from fd: " << client_fd_ << std::endl;
-	
+	std::cout << "Message constructor. Raw message: " << raw_message_ << std::endl;	
 	valid_message_ = analyzeMessage();
-	printMessageContents();
+	// printMessageContents();
 	// TODO: Parsing the message and saving it to the members of the class
 	// Parser is below, modularize it to subfunctions that save each element of the message to correct members
 	// once parsing/analyzing is done, it's sent for COMMAND class (also TODO)
 	// THIS IS ABOUT FORMATTING
 }
 
-Message::~Message()
+BotMessage::~BotMessage()
 {
-	// std::cout << "Message destructor" << std::endl;
+	std::cout << "BotMessage destructor" << std::endl;
 }
 
-bool Message::analyzeMessage()
+bool BotMessage::analyzeMessage()
 {
 	std::istringstream iss(raw_message_);
 	std::string prefix;
@@ -37,12 +30,6 @@ bool Message::analyzeMessage()
 	if (raw_message_.front() == ':')
 	{
 		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
-		std::string temp_prefix = ":" + client_ptr_->getNickname();
-		if (prefix != temp_prefix)
-		{
-			std::cerr << "Invalid prefix: " << prefix << std::endl;
-			return false;
-		}
 		prefix_ = prefix;
 	}
 
@@ -69,7 +56,7 @@ bool Message::analyzeMessage()
 	return true;
 }
 
-void	Message::printMessageContents()
+void	BotMessage::printMessageContents()
 {
 	std::cout << "Printing contents:\n";
 	std::cout << "Prefix: " << prefix_ << "\n";
@@ -83,32 +70,22 @@ void	Message::printMessageContents()
 	
 }
 
-std::string Message::getCommand() const
+std::string BotMessage::getCommand() const
 {
 	return command_;
 }
 
-std::vector<std::string> Message::getParameters() const
+std::vector<std::string> BotMessage::getParameters() const
 {
 	return parameters_;
 }
 
-bool Message::isValidMessage()
+bool BotMessage::isValidMessage()
 {
 	return valid_message_;
 }
 
-std::string Message::getTrailer() const
+std::string BotMessage::getTrailer() const
 {
 	return trailer_;
-}
-
-int Message::getClientfd() const
-{
-	return client_fd_;
-}
-
-std::shared_ptr<Client> Message::getClientPtr() const
-{
-	return client_ptr_;
 }
