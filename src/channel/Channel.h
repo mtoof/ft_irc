@@ -7,6 +7,8 @@
 #include <utility>
 #include <memory>
 #include <cctype>
+#include <set>
+
 #include "../client/Client.h"
 #include "../common/MagicNumbers.h"
 #include "../server/Server.h"
@@ -27,7 +29,7 @@ class Channel
 		std::string 							mode_; // Channel modes
 		unsigned int 							limit_;
 		std::shared_ptr<Server>					server_;
-
+		std::set<std::string> 					invited_users_; 
 	public:
 		Channel(const std::string &name);
 		~Channel();
@@ -68,6 +70,10 @@ class Channel
 		bool isOperator(std::shared_ptr<Client> client_ptr);
 		bool canChangeTopic(std::shared_ptr<Client> client_ptr);
 		bool isCorrectPassword(const std::string& given_password);
+		void broadcasting(std::shared_ptr<Client> client, const std::string &message);
+		bool isUserInvited(const std::string &nickname) const;
+		void addUserToInvitedList(const std::string &nickname);
+
 };
 
 #endif// CHANNEL_H

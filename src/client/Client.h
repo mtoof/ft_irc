@@ -27,7 +27,7 @@ class Client{
 	std::string													ip_address_;
 	std::string													client_prefix_;
 	std::string													buffer;
-	bool														invited_;
+	// bool														invited_;
 	bool														awayStatus;
     std::string													awayMessage;
 	std::vector<std::shared_ptr<Channel>>						channels_;
@@ -75,7 +75,7 @@ class Client{
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(Message &message, Server *server_ptr);
 	bool		hasSentPassword();
-	bool 		isInvited() const; // Check if the client is invited to a channel
+	// bool 		isInvited() const; // Check if the client is invited to a channel
 	bool 		hasCorrectPassword(const std::string& password) const; // Check if the client has the correct password
 	bool 		isAway() const;
 	// void		sendMessage(std::string const &message);

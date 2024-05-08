@@ -226,3 +226,20 @@ bool Channel::isCorrectPassword(const std::string& given_password)
 {
 	return channel_key_ == given_password;
 }
+
+void Channel::broadcasting(std::shared_ptr<Client> client, const std::string &message)
+{
+    std::string prefix = ":" + client->getClientPrefix() + " ";
+    for (const auto &userPair : users_)
+        server_->send_response(userPair.first->getFd(), prefix + message + CRLF);
+}
+
+bool Channel::isUserInvited(const std::string &nickname) const
+{
+    return invited_users_.find(nickname) != invited_users_.end();
+}
+
+void Channel::addUserToInvitedList(const std::string &nickname)
+{
+	invited_users_.insert(nickname);
+}

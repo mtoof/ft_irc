@@ -63,7 +63,7 @@ void Command::handleJoin(const Message &msg)
 			server_->send_response(fd, ERR_CHANNELISFULL(channel_name));
 			return;
 		}
-		if (channel_ptr->isInviteOnly() && !client_ptr->isInvited())
+		if (channel_ptr->isInviteOnly() && !channel_ptr->isUserInvited(client_ptr->getNickname()))
 		{
 			server_->send_response(fd, ERR_INVITEONLYCHAN(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
 			return;

@@ -166,10 +166,10 @@ bool Client::hasSentPassword()
 	return password_;
 }
 
-bool Client::isInvited() const
-{
-    return invited_;
-}
+// bool Client::isInvited() const
+// {
+//     return invited_;
+// }
 
 // Implementation of hasCorrectPassword method to check if the client has the correct password for a channel
 // bool Client::hasCorrectPassword(const std::string& password) const

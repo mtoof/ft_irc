@@ -43,10 +43,15 @@ void Command::handleInvite(const Message &msg)
 			server_->send_response(fd, ERR_NOTONCHANNEL(channelName));
 			return;
 		}
-		if (channel->isInviteOnly() && !channel->isOperator(client_ptr))
+		if (!channel->isUserInvited(target->getNickname()) && channel->isOperator(client_ptr))
+			channel->addUserToInvitedList(target->getNickname());
+		else
 		{
-			server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
-			return;
+			if (channel->isInviteOnly() && !channel->isOperator(client_ptr))
+			{
+				server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
+				return;
+			}
 		}
 		if (channel->isUserOnChannel(nickname))
 		{
@@ -55,9 +60,9 @@ void Command::handleInvite(const Message &msg)
 		}
 	}
 
-	server_->send_response(target->getFd(), "INVITE " + nickname + " :" + channelName);
-	server_->send_response(fd, RPL_INVITING(nickname, channelName, target->getNickname()));
-
+	// server_->send_response(target->getFd(), "INVITE " + nickname + " :" + channelName);
+	server_->send_response(fd, RPL_INVITING(server_->getServerHostname(), client_ptr->getNickname(), target->getNickname(), channelName));
+	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channelName));
 	if (target->isAway())
 		server_->send_response(fd, RPL_AWAY(nickname, target->getAwayMessage()));
 }
