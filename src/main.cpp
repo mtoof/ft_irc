@@ -6,7 +6,7 @@
 /*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:19 by atoof             #+#    #+#             */
-/*   Updated: 2024/04/25 15:14:48 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/05/09 02:08:28 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void convertArgs(int &port, std::string &password, char **av)
 int main(int ac, char **av)
 {
 	int port=-1;
-	std::string password;
+	std::string password;	
 	try
 	{
 		switch (ac)
@@ -81,7 +81,7 @@ int main(int ac, char **av)
 				break;
 			default:
 				std::cout << "Usage:\n./ircserv <Port> <Password>";
-				break ;
+				exit(1);
 		}
 	}
 	catch (std::exception &e)
