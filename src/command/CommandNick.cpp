@@ -12,9 +12,8 @@ void Command::handleNick(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	int fd = client_ptr->getFd();
-	if (!server_->getPassword().empty() && client_ptr->hasSentPassword() == false)
+	if (!server_->hasClientSentPass(client_ptr))
 	{
-		server_->send_response(fd, "you must send password first"); // this is definitely not the correct reply
 		return;
 	}
 	std::vector<std::string> parameters = msg.getParameters();

@@ -73,7 +73,7 @@ public:
 	std::string 				createRegexFromMask(const std::string &mask) const;
 	std::string 				toLower(const std::string& str) const;
 	std::vector<std::shared_ptr<Client>> findClientsByMask(const std::string &mask) const;
-
+	bool						hasClientSentPass(std::shared_ptr <Client> const &client_ptr);
 
 //getter
 

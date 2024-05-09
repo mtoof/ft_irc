@@ -4,10 +4,11 @@
 
 void Command::handleUser(const Message &msg)
 {
-	std::cout << "handleUser called" << std::endl;
 	std::vector<std::string> params = msg.getParameters();
 	int fd = msg.getClientfd();
-	std::shared_ptr client_ptr = msg.getClientPtr();
+	std::shared_ptr <Client> client_ptr = msg.getClientPtr();
+	if (!server_->hasClientSentPass(client_ptr))
+		return;
 	if (client_ptr->getRegisterStatus() == true)
 		server_->send_response(fd, ERR_ALREADYREGISTERED(client_ptr->getNickname()));
 	else if (params.size() == 3 && !msg.getTrailer().empty())

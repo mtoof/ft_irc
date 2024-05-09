@@ -249,3 +249,13 @@ std::vector<std::shared_ptr<Channel>> Client::getChannels() const
        // std::lock_guard<std::mutex> lock(channels_mutex_);
         return channels_;
 }
+
+void Client::setRejectedStatus(bool const &status)
+{
+	rejected_ = status;
+}
+
+bool const &Client::getRejectedStatus() const
+{
+	return rejected_;
+}

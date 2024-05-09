@@ -17,7 +17,7 @@ class Client{
 	int															fd_;
 	bool														registered_;
 	bool														password_; //true if server password is set
-
+	bool														rejected_;
 	std::string													nickname_;
 	std::string													old_nickname_;
 	std::string													username_;
@@ -53,6 +53,7 @@ class Client{
 	std::string const	&getClientPrefix() const;
 	std::string 		getAwayMessage() const;
 	std::string 		getChannelName() const;
+	bool		const	&getRejectedStatus() const;
 	
 
 	// setters
@@ -69,7 +70,7 @@ class Client{
 	void        setClientPrefix();
 	void		setAway(bool status, const std::string& message = "");
 	void		setModeI(bool status);
-
+	void		setRejectedStatus(bool const &status);
 	// member functions
 	void		registerClient();
 	void		unregisterClient();

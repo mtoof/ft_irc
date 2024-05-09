@@ -212,6 +212,7 @@ void Command::applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_
 					}
 					arg_index++;
 				}
+				break;
             case 't':
                 channel_ptr->setModeT(false);
                 modesToUnset += mode;

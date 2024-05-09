@@ -281,6 +281,7 @@ std::string Server::createRegexFromMask(const std::string &mask) const
 		case '}':
 		case '+':
 			regex.append("\\"); // Escape special characters
+			break;
 		default:
 			regex.push_back(ch); // Append the character as is to the regex pattern
 			break;
@@ -307,4 +308,20 @@ void Server::deleteChannel(std::string const &channelname)
 {
 	if (this->findChannel(channelname))
 		channels_.erase(channelname);
+}
+
+bool Server::hasClientSentPass(std::shared_ptr <Client> const &client_ptr)
+{
+	int fd = client_ptr->getFd();
+	if (!this->getPassword().empty() && client_ptr->hasSentPassword() == false)
+	{
+		std::string msg = "You must send password first";
+		if (findClientUsingFd(fd) && !client_ptr->getRejectedStatus())
+		{
+			this->send_response(fd, msg + CRLF); // this is definitely not the correct reply
+			client_ptr->setRejectedStatus(true);
+		}
+		return false;
+	}
+	return true;
 }
