@@ -122,32 +122,33 @@ void Command::applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_
         args.push_back(arg);
     }
 	int fd = client_ptr->getFd();
-    std::map<char, bool> modeChanges; // Tracks the final setting state for each mode
+    std::vector<std::pair <char, bool>> mode_changes; // Tracks the final setting state for each mode
     std::string modesToSet = "";
     std::string modesToUnset = "";
     std::string params = "";  // This will hold all parameters for display
     size_t arg_index = 0;
 
-    char lastSign = '+';
+    bool status = 'true';
     for (char mode : mode_string) {
         if (mode == '+')
-            lastSign = '+';
+            status = true;
         else if (mode == '-')
-            lastSign = '-';
+        	status = false;
         else
-            modeChanges[mode] = (lastSign == '+');
+            mode_changes.push_back(std::pair(mode, status));
     }
-
+	
     // Collect all parameters in a single string for display regardless of modes
     // for (const auto &arg : args) {
     //     params += arg + " ";
     // }
-
-    for (const auto &[mode, isSetting] : modeChanges) {
-        if (isSetting) {
+	for (const auto setting_pair : mode_changes) {
+        char mode = setting_pair.first;
+		bool setting = setting_pair.second;
+		if (setting) {
             switch (mode) {
             case 'k':
-                if (arg_index < args.size()) {
+			    if (arg_index < args.size()) {
                     channel_ptr->setModeK(true);
                     channel_ptr->setChannelKey(args[arg_index]);
                     modesToSet += mode;
@@ -156,7 +157,7 @@ void Command::applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_
                 }
                 break;
             case 'l':
-                if (arg_index < args.size() && args[arg_index].find_first_not_of("0123456789") == std::string::npos) {
+				if (arg_index < args.size() && args[arg_index].find_first_not_of("0123456789") == std::string::npos) {
                     int limit = std::stoi(args[arg_index]);
                     channel_ptr->setModeL(true, limit);
                     modesToSet += mode;
@@ -225,6 +226,7 @@ void Command::applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_
     }
 
     // Construct the mode change result string
+	// TODO: not minus or plus first but in the exact order the changes have been done
     std::string modeResult;
     if (!modesToSet.empty()) modeResult += "+" + modesToSet;
     if (!modesToUnset.empty()) modeResult += "-" + modesToUnset;
@@ -239,6 +241,7 @@ void Command::applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_
 
 bool Command::applyModeO(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, std::string target, bool mode)
 {
+	std::cout << target << std::endl;
 	std::shared_ptr<Client> target_ptr = server_->findClientUsingNickname(target);
 	if (target_ptr == nullptr)
 	{
