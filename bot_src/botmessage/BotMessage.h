@@ -1,7 +1,7 @@
 #ifndef __BOTMESSAGE_H__
 #define __BOTMESSAGE_H__
 
-#include "../headers.h"
+#include "../headers/headers.h"
 #include "../bot/Bot.h"
 
 class BotMessage

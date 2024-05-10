@@ -1,10 +1,22 @@
 #include "Bot.h"
 
 bool Bot::signal_ = false;
-Bot::Bot(std::string &server_address, int &port, std::string &password, std::string const &filename)
-: server_addr_(server_address), server_port_(port), server_password_(password), info_file_(filename)
+Bot::Bot(std::string &server_address, int &port, std::string &password, char **av)
+: server_addr_(server_address), server_port_(port), server_password_(password)
 {
 	std::cout << RED "constructor called" RESET << std::endl;
+	if (isValidNickname(av[4]))
+		nickname_ = av[4];
+	else
+		throw std::runtime_error("Invalid Nickname format");
+	username_ = av[5];
+
+	supported_commands_.insert(std::pair("JOIN", &BotCommand::handleJoin));
+	supported_commands_.insert(std::pair("NICK", &BotCommand::handleNick));
+	supported_commands_.insert(std::pair("PRIVMSG", &BotCommand::handlePrivmsg));
+	supported_commands_.insert(std::pair("USER", &BotCommand::handleUser));
+	supported_commands_.insert(std::pair("MODE", &BotCommand::handleMode));
+	supported_commands_.insert(std::pair("KICK", &BotCommand::handleKick));
 }
 
 Bot::~Bot()
@@ -18,8 +30,8 @@ void Bot::init_bot()
 		return;
 	createBotSocket();
 	poll_fd_.fd = server_fd_;
-    poll_fd_.events = POLLIN | POLL_OUT;
-    poll_fd_.revents = 0;
+	poll_fd_.events = POLLIN | POLL_OUT;
+	poll_fd_.revents = 0;
 	int event;
 	while (!Bot::signal_)
 	{
@@ -70,55 +82,27 @@ void Bot::createBotSocket()
 	}
 	std::cout << "Bot connected to server successfuly" << std::endl;
 	free(serv_addr_info_);
-	sendInfo();
+	testConnection();
+}
+
+void Bot::testConnection()
+{
+	std::string msg = "JOIN";
+	send_response(server_fd_, msg + CRLF);
 }
 
 void Bot::sendInfo()
 {
-	if (info_file_.empty())
-	throw std::runtime_error("Need a config file");
-	std::ifstream info_file(info_file_);
-	readFile(info_file);
-	std::string line;
-	line.clear();
-	while (std::getline(info_file, line))
-	{
-		line += "\r\n";
-		if (send(server_fd_, line.c_str(), line.length(), 0) < 0)
-		{
-			std::cout << RED "Couldn't send data, Check the connection please!" RESET << std::endl;
-			info_file.clear();
-			info_file.seekg(0, info_file.beg);
-			info_file.close();
-			close(server_fd_);
-			reConnection();
-		}
-		
-	}
-	info_file.clear();
-	info_file.seekg(0, info_file.beg);
-	info_file.close();
+	send_response(server_fd_, RPL_NICK(getNickname()));
+	send_response(server_fd_, RPL_USER(getUsername()));
 }
 
-void Bot::readFile(std::ifstream &info_file)
+void Bot::send_response(int fd, const std::string &response)
 {
-	if (!info_file.is_open())
-	{
-		throw std::runtime_error("Error opening the file!");
-	}
-	struct stat fileStat;
-	if (stat(info_file_.c_str(), &fileStat) == 0)
-	{
-		if (S_ISDIR(fileStat.st_mode))
-		{
-			std::cout << info_file_;
-			throw std::runtime_error(" Is a directory");
-		}
-	}
-	if (info_file.eof())
-	{
-		throw std::runtime_error("Config file is empty");	
-	}
+	std::cout << "Response:\n"
+			  << response;
+	if (send(fd, response.c_str(), response.length(), 0) < 0)
+		std::cerr << "Response send() faild" << std::endl;
 }
 
 void Bot::signalhandler(int signum)
@@ -150,21 +134,27 @@ int const &Bot::getServerPort() const
     return this->server_port_;
 }
 
-std::string const	&Bot::getInfoFile() const
+// std::string const	&Bot::getInfoFile() const
+// {
+// 	return info_file_;
+// }
+
+std::string const &Bot::getNickname() const
 {
-	return info_file_;
+	return nickname_;
 }
 
-void Bot::reConnection()
+std::string const &Bot::getUsername() const
 {
-	int counter = 10;
-	while (counter && !Bot::signal_)
-	{
-		std::cout << '\r' << std::setw(2) << std::setfill('0') << counter-- << std::flush;
-		sleep(1);
-	}
-	std::cout << "\nRetry again!!!\n" << std::flush;
-	counter = 10;
-	close(server_fd_);
-	init_bot();
+	return username_;
+}
+
+void Bot::setNickname(std::string const &nickname)
+{
+	nickname_ = nickname;
+}
+
+void Bot::setUsername(std::string const &username)
+{
+	username_ = username;
 }

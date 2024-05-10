@@ -1,12 +1,13 @@
 #ifndef __BOT_H__
 #define __BOT_H__
 
-#define DEFAULTPORT 6667
-#include "../headers.h"
-#include "../colour.h"
+#include "../headers/headers.h"
+#include "../headers/colour.h"
 #include "../botmessage/BotMessage.h"
+#include "../botcommand/BotCommand.hpp"
 
 class BotMessage;
+class BotCommand;
 class Bot
 {
 private:
@@ -15,28 +16,41 @@ private:
 	std::string 		server_addr_;
 	int 				server_port_;
 	std::string 		server_password_;
-	std::string			info_file_;
+	std::string 		nickname_;
+	std::string 		username_;
 	std::string			buffer_;
 	struct pollfd		poll_fd_;
 	int					server_fd_;
 	static bool 		signal_;
+	std::map<std::string, void (BotCommand::*)(const BotMessage &msg)> supported_commands_;
+
 
 public:
-	Bot(std::string &server_address, int &port, std::string &password, std::string const &filename);
+	Bot(std::string &server_address, int &port, std::string &password, char **av);
 	~Bot();
 	void 				init_bot();
 	std::string const	&getServerAddr() const;
 	std::string const	&getServerPassword() const;
-	std::string const	&getInfoFile() const;
+	// std::string const	&getInfoFile() const;
 	int const			&getServerPort() const;
+	std::string	const	&getNickname() const;
+	std::string	const	&getUsername() const;
+
 	void				sendInfo();
 	static void 		signalhandler(int signum);
 	void 				createBotSocket();
 	void 				readBuffer();
 	void				reConnection();
-	void appendToBuffer(const std::string &data);
-	void processBuffer();
-	void readFile(std::ifstream &info_file);
+	void 				appendToBuffer(const std::string &data);
+	void 				processBuffer();
+	// void readFile(std::ifstream &info_file);
+	void 				setUsername(std::string const &username);
+	void				setNickname(std::string const &nickname);
+	bool				isValidNickname(std::string nickname);
+	void				send_response(int fd, const std::string &response);
+	void				testConnection();
+	void				processCommand(BotMessage &message);
+	std::map<std::string, void (BotCommand::*)(const BotMessage &msg)> const &getSupportedCommands() const;
 };
 
 #endif

@@ -51,7 +51,38 @@ void Bot::processBuffer()
 		if(message.isValidMessage() == true)
 		{
 			//TODO: send the message to command
-			// processCommand(message);
+			processCommand(message);
 		}
 	}
+}
+
+void Bot::processCommand(BotMessage &message)
+{
+	std::string command;
+	try
+	{
+		int rpl_number = std::stoi(message.getCommand());
+
+		switch (rpl_number)
+		{
+			case 451:
+				command = "JOIN";
+				break;
+			default:
+				return;
+		}
+	}
+	catch(const std::exception& e)
+	{
+		command = message.getCommand();
+	}
+	
+
+    auto it = this->getSupportedCommands().find(command);
+    if (it != this->getSupportedCommands().end())
+    {
+       auto handler = it->second; // Get the function pointer from the map
+       BotCommand commandObject(this);
+       (commandObject.*handler)(message);
+    }
 }
