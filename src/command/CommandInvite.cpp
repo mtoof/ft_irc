@@ -62,7 +62,6 @@ void Command::handleInvite(const Message &msg)
 
 	// server_->send_response(target->getFd(), "INVITE " + nickname + " :" + channelName);
 	server_->send_response(fd, RPL_INVITING(server_->getServerHostname(), client_ptr->getNickname(), target->getNickname(), channelName));
-	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channelName));
 	if (target->isAway())
 		server_->send_response(fd, RPL_AWAY(nickname, target->getAwayMessage()));
 }
