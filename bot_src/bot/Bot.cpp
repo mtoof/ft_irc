@@ -91,12 +91,6 @@ void Bot::testConnection()
 	send_response(server_fd_, msg + CRLF);
 }
 
-void Bot::sendInfo()
-{
-	send_response(server_fd_, RPL_NICK(getNickname()));
-	send_response(server_fd_, RPL_USER(getUsername()));
-}
-
 void Bot::send_response(int fd, const std::string &response)
 {
 	std::cout << "Response:\n"

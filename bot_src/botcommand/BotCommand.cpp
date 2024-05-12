@@ -11,7 +11,14 @@ BotCommand::~BotCommand()
 
 void BotCommand::handleJoin(const BotMessage &msg)
 {
-    (void)msg;
+    std::string command = msg.getCommand();
+    int fd = bot_->getServerfd();
+    std::cout << "fd = " << fd << std::endl;
+    if (command == "451")
+    {
+        bot_->send_response(fd, RPL_NICK(bot_->getNickname()));
+	    bot_->send_response(fd, RPL_USER(bot_->getUsername()));
+    }
 }
 
 void BotCommand::handleNick(const BotMessage &msg)

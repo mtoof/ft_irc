@@ -10,10 +10,6 @@ BotMessage::BotMessage(std::string raw_message)
 	std::cout << "Message constructor. Raw message: " << raw_message_ << std::endl;	
 	valid_message_ = analyzeMessage();
 	// printMessageContents();
-	// TODO: Parsing the message and saving it to the members of the class
-	// Parser is below, modularize it to subfunctions that save each element of the message to correct members
-	// once parsing/analyzing is done, it's sent for COMMAND class (also TODO)
-	// THIS IS ABOUT FORMATTING
 }
 
 BotMessage::~BotMessage()

@@ -31,12 +31,11 @@ public:
 	void 				init_bot();
 	std::string const	&getServerAddr() const;
 	std::string const	&getServerPassword() const;
-	// std::string const	&getInfoFile() const;
 	int const			&getServerPort() const;
 	std::string	const	&getNickname() const;
 	std::string	const	&getUsername() const;
+	int			const	&getServerfd() const;
 
-	void				sendInfo();
 	static void 		signalhandler(int signum);
 	void 				createBotSocket();
 	void 				readBuffer();

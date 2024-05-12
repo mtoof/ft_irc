@@ -76,7 +76,6 @@ void Bot::processCommand(BotMessage &message)
 	{
 		command = message.getCommand();
 	}
-	
 
     auto it = this->getSupportedCommands().find(command);
     if (it != this->getSupportedCommands().end())

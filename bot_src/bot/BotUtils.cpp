@@ -39,3 +39,8 @@ std::map<std::string, void (BotCommand::*)(const BotMessage &msg)> const &Bot::g
 {
 	return supported_commands_;
 }
+
+int const &Bot::getServerfd() const
+{
+	return server_fd_;
+}
