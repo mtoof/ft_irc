@@ -61,10 +61,16 @@ void Bot::processCommand(BotMessage &message)
 	std::string command;
 	try
 	{
-		int rpl_number = std::stoi(message.getCommand());
+		int rpl_number = std::stoi(message.getReplyNumber());
 
 		switch (rpl_number)
 		{
+			case 001:
+				this->setRegisterStatus(true);
+				return;
+			case 433:
+				command = "NICK";
+				break;
 			case 451:
 				command = "JOIN";
 				break;
@@ -74,7 +80,7 @@ void Bot::processCommand(BotMessage &message)
 	}
 	catch(const std::exception& e)
 	{
-		command = message.getCommand();
+		command = message.getReplyNumber();
 	}
 
     auto it = this->getSupportedCommands().find(command);

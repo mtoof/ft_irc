@@ -30,15 +30,17 @@ void Bot::init_bot()
 		return;
 	createBotSocket();
 	poll_fd_.fd = server_fd_;
-	poll_fd_.events = POLLIN | POLL_OUT;
+	poll_fd_.events = POLLIN;
 	poll_fd_.revents = 0;
 	int event;
 	while (!Bot::signal_)
 	{
-		event = poll(&poll_fd_, POLL_IN, -1);
+		event = poll(&poll_fd_, POLL_IN, 5000);
+		if (event == 0 && this->getRegisterStatus() == false)
+			testConnection();
 		if (event == -1 && !Bot::signal_)
 			throw std::runtime_error("Error poll");
-		if (poll_fd_.revents & (POLL_IN | POLL_OUT))
+		if (poll_fd_.revents && POLL_IN)
 		{
 			readBuffer();
 		}
@@ -82,21 +84,15 @@ void Bot::createBotSocket()
 	}
 	std::cout << "Bot connected to server successfuly" << std::endl;
 	free(serv_addr_info_);
-	testConnection();
 }
 
 void Bot::testConnection()
 {
-	std::string msg = "JOIN";
-	send_response(server_fd_, msg + CRLF);
-}
-
-void Bot::send_response(int fd, const std::string &response)
-{
-	std::cout << "Response:\n"
-			  << response;
-	if (send(fd, response.c_str(), response.length(), 0) < 0)
-		std::cerr << "Response send() faild" << std::endl;
+	if (!this->getRegisterStatus())
+	{
+		std::string msg = "JOIN";
+		send_response(server_fd_, msg + CRLF);
+	}
 }
 
 void Bot::signalhandler(int signum)
@@ -128,11 +124,6 @@ int const &Bot::getServerPort() const
     return this->server_port_;
 }
 
-// std::string const	&Bot::getInfoFile() const
-// {
-// 	return info_file_;
-// }
-
 std::string const &Bot::getNickname() const
 {
 	return nickname_;
@@ -151,4 +142,14 @@ void Bot::setNickname(std::string const &nickname)
 void Bot::setUsername(std::string const &username)
 {
 	username_ = username;
+}
+
+void	Bot::setRegisterStatus(bool const &status)
+{
+	register_status_ = status;
+}
+
+bool const	&Bot::getRegisterStatus() const
+{
+	return register_status_;
 }

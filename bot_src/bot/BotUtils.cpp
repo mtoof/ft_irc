@@ -32,6 +32,7 @@ void Bot::reConnection()
 	}
 	std::cout << "\nRetry again!!!\n" << std::flush;
 	close(server_fd_);
+	setRegisterStatus(false);
 	init_bot();
 }
 
@@ -43,4 +44,12 @@ std::map<std::string, void (BotCommand::*)(const BotMessage &msg)> const &Bot::g
 int const &Bot::getServerfd() const
 {
 	return server_fd_;
+}
+
+void Bot::send_response(int fd, const std::string &response)
+{
+	std::cout << "Response:\n"
+			  << response;
+	if (send(fd, response.c_str(), response.length(), 0) < 0)
+		std::cerr << "Response send() faild" << std::endl;
 }

@@ -21,6 +21,7 @@ private:
 	std::string			buffer_;
 	struct pollfd		poll_fd_;
 	int					server_fd_;
+	bool				register_status_;
 	static bool 		signal_;
 	std::map<std::string, void (BotCommand::*)(const BotMessage &msg)> supported_commands_;
 
@@ -35,6 +36,11 @@ public:
 	std::string	const	&getNickname() const;
 	std::string	const	&getUsername() const;
 	int			const	&getServerfd() const;
+	bool		const	&getRegisterStatus() const;
+
+	void 				setUsername(std::string const &username);
+	void				setNickname(std::string const &nickname);
+	void				setRegisterStatus(bool const &status);
 
 	static void 		signalhandler(int signum);
 	void 				createBotSocket();
@@ -43,8 +49,6 @@ public:
 	void 				appendToBuffer(const std::string &data);
 	void 				processBuffer();
 	// void readFile(std::ifstream &info_file);
-	void 				setUsername(std::string const &username);
-	void				setNickname(std::string const &nickname);
 	bool				isValidNickname(std::string nickname);
 	void				send_response(int fd, const std::string &response);
 	void				testConnection();

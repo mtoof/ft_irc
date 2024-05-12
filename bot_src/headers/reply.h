@@ -4,6 +4,6 @@
 #define CRLF "\r\n"
 
 #define RPL_NICK(nickname) ("NICK " + nickname + CRLF)
-#define RPL_USER(username) ("USER " + username + "0 * :" + username + CRLF)
+#define RPL_USER(username) ("USER " + username + " 0 * :" + username + CRLF)
 
 #endif
