@@ -65,5 +65,11 @@ void BotCommand::handleKick(const BotMessage &msg)
 
 void BotCommand::handleInvite(const BotMessage &msg)
 {
-    (void)msg;
+	std::string reply_number = msg.getReplyNumber();
+	int fd = bot_->getServerfd();
+	std::cout << "reply_number = " << reply_number << std::endl;
+	if (reply_number == "INVITE" && msg.getParameters()[0] == bot_->getNickname())
+	{
+		bot_->send_response(fd, "JOIN " + msg.getTrailer() + CRLF);
+	}
 }

@@ -7,14 +7,12 @@
 BotMessage::BotMessage(std::string raw_message)
 : raw_message_(raw_message), valid_message_(false)
 {
-	std::cout << "Message constructor. Raw message: " << raw_message_ << std::endl;	
 	valid_message_ = analyzeMessage();
 	printMessageContents();
 }
 
 BotMessage::~BotMessage()
 {
-	std::cout << "BotMessage destructor" << std::endl;
 }
 
 bool BotMessage::analyzeMessage()

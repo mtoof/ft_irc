@@ -26,15 +26,6 @@ public:
 	void handleMode(const BotMessage &msg);
 	void handleKick(const BotMessage &msg);
 	void handleInvite(const BotMessage &msg);
-	// void handleQuit(const BotMessage &msg);
-	// void handlePass(const BotMessage &msg);
-	// void handleCap(const BotMessage &msg);
-	// void handlePing(const BotMessage &msg);
-	// void handleWhois(const BotMessage &msg);
-	// void handlePart(const BotMessage &msg);
-	// void handleTopic(const BotMessage &msg);
-	// void handleAway(const BotMessage &msg);
-	// void handleWho(const BotMessage &msg);
 };
 
 #endif

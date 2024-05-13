@@ -4,14 +4,14 @@ bool Bot::signal_ = false;
 Bot::Bot(std::string &server_address, int &port, std::string &password, char **av)
 : server_addr_(server_address), server_port_(port), server_password_(password)
 {
-	std::cout << RED "constructor called" RESET << std::endl;
 	if (isValidNickname(av[4]))
 		nickname_ = av[4];
 	else
 		throw std::runtime_error("Invalid Nickname format");
 	username_ = av[5];
-
+	register_status_ = false;
 	supported_commands_.insert(std::pair("JOIN", &BotCommand::handleJoin));
+	supported_commands_.insert(std::pair("INVITE", &BotCommand::handleInvite));
 	supported_commands_.insert(std::pair("NICK", &BotCommand::handleNick));
 	supported_commands_.insert(std::pair("PRIVMSG", &BotCommand::handlePrivmsg));
 	supported_commands_.insert(std::pair("USER", &BotCommand::handleUser));
@@ -21,7 +21,6 @@ Bot::Bot(std::string &server_address, int &port, std::string &password, char **a
 
 Bot::~Bot()
 {
-	std::cout << RED "destructor called" RESET << std::endl;
 }
 
 void Bot::init_bot()
@@ -35,7 +34,7 @@ void Bot::init_bot()
 	int event;
 	while (!Bot::signal_)
 	{
-		event = poll(&poll_fd_, POLL_IN, 5000);
+		event = poll(&poll_fd_, POLL_IN, 1000);
 		if (event == 0 && this->getRegisterStatus() == false)
 			testConnection();
 		if (event == -1 && !Bot::signal_)
