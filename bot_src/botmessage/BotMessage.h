@@ -29,9 +29,10 @@ class BotMessage
 	void setParams(std::string raw_message);
 	void setTrailer(std::string raw_message);
 	
-	std::string getReplyNumber() const;
-	std::vector<std::string> getParameters() const;
-	std::string getTrailer() const;
+	std::string 				const &getPrefix() const;
+	std::string 				const &getReplyNumber() const;
+	std::vector<std::string>	const &getParameters() const;
+	std::string 				const &getTrailer() const;
 	void printMessageContents();
 };
 

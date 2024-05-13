@@ -53,3 +53,8 @@ void Bot::send_response(int fd, const std::string &response)
 	if (send(fd, response.c_str(), response.length(), 0) < 0)
 		std::cerr << "Response send() faild" << std::endl;
 }
+
+std::vector <std::string> const &Bot::getFbombs() const
+{
+	return fbombs_;
+}

@@ -14,9 +14,14 @@ Bot::Bot(std::string &server_address, int &port, std::string &password, char **a
 	supported_commands_.insert(std::pair("INVITE", &BotCommand::handleInvite));
 	supported_commands_.insert(std::pair("NICK", &BotCommand::handleNick));
 	supported_commands_.insert(std::pair("PRIVMSG", &BotCommand::handlePrivmsg));
-	supported_commands_.insert(std::pair("USER", &BotCommand::handleUser));
-	supported_commands_.insert(std::pair("MODE", &BotCommand::handleMode));
 	supported_commands_.insert(std::pair("KICK", &BotCommand::handleKick));
+	fbombs_ = {
+        "ass", "bitch", "cunt", "dick", "faggot", "nigger", "pussy", "slut",
+        "tits", "whore", "asshole", "bastard", "bimbo", "chink", "cracker", "dyke",
+        "freak", "gook", "homo", "jap", "kike", "nazi", "paki", "queer", "spic",
+        "tranny", "ugly", "vag", "wetback", "xenophobe", "yid", "zog", "shit", 
+		"fuck", "wanker" , "turd", "twat", "sh*t", "f*ck" 
+    };
 }
 
 Bot::~Bot()
@@ -44,6 +49,8 @@ void Bot::init_bot()
 			readBuffer();
 		}
 	}
+	std::string msg = "QUIT :TERMINATED";
+	send_response(server_fd_, msg + CRLF);
 	close(poll_fd_.fd);
 	close(server_fd_);
 }

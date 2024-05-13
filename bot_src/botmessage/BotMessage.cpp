@@ -64,12 +64,12 @@ void	BotMessage::printMessageContents()
 	
 }
 
-std::string BotMessage::getReplyNumber() const
+std::string const &BotMessage::getReplyNumber() const
 {
 	return reply_num_;
 }
 
-std::vector<std::string> BotMessage::getParameters() const
+std::vector<std::string> const &BotMessage::getParameters() const
 {
 	return parameters_;
 }
@@ -79,7 +79,12 @@ bool BotMessage::isValidMessage()
 	return valid_message_;
 }
 
-std::string BotMessage::getTrailer() const
+std::string const &BotMessage::getTrailer() const
 {
 	return trailer_;
+}
+
+std::string const &BotMessage::getPrefix() const
+{
+	return prefix_;
 }

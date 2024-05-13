@@ -43,19 +43,24 @@ void BotCommand::handleNick(const BotMessage &msg)
 	}
 }
 
-void BotCommand::handleUser(const BotMessage &msg)
-{
-    (void)msg;
-}
-
 void BotCommand::handlePrivmsg(const BotMessage &msg)
 {
-    (void)msg;
-}
-
-void BotCommand::handleMode(const BotMessage &msg)
-{
-    (void)msg;
+	std::string prefix = msg.getPrefix();
+	std::string channel_name = msg.getParameters()[0];
+	if (prefix[0] == ':')
+		prefix.erase(0, 1);
+	size_t pos = prefix.find('!');
+	std::string offender;
+	if (pos != std::string::npos)
+		offender = prefix.substr(0, pos);
+	std::stringstream line(msg.getTrailer());
+	int fd = bot_->getServerfd();
+	std::string fbomb;
+	while (line >> fbomb)
+	{
+		if (auto result = std::find(bot_->getFbombs().begin(), bot_->getFbombs().end(), fbomb) != bot_->getFbombs().end())
+			bot_->send_response(fd, KICK_REQUEST(channel_name, offender));
+	}
 }
 
 void BotCommand::handleKick(const BotMessage &msg)
