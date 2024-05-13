@@ -26,42 +26,42 @@ void Command::handleInvite(const Message &msg)
 	}
 
 	std::string nickname = parameters[0];
-	std::string channelName = parameters[1];
+	std::string channel_name = parameters[1];
 
-	std::shared_ptr<Client> target = server_->findClientUsingNickname(nickname);
-	if (!target)
+	std::shared_ptr<Client> target_ptr = server_->findClientUsingNickname(nickname);
+	if (!target_ptr)
 	{
 		server_->send_response(fd, ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), nickname));
 		return;
 	}
 
-	std::shared_ptr<Channel> channel = server_->findChannel(channelName);
-	if (channel)
+	std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
+	if (channel_ptr)
 	{
-		if (!channel->isUserOnChannel(client_ptr->getNickname()))
+		if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-			server_->send_response(fd, ERR_NOTONCHANNEL(channelName));
+			server_->send_response(fd, ERR_NOTONCHANNEL(channel_name));
 			return;
 		}
-		if (!channel->isUserInvited(target->getNickname()) && channel->isOperator(client_ptr))
-			channel->addUserToInvitedList(target->getNickname());
+		if (!channel_ptr->isUserInvited(target_ptr->getNickname()) && channel_ptr->isOperator(client_ptr))
+			channel_ptr->addUserToInvitedList(target_ptr->getNickname());
 		else
 		{
-			if (channel->isInviteOnly() && !channel->isOperator(client_ptr))
+			if (channel_ptr->isInviteOnly() && !channel_ptr->isOperator(client_ptr))
 			{
-				server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
+				server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channel_name));
 				return;
 			}
 		}
-		if (channel->isUserOnChannel(nickname))
+		if (channel_ptr->isUserOnChannel(nickname))
 		{
-			server_->send_response(fd, ERR_USERONCHANNEL(server_->getServerHostname(), nickname, channelName));
+			server_->send_response(fd, ERR_USERONCHANNEL(server_->getServerHostname(), nickname, channel_name));
 			return;
 		}
 	}
 
-	// server_->send_response(target->getFd(), "INVITE " + nickname + " :" + channelName);
-	server_->send_response(fd, RPL_INVITING(server_->getServerHostname(), client_ptr->getNickname(), target->getNickname(), channelName));
-	if (target->isAway())
-		server_->send_response(fd, RPL_AWAY(nickname, target->getAwayMessage()));
+	server_->send_response(target_ptr->getFd(), RPL_INVITED(client_ptr->getClientPrefix(), target_ptr->getNickname(), channel_name));
+	server_->send_response(fd, RPL_INVITING(server_->getServerHostname(), client_ptr->getNickname(), target_ptr->getNickname(), channel_name));
+	if (target_ptr->isAway())
+		server_->send_response(fd, RPL_AWAY(nickname, target_ptr->getAwayMessage()));
 }
