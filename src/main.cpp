@@ -6,7 +6,7 @@
 /*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:19 by atoof             #+#    #+#             */
-/*   Updated: 2024/05/09 02:08:28 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/05/13 23:03:08 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,29 @@ void execbanner()
 
 	)" << std::endl;
 }
+
+void readConfigFile(std::stringstream &streamfile)
+{
+	std::ifstream config_file(CONFIG_FILE, std::ios::in);
+	struct stat fileStat;
+    if (stat(CONFIG_FILE, &fileStat) == 0)
+	{
+		if (S_ISDIR(fileStat.st_mode))
+		{
+            std::cout << CONFIG_FILE;
+			throw std::runtime_error(" is a directory.");
+		}
+	}
+	streamfile << config_file.rdbuf();
+	std::string nick,host,pass;
+	while (streamfile)
+	{
+		streamfile >> nick >> host >> pass;
+		if (nick.empty() || host.empty() || pass.empty())
+			throw std::runtime_error("Invalid config file!!!");
+	}
+}
+
 void convertArgs(int &port, std::string &password, char **av)
 {
 	int index;
@@ -92,7 +115,9 @@ int main(int ac, char **av)
 	execbanner();
 	try
 	{
-		Server server(port, password);
+		std::stringstream streamfile;
+		readConfigFile(streamfile);
+		Server server(port, password, streamfile);
 		std::signal(SIGINT, Server::signalHandler);
 		std::signal(SIGQUIT, Server::signalHandler);
 		server.initServer();

@@ -14,11 +14,11 @@
 
 bool Server::signal_ = false;
 
-Server::Server(int port, std::string password) : host_(""), port_(port), password_(password)
+Server::Server(const int &port, const std::string &password, const std::stringstream &config_file) : host_(""), port_(port), password_(password)
 {
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
-	this->running_ = 1;
+	config_file_ << config_file.str();
 	supported_commands_.insert(std::pair("JOIN", &Command::handleJoin));
 	supported_commands_.insert(std::pair("NICK", &Command::handleNick));
 	supported_commands_.insert(std::pair("PRIVMSG", &Command::handlePrivmsg));
@@ -35,7 +35,6 @@ Server::Server(int port, std::string password) : host_(""), port_(port), passwor
 	supported_commands_.insert(std::pair("INVITE", &Command::handleInvite));
 	supported_commands_.insert(std::pair("AWAY", &Command::handleAway));
 	supported_commands_.insert(std::pair("WHO", &Command::handleWho));
-
 }
 
 Server::~Server()

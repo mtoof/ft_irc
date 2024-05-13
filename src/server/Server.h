@@ -22,6 +22,7 @@
 #include "../command/Command.h"
 #include "../channel/Channel.h"
 
+#define CONFIG_FILE "config_file"
 #define MAX_MSG_LENGTH 512
 #define DEFAULTPORT 6667
 #define CRLF "\r\n"
@@ -36,17 +37,17 @@ private:
 	std::string 												host_;
 	int 														port_;
 	const std::string 											password_;
-	int															running_;
 	int															socket_;
 	std::vector<struct pollfd> 									fds_; // pollfd structure for the server socket
 	std::map <int, std::shared_ptr<Client>>						clients_;
 	std::map <std::string, std::shared_ptr<Channel>>			channels_;
 	static bool													signal_;
+	std::stringstream											config_file_;
 	std::map<std::string, void (Command::*)(const Message &msg)> supported_commands_;
 	static void								shutdownServer(const std::string& reason);
 
 public:
-	Server(int port, std::string password);
+	Server(const int &port, const std::string &password, const std::stringstream &config_file);
 	virtual ~Server();
 	static void 				signalHandler(int signum);
 	void						createServerSocket();

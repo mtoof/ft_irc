@@ -2,6 +2,7 @@
 #define __COLOUR_H__
 
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>	  // std::vector for pollfd structures in the server class
@@ -21,6 +22,7 @@
 #include <arpa/inet.h>
 #include <memory>
 #include <map>
+#include <sys/stat.h>
 #include "./debug/debug.h"
 
 
