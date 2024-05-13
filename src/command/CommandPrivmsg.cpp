@@ -36,7 +36,7 @@ void Command::handlePrivmsg(const Message &msg)
     std::vector<std::string> parameters = msg.getParameters();
     if (parameters.empty())
 	{
-        server_->send_response(fd, ERR_NORECIPIENT(client_ptr->getClientPrefix(), "PRIVMSG"));
+        server_->send_response(fd, ERR_NORECIPIENT(server_->getServerHostname(), client_ptr->getNickname(), "PRIVMSG"));
         return;
     }
 	// Check if the recipient exists and is a user or a channel
@@ -51,7 +51,7 @@ void Command::handlePrivmsg(const Message &msg)
 
 	if (message_body.empty())
 	{
-		server_->send_response(fd, ERR_NOTEXTTOSEND(client_ptr->getClientPrefix()));	// No text to send
+		server_->send_response(fd, ERR_NOTEXTTOSEND(server_->getServerHostname(), client_ptr->getClientPrefix()));	// No text to send
 		return;
 	}
 
@@ -83,7 +83,7 @@ void Command::handlePrivmsg(const Message &msg)
 	{
         if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-            server_->send_response(fd, ERR_CANNOTSENDTOCHAN(recipient));
+            server_->send_response(fd, ERR_CANNOTSENDTOCHAN(server_->getServerHostname(), client_ptr->getNickname(), recipient));
             return;
         }
         channel_ptr->broadcastMessage(client_ptr, RPL_PRIVMSG(client_ptr->getClientPrefix(), channel_ptr->getName(), message_body)); // broadcast the message to all users in the channel except the sender

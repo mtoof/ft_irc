@@ -29,5 +29,5 @@ void Command::handleWho(const Message &msg)
 		sendNamelist(channel_ptr, client_ptr->getNickname(), fd);
 	}
 	else if (channel_ptr && !channel_ptr->isUserOnChannel(client_ptr->getNickname()))
-		server_->send_response(fd, ERR_NOTONCHANNEL(params[0]));
+		server_->send_response(fd, ERR_NOTONCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), params[0]));
 }

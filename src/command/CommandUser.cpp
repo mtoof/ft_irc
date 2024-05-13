@@ -10,7 +10,7 @@ void Command::handleUser(const Message &msg)
 	if (!server_->hasClientSentPass(client_ptr))
 		return;
 	if (client_ptr->getRegisterStatus() == true)
-		server_->send_response(fd, ERR_ALREADYREGISTERED(client_ptr->getNickname()));
+		server_->send_response(fd, ERR_ALREADYREGISTERED(server_->getServerHostname(), client_ptr->getNickname()));
 	else if (params.size() == 3 && !msg.getTrailer().empty())
 	{
 		client_ptr->setUsername(params[0]);

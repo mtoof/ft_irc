@@ -19,7 +19,7 @@ void Command::handleQuit(const Message &msg)
 				auto it = std::find(fds_sent_to.begin(), fds_sent_to.end(), user_fd);
 				if (user != client_ptr && it == fds_sent_to.end()) // Don't send the message to the sender
 				{
-					server_->send_response(user_fd, RPL_QUIT(":" + client_ptr->getClientPrefix(), reason));
+					server_->send_response(user_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
 					fds_sent_to.push_back(user_fd);
 				}
 			}

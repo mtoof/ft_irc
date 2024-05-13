@@ -26,7 +26,7 @@ void Command::handlePart(const Message &msg)
 
 		if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-			server_->send_response(fd, ERR_NOTONCHANNEL(client_ptr->getNickname()));
+			server_->send_response(fd, ERR_NOTONCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
 			continue;
 		}
 		channel_ptr->removeUser(client_ptr);

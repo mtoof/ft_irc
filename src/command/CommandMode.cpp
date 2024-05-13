@@ -66,11 +66,11 @@ void Command::handleMode(const Message &msg)
 		}
 		else if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-			server_->send_response(fd, ERR_NOTONCHANNEL(channel_ptr->getName()));
+			server_->send_response(fd, ERR_NOTONCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
 		}
 		else if (!channel_ptr->isOperator(client_ptr))
 		{
-			server_->send_response(fd, ERR_NOTOPERATOR(channel_ptr->getName()));
+			server_->send_response(fd, ERR_CHANOPRIVSNEEDED(server_->getServerHostname(), channel_ptr->getName()));
 		}
 		else
 			applyChannelModes(client_ptr, channel_ptr, mode_string, mode_arguments);

@@ -13,59 +13,59 @@ void Command::handleKick(const Message &msg)
 		return;
 	}
 	std::vector<std::string> channels = split(parameters[0], ',');
-	std::vector<std::string> users = split(parameters[1], ',');
+	std::vector<std::string> targets = split(parameters[1], ',');
 	std::string reason = msg.getTrailer();
 	if (reason == "")
 		reason = "no reason";
 
-	if (channels.size() != users.size() && channels.size() != 1)
+	if (channels.size() != targets.size() && channels.size() != 1)
 	{
 		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "KICK"));
 		return;
 	}
-	for (size_t i = 0; i < users.size(); i++)
+	for (size_t i = 0; i < targets.size(); i++)
 	{
-		std::string channelName = channels.size() == 1 ? channels[0] : channels[i];
-		std::string userName = users[i];
-		if (!channel_->isValidChannelName(channelName))
+		std::string channel_name = channels.size() == 1 ? channels[0] : channels[i];
+		std::string target_nickname = targets[i];
+		if (!channel_->isValidChannelName(channel_name))
 		{
-			server_->send_response(fd, ERR_BADCHANMASK(channelName));
+			server_->send_response(fd, ERR_BADCHANMASK(server_->getServerHostname(), channel_name));
 			continue;
 		}
-		std::shared_ptr<Channel> channel = server_->findChannel(channelName);
-		if (!channel)
+		std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
+		if (!channel_ptr)
 		{
-			server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channelName));
+			server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			continue;
 		}
-		if (!channel->isUserOnChannel(client_ptr->getNickname()))
+		if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-			server_->send_response(fd, ERR_NOTONCHANNEL(channelName));
+			server_->send_response(fd, ERR_NOTONCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			continue;
 		}
 
-		if (!channel->isOperator(client_ptr))
+		if (!channel_ptr->isOperator(client_ptr))
 		{
-			server_->send_response(fd, ERR_CHANOPRIVSNEEDED(channelName));
+			server_->send_response(fd, ERR_CHANOPRIVSNEEDED(server_->getServerHostname(), channel_name));
 			continue;
 		}
-		std::shared_ptr<Client> target_ptr = server_->findClientUsingNickname(userName);
+		std::shared_ptr<Client> target_ptr = server_->findClientUsingNickname(target_nickname);
 		if (!target_ptr)
 		{
-		server_->send_response(client_ptr->getFd(), ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), userName));
+		server_->send_response(client_ptr->getFd(), ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), target_nickname));
 			continue;
 		}
-		if (!channel->isUserOnChannel(userName))
+		if (!channel_ptr->isUserOnChannel(target_nickname))
 		{
-			server_->send_response(fd, ERR_USERNOTINCHANNEL(client_ptr->getClientPrefix(), client_ptr->getNickname(), userName, channelName));
+			server_->send_response(fd, ERR_USERNOTINCHANNEL(client_ptr->getClientPrefix(), client_ptr->getNickname(), target_nickname, channel_name));
 			continue;
 		}
 
-		server_->send_response(fd, RPL_KICK(client_ptr->getClientPrefix(), channelName, target_ptr->getNickname(), reason));
-		channel->broadcastMessage(client_ptr, RPL_KICK(client_ptr->getClientPrefix(), channelName, target_ptr->getNickname(), reason));
-		channel->removeUser(target_ptr);
-		target_ptr->leaveChannel(channel);
-		if (channel->isUserInvited(target_ptr->getNickname()))
-			channel->removeUserFromInvitedList(target_ptr->getNickname());
+		server_->send_response(fd, RPL_KICK(client_ptr->getClientPrefix(), channel_name, target_ptr->getNickname(), reason));
+		channel_ptr->broadcastMessage(client_ptr, RPL_KICK(client_ptr->getClientPrefix(), channel_name, target_ptr->getNickname(), reason));
+		channel_ptr->removeUser(target_ptr);
+		target_ptr->leaveChannel(channel_ptr);
+		if (channel_ptr->isUserInvited(target_ptr->getNickname()))
+			channel_ptr->removeUserFromInvitedList(target_ptr->getNickname());
 	}
 }

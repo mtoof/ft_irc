@@ -73,7 +73,7 @@ void Command::handleJoin(const Message &msg)
 			std::string given_password = parameters.size() > 1 ? parameters[1] : "";
 			if (!channel_ptr->isCorrectPassword(given_password))
 			{
-				server_->send_response(fd, ERR_BADCHANNELKEY(channel_name));
+				server_->send_response(fd, ERR_BADCHANNELKEY(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
 				return;
 			}
 		}
