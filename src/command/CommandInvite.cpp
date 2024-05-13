@@ -63,5 +63,5 @@ void Command::handleInvite(const Message &msg)
 	server_->send_response(target_ptr->getFd(), RPL_INVITED(client_ptr->getClientPrefix(), target_ptr->getNickname(), channel_name));
 	server_->send_response(fd, RPL_INVITING(server_->getServerHostname(), client_ptr->getNickname(), target_ptr->getNickname(), channel_name));
 	if (target_ptr->isAway())
-		server_->send_response(fd, RPL_AWAY(target_nickname, target_ptr->getAwayMessage()));
+		server_->send_response(fd, RPL_AWAY(server_->getServerHostname(), client_ptr->getNickname(), target_ptr->getNickname(), target_ptr->getAwayMessage()));
 }

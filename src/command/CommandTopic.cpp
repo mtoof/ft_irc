@@ -31,6 +31,8 @@ void Command::handleTopic(const Message &msg)
 	std::string current_topic = topic.second;
 	std::string current_topic_setter = topic.first;
 	std::string new_topic = msg.getTrailer();
+	if (new_topic.size() > TOPIC_MAX_LENGTH) // topic is too long
+		new_topic = new_topic.substr(0, TOPIC_MAX_LENGTH);
 	if (parameters.size() && !new_topic.empty())
 	{
 

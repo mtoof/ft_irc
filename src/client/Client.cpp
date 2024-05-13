@@ -139,6 +139,8 @@ void Client::processCommand(Message &message, Server *server_ptr)
        Command commandObject(server_ptr);
        (commandObject.*handler)(message);
     }
+	else
+		server_ptr->send_response(getFd(), ERR_CMDNOTFOUND(server_ptr->getServerHostname(), getNickname(), command));
 }
 
 void	Client::setPassword()

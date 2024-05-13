@@ -73,8 +73,8 @@ void Command::handlePrivmsg(const Message &msg)
     if (recipient_ptr)
 	{
 		if (recipient_ptr->isAway()) // if the recipient is away from the server
-            server_->send_response(fd, RPL_AWAY(client_ptr->getNickname(), recipient_ptr->getAwayMessage()));
-        server_->send_response(recipient_ptr->getFd(), ":" + client_ptr->getClientPrefix() + " PRIVMSG " + client_ptr->getNickname() + " :" + message_body + CRLF); // send the message to the recipient
+            server_->send_response(fd, RPL_AWAY(server_->getServerHostname(), client_ptr->getNickname(), recipient_ptr->getNickname(), recipient_ptr->getAwayMessage()));
+        server_->send_response(recipient_ptr->getFd(), RPL_PRIVMSG(client_ptr->getClientPrefix(), recipient_ptr->getNickname(), message_body)); // send the message to the recipient
         return;
     }
 

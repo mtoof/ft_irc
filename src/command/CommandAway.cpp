@@ -16,16 +16,18 @@ void Command::handleAway(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	int fd = client_ptr->getFd();
-	std::string awayMessage = msg.getTrailer();
+	std::string away_message = msg.getTrailer();
 
-	if (awayMessage.empty())
+	if (away_message.empty())
 	{
 		client_ptr->setAway(false);
-		server_->send_response(fd, RPL_UNAWAY(client_ptr->getNickname(), "You are no longer marked as away"));
+		server_->send_response(fd, RPL_UNAWAY(server_->getServerHostname(), client_ptr->getNickname()));
 	}
 	else
 	{
-		client_ptr->setAway(true, awayMessage);
-		server_->send_response(fd, RPL_NOWAWAY(client_ptr->getNickname(), awayMessage));
+		if (away_message.size() > AWAY_MAX_LENGTH) // if away message is too long, it gets truncated
+			away_message = away_message.substr(0, AWAY_MAX_LENGTH);
+		client_ptr->setAway(true, away_message);
+		server_->send_response(fd, RPL_NOWAWAY(server_->getServerHostname(), client_ptr->getNickname()));
 	}
 }

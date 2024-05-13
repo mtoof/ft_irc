@@ -2,27 +2,28 @@
 #define __REPLY_H__
 
 #define CRLF "\r\n"
-#define SERVER_LIMITATIONS "AWAYLEN=200 NICKLEN=" + NICK_MAX_LENGTH " TOPICLEN=307 MODES=4 KICKLEN=255 CHANTYPES=# CHANNELLEN=32"
+
 // custom replies
 #define PONG(servername, token) (":" + servername + " PONG " + servername + " :" + token + CRLF)
-#define RPL_AWAY(nickname, message) (":" + nickname + " AWAY :" + message + CRLF)
 #define RPL_CHANGEMODE(client_prefix, channelname, mode, arguments) (":" + client_prefix + " MODE " + channelname + " " + mode + " " + arguments + CRLF)
 #define RPL_INVITED(CLIENT, nickname, channelname) (":" + CLIENT + " INVITE " + nickname + " :" + channelname + CRLF)
 #define RPL_JOINMSG(clientprefix, channelname) (":" + clientprefix + " JOIN " + channelname + CRLF)
 #define RPL_KICK(clientprefix, channelname, nickname, msg) (":" + clientprefix + " KICK " + channelname + " " + nickname + " :" + msg + CRLF)
 #define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
 #define RPL_NICKCHANGE(oldprefix, nickname) (":" + oldprefix + " NICK " + nickname + CRLF)
-#define RPL_NOWAWAY(CLIENT, nickname) (CLIENT + " AWAY :" + CRLF)
+
 #define RPL_PRIVMSG(client_prefix, target, message) (":" + client_prefix + " PRIVMSG " + target + " :" + message + CRLF)
 #define RPL_UMODECHANGE(NICK, mode) (":" + NICK + " MODE " + NICK + " :" + mode + CRLF)
-#define RPL_UNAWAY(CLIENT, nickname) (CLIENT + " AWAY :" + CRLF)
 #define RPL_QUIT(CLIENT, msg) (":" + CLIENT + " QUIT " + msg + CRLF)
 
 // numerical replies
 
 #define RPL_CONNECTED(servername, nickname, client_prefix) (":" + servername + " 001 " + nickname + " :Welcome to the best ever IRC server! " + client_prefix + CRLF)
-#define RPL_ISUPPORT(servername, nickname) (":" + servername + " 005 " + nickname + " AWAYLEN=200 NICKLEN=NICK_MAX_LENGTH TOPICLEN=307 MODES=4 KICKLEN=255 CHANTYPES=# CHANNELLEN=32 :are supported on this server" + CRLF)
+#define RPL_ISUPPORT(servername, nickname) (":" + servername + " 005 " + nickname + " AWAYLEN=AWAY_MAX_LENGTH CHANMODES=l,k,it NICKLEN=NICK_MAX_LENGTH TOPICLEN=TOPIC_MAX_LENGTH MODES=4 KICKLEN=255 CHANTYPES=# CHANNELLEN=32 :are supported on this server" + CRLF)
 #define RPL_UMODEIS(servername, nickname, modes) (":" + servername + " 221 " + nickname + " " + modes + CRLF)
+#define RPL_AWAY(servername, nickname, recipient, message) (":" + servername + " 301 " + nickname + " " + recipient + " :" + message + CRLF)
+#define RPL_UNAWAY(servername, nickname) (":" + servername + " 305 " + nickname + " :You are no longer marked as being away" + CRLF)
+#define RPL_NOWAWAY(servername, nickname) (":" + servername + " 306 " + nickname + " :You have been marked as being away" + CRLF)
 #define RPL_WHOISUSER(servername, user_nickname, whois_nickname, username, hostname, realname) (":" + servername + " 311 " + user_nickname + " " + whois_nickname + " ~" + username + " " + hostname + " * :" + realname + CRLF)
 #define RPL_ENDOFWHO(servername, nickname, channelname) (":" + servername + " 315 " + nickname + " " + channelname + " " + ":End of /WHO list." + CRLF)
 #define RPL_ENDOFWHOIS(servername, user_nickname, whois_nickname) (":" + servername + " 318 " + user_nickname + " " + whois_nickname + " :End of WHOIS list." + CRLF)
