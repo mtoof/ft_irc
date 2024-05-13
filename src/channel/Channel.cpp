@@ -139,15 +139,16 @@ void Channel::updateTopic(const std::string &newTopic, const std::string &author
 
 void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
 {
-	users_[client] = isOp;				   // Add the user with operator status if specified
+	if (client)
+		users_[client] = isOp;				   // Add the user with operator status if specified
 	return;								   // Return true if user added successfully
 }
 
 // Remove a user from the channel
 void Channel::removeUser(std::shared_ptr<Client> client)
 {
-	users_.erase(client);				   // Remove the user from the channel
-	std::cout << GREEN << "users_.size() = " << users_.size() << RESET << std::endl;
+	if (client)
+		users_.erase(client);				   // Remove the user from the channel
 }
 
 /**
@@ -192,22 +193,27 @@ bool Channel::isValidChannelName(const std::string& channelName) const
 
 bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
 {
-	auto user = users_.find(client_ptr);
-	if (user != users_.end())
-		return user->second;
+	if (client_ptr)
+	{
+		auto user = users_.find(client_ptr);
+		if (user != users_.end())
+			return user->second;
+	}
 	return false;
 }
 
 void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message)
 {
-
-	for (const auto &userPair : users_)
+	if (sender_ptr)
 	{
-		std::shared_ptr<Client> user = userPair.first;
-		if (user != sender_ptr) // Don't send the message to the sender
+		for (const auto &userPair : users_)
 		{
-			//std::string fullMessage = ":" + sender_prefix + " PRIVMSG " + this->name_ + " :" + message + CRLF;
-			server_->send_response(user->getFd(), message);
+			std::shared_ptr<Client> user = userPair.first;
+			if (user != sender_ptr) // Don't send the message to the sender
+			{
+				//std::string fullMessage = ":" + sender_prefix + " PRIVMSG " + this->name_ + " :" + message + CRLF;
+				server_->send_response(user->getFd(), message);
+			}
 		}
 	}
 }
@@ -225,13 +231,14 @@ void Channel::broadcastMessageToAll(const std::string &message)
 
 bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
 {
-	if (isOperator(client_ptr))
-		return true;
-	else if (client_ptr->getNickname() == topic_.first) // Check if the client is the one who set the topic
-		return true;
-	else
-		return false;
-
+	if (client_ptr)
+	{
+		if (isOperator(client_ptr))
+			return true;
+		else if (client_ptr->getNickname() == topic_.first) // Check if the client is the one who set the topic
+			return true;
+	}
+	return false;
 }
 
 bool Channel::isCorrectPassword(const std::string& given_password)
@@ -241,13 +248,16 @@ bool Channel::isCorrectPassword(const std::string& given_password)
 
 bool Channel::changeOpStatus(std::shared_ptr<Client> client_ptr, bool status)
 {
-	auto user = users_.find(client_ptr);
-	if (user != users_.end())
+	if (client_ptr)
 	{
-		if (user->second != status)
+		auto user = users_.find(client_ptr);
+		if (user != users_.end())
 		{
-			user->second = status;
-			return true;
+			if (user->second != status)
+			{
+				user->second = status;
+				return true;
+			}
 		}
 	}
 	return false;

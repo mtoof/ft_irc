@@ -2,7 +2,7 @@
 
 BotCommand::BotCommand(Bot *bot_ptr)
 {
-    bot_ = bot_ptr;
+	bot_ = bot_ptr;
 }
 
 BotCommand::~BotCommand()
@@ -59,7 +59,7 @@ void BotCommand::handlePrivmsg(const BotMessage &msg)
 	while (line >> fbomb)
 	{
 		if (auto result = std::find(bot_->getFbombs().begin(), bot_->getFbombs().end(), fbomb) != bot_->getFbombs().end())
-			bot_->send_response(fd, KICK_REQUEST(channel_name, offender));
+			bot_->send_response(fd, KICK_REQUEST(channel_name, offender + " :you are not allowed to use fbombs on this server"));
 	}
 }
 

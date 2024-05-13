@@ -51,7 +51,6 @@ public:
 	void				reConnection();
 	void 				appendToBuffer(const std::string &data);
 	void 				processBuffer();
-	// void readFile(std::ifstream &info_file);
 	bool				isValidNickname(std::string nickname);
 	void				send_response(int fd, const std::string &response);
 	void				testConnection();
