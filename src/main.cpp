@@ -6,7 +6,7 @@
 /*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:19 by atoof             #+#    #+#             */
-/*   Updated: 2024/05/13 23:03:08 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/05/14 13:04:43 by mtoof            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,17 +58,31 @@ void readConfigFile(std::stringstream &streamfile)
 	{
 		if (S_ISDIR(fileStat.st_mode))
 		{
-            std::cout << CONFIG_FILE;
+            std::cout << RED << CONFIG_FILE;
 			throw std::runtime_error(" is a directory.");
 		}
 	}
+	if (!config_file.is_open())
+	{
+		std::cout << RED;
+		throw std::runtime_error("Couldn't find the config file!!!");
+	}
 	streamfile << config_file.rdbuf();
 	std::string nick,host,pass;
+	std::string check_for_empty = streamfile.str();
+	if (check_for_empty.empty())
+	{
+		std::cout << RED;
+		throw std::runtime_error("Config file is empty.\nThe server needs at least one operator!!!");
+	}
 	while (streamfile)
 	{
 		streamfile >> nick >> host >> pass;
 		if (nick.empty() || host.empty() || pass.empty())
+		{
+			std::cout << RED;
 			throw std::runtime_error("Invalid config file!!!");
+		}
 	}
 }
 
@@ -78,11 +92,17 @@ void convertArgs(int &port, std::string &password, char **av)
 	for (index = 0; av[1][index];index++)
 	{
 		if (!std::isdigit(av[1][index]))
+		{
+			std::cout << RED;
 			throw std::runtime_error("Port must be a digit");
+		}
 	}
 	port = std::stoi(av[1]);
 	if (port < 0 || (port >= 0 && port <= 1024) || port > 65536)
+	{
+		std::cout << RED;
 		throw std::runtime_error("Invalid port number, must be between 1025 and 65536");
+	}
 	if (av[2])
 		password = av[2];
 }
@@ -103,14 +123,15 @@ int main(int ac, char **av)
 				convertArgs(port, password, av);
 				break;
 			default:
-				std::cout << "Usage:\n./ircserv <Port> <Password>";
-				exit(1);
+				std::cout << RED << "Usage:\n./ircserv <Port> <Password>" << RESET << std::endl;
+				return 1;
 		}
 	}
 	catch (std::exception &e)
 	{
 		std::cout << e.what() << std::endl;
-		return (1);
+		std::cout << RESET;
+		return 1;
 	}
 	execbanner();
 	try
@@ -125,7 +146,8 @@ int main(int ac, char **av)
 	catch(std::exception &exp)
 	{
 		std::cout << exp.what() << std::endl;
-		return 0;
+		std::cout << RESET;
+		return 1;
 	}
 	return 0;
 }
