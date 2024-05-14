@@ -44,6 +44,7 @@ public:
 	void handleInvite(const Message &msg);
 	void handleAway(const Message &msg);
 	void handleWho(const Message &msg);
+	void handleOper(const Message &msg);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);
 	bool channelExists(std::string const &channel_name);

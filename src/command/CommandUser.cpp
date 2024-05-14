@@ -14,6 +14,7 @@ void Command::handleUser(const Message &msg)
 	else if (params.size() == 3 && !msg.getTrailer().empty())
 	{
 		client_ptr->setUsername(params[0]);
+		client_ptr->setHostname(params[2]);
 		client_ptr->setRealname(msg.getTrailer());
 		if (!client_ptr->getNickname().empty())
 		{

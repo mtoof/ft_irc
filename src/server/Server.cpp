@@ -18,7 +18,7 @@ Server::Server(const int &port, const std::string &password, const std::stringst
 {
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
-	config_file_ << config_file.str();
+	initOperators(config_file);
 	supported_commands_.insert(std::pair("JOIN", &Command::handleJoin));
 	supported_commands_.insert(std::pair("NICK", &Command::handleNick));
 	supported_commands_.insert(std::pair("PRIVMSG", &Command::handlePrivmsg));
@@ -35,6 +35,7 @@ Server::Server(const int &port, const std::string &password, const std::stringst
 	supported_commands_.insert(std::pair("INVITE", &Command::handleInvite));
 	supported_commands_.insert(std::pair("AWAY", &Command::handleAway));
 	supported_commands_.insert(std::pair("WHO", &Command::handleWho));
+	supported_commands_.insert(std::pair("OPER", &Command::handleOper));
 }
 
 Server::~Server()
