@@ -45,6 +45,7 @@ public:
 	void handleAway(const Message &msg);
 	void handleWho(const Message &msg);
 	void handleOper(const Message &msg);
+	void handleKill(const Message &msg);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);
 	bool channelExists(std::string const &channel_name);
@@ -58,6 +59,8 @@ public:
 	void applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, const std::string &mode_string, const std::string &mode_arguments);
 	bool applyModeO(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, std::string target, bool mode);
 	void send_responses_based_on_client_info(const std::shared_ptr<Client> &whois_client_ptr, int fd);
+	bool modeRequiresParameter(char mode);
+	bool mandatoryModeParameter(char mode);
 };
 
 #endif
