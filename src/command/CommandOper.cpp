@@ -35,6 +35,7 @@ void Command::handleOper(const Message &msg)
 					{
 						server_->send_response(fd, RPL_YOUREOPER(server_->getServerHostname(), requested_nick));
 						//Needs to set the mode O for the user as a local operator
+						server_->insertInOperators(std::pair(fd, client_ptr)); // Because the mode is not ready yet
 						return;
 					}
 					else

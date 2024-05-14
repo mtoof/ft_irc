@@ -84,7 +84,9 @@ public:
 	std::vector<std::shared_ptr<Client>> 	findClientsByMask(const std::string &mask) const;
 	bool									hasClientSentPass(std::shared_ptr <Client> const &client_ptr);
 	void									initOperators(const std::stringstream &config_file);
-	std::vector<t_opers>	const			&getOperatorsFile() const;
+	std::vector<t_opers>	const							&getOperatorsFile() const;
+	std::map <int, std::shared_ptr<Client>>	const			&getOperatorUsers() const;
+	void													insertInOperators(std::pair<int, std::shared_ptr <Client>> const &element);
 
 //getter
 

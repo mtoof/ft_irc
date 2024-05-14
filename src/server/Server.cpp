@@ -36,6 +36,8 @@ Server::Server(const int &port, const std::string &password, const std::stringst
 	supported_commands_.insert(std::pair("AWAY", &Command::handleAway));
 	supported_commands_.insert(std::pair("WHO", &Command::handleWho));
 	supported_commands_.insert(std::pair("OPER", &Command::handleOper));
+	supported_commands_.insert(std::pair("kill", &Command::handleKill));
+	supported_commands_.insert(std::pair("KILL", &Command::handleKill));
 }
 
 Server::~Server()

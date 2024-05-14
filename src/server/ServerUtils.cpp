@@ -345,3 +345,13 @@ std::vector<t_opers> const	&Server::getOperatorsFile() const
 {
 	return operators_file_;
 }
+
+void Server::insertInOperators(std::pair<int, std::shared_ptr <Client>> const &element)
+{
+	operators_.insert(element);
+}
+
+std::map <int, std::shared_ptr<Client>> const	&Server::getOperatorUsers() const
+{
+	return operators_;
+}

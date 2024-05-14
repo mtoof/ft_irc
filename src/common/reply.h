@@ -79,4 +79,5 @@
 #define ERR_WILDTOPLEVEL(nickname, mask) (": 414 " + nickname + " " + mask + " :Wild in toplevel domain" + CRLF)
 #define ERR_NOSUCHSERVER(servername) (": 402 " + servername + " :No such server" + CRLF)
 #define ERR_NOOPERHOST(servername, nickname)(":" + servername + " 491 " + nickname + " No O-lines for your host" + CRLF)
+#define ERR_KILLED(servername, killer, reason)("Closing Link: " + servername + " this connection Killed by " + killer + " :" + reason + CRLF)
 #endif
