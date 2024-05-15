@@ -1,11 +1,11 @@
 #include "BotMessage.h"
 
 /// @brief constructor for receiving a message from client and getting ready to parse it
-/// @param raw_message 
-/// @param server 
-/// @param clientfd 
+/// @param raw_message
+/// @param server
+/// @param clientfd
 BotMessage::BotMessage(std::string raw_message)
-: raw_message_(raw_message), valid_message_(false)
+	: raw_message_(raw_message), valid_message_(false)
 {
 	valid_message_ = analyzeMessage();
 	printMessageContents();
@@ -19,7 +19,7 @@ bool BotMessage::analyzeMessage()
 {
 	std::istringstream iss(raw_message_);
 	std::string prefix;
-	
+
 	// Extract prefix if present
 	if (raw_message_.front() == ':')
 	{
@@ -28,7 +28,7 @@ bool BotMessage::analyzeMessage()
 	}
 
 	std::string reply_num, param;
-		
+
 	iss >> reply_num;
 	reply_num_ = reply_num;
 	while (iss >> param)
@@ -50,7 +50,7 @@ bool BotMessage::analyzeMessage()
 	return true;
 }
 
-void	BotMessage::printMessageContents()
+void BotMessage::printMessageContents()
 {
 	std::cout << "Printing contents:\n";
 	std::cout << "Prefix: " << prefix_ << "\n";
@@ -61,7 +61,6 @@ void	BotMessage::printMessageContents()
 		std::cout << param << "\n";
 	}
 	std::cout << "Trailer trash: " << trailer_ << std::endl;
-	
 }
 
 std::string const &BotMessage::getReplyNumber() const

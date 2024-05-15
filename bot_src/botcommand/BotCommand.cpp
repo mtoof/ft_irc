@@ -28,7 +28,7 @@ void BotCommand::handleNick(const BotMessage &msg)
 	if (reply_number == "433")
 	{
 		size_t pos = nick.find_last_of("0123456789");
-		if(pos != std::string::npos)
+		if (pos != std::string::npos)
 		{
 			std::string num_in_nick = nick.substr(pos);
 			int number;
@@ -53,19 +53,37 @@ void BotCommand::handlePrivmsg(const BotMessage &msg)
 	std::string offender;
 	if (pos != std::string::npos)
 		offender = prefix.substr(0, pos);
-	std::stringstream line(msg.getTrailer());
+	std::string line(msg.getTrailer());
 	int fd = bot_->getServerfd();
-	std::string fbomb;
-	while (line >> fbomb)
+	std::string word;
+	std::vector<std::string> forbidden_words = bot_->getForbiddenWords();
+	std::vector<std::string> violated_users = bot_->getViolatedUsers();
+	if (!forbidden_words.empty())
 	{
-		if (auto result = std::find(bot_->getFbombs().begin(), bot_->getFbombs().end(), fbomb) != bot_->getFbombs().end())
-			bot_->send_response(fd, KICK_REQUEST(channel_name, offender + " :you are not allowed to use fbombs on this server"));
-	}
+		for (auto word_it: forbidden_words)
+			{
+				std::cout << line.find(word_it) << std::endl;
+				if (line.find(word_it) != std::string::npos)
+				{
+					if (std::find(violated_users.begin(), violated_users.end(), offender) != violated_users.end())
+					{
+						bot_->send_response(fd, KICK_REQUEST(channel_name, offender + " :You have violated the chat room rules."));
+						return;
+					}
+					else
+					{
+						bot_->send_response(fd, RPL_PRIVMSG(channel_name, offender + " :This is the last warning, You have violated the chat room rules."));
+						bot_->insertInViolatedUsers(offender);
+						return;
+					}
+				}
+			}
+		}
 }
 
 void BotCommand::handleKick(const BotMessage &msg)
 {
-    (void)msg;
+	(void)msg;
 }
 
 void BotCommand::handleInvite(const BotMessage &msg)

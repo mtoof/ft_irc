@@ -15,7 +15,6 @@ private:
 	Bot *bot_;
 
 public:
-
 	BotCommand(Bot *bot_ptr);
 	~BotCommand();
 

@@ -46,7 +46,7 @@ void Bot::processBuffer()
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back();
 		BotMessage message(line);
-		if(message.isValidMessage() == true)
+		if (message.isValidMessage() == true)
 			processCommand(message);
 	}
 }
@@ -60,26 +60,26 @@ void Bot::processCommand(BotMessage &message)
 
 		switch (rpl_number)
 		{
-			case 001:
-				this->setRegisterStatus(true);
-				return;
-			case 433:
-				command = "NICK";
-				break;
-			case 451:
-				command = "JOIN";
-				break;
+		case 001:
+			this->setRegisterStatus(true);
+			return;
+		case 433:
+			command = "NICK";
+			break;
+		case 451:
+			command = "JOIN";
+			break;
 		}
 	}
-	catch(const std::exception& e)
+	catch (const std::exception &e)
 	{
 		command = message.getReplyNumber();
 	}
-    auto it = this->getSupportedCommands().find(command);
-    if (it != this->getSupportedCommands().end())
-    {
-       auto handler = it->second; // Get the function pointer from the map
-       BotCommand commandObject(this);
-       (commandObject.*handler)(message);
-    }
+	auto it = this->getSupportedCommands().find(command);
+	if (it != this->getSupportedCommands().end())
+	{
+		auto handler = it->second; // Get the function pointer from the map
+		BotCommand commandObject(this);
+		(commandObject.*handler)(message);
+	}
 }

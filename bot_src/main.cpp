@@ -5,7 +5,7 @@ void convertArgs(std::string &server_address, int &port, std::string &password, 
 {
 	int index;
 	server_address = av[1];
-	for (index = 0; av[2][index];index++)
+	for (index = 0; av[2][index]; index++)
 	{
 		if (!std::isdigit(av[2][index]))
 			throw std::runtime_error("Port must be a digit");
@@ -19,7 +19,7 @@ void convertArgs(std::string &server_address, int &port, std::string &password, 
 
 int main(int ac, char **av)
 {
-	int 		port=-1;
+	int port = -1;
 	std::string server_address;
 	std::string password;
 	std::string info_file_name;
@@ -27,12 +27,12 @@ int main(int ac, char **av)
 	{
 		switch (ac)
 		{
-			case 6:
-				convertArgs(server_address, port, password, av);
-				break;
-			default:
-				std::cout << "Usage:\n./bot_v1 <server ip address> <Port> <Password> <Nickname> <Username>";
-				return (1);
+		case 6:
+			convertArgs(server_address, port, password, av);
+			break;
+		default:
+			std::cout << "Usage:\n./bot_v1 <server ip address> <Port> <Password> <Nickname> <Username>";
+			return (1);
 		}
 	}
 	catch (std::exception &e)
@@ -47,7 +47,7 @@ int main(int ac, char **av)
 		std::signal(SIGQUIT, Bot::signalhandler);
 		bot.init_bot();
 	}
-	catch(std::exception &exp)
+	catch (std::exception &exp)
 	{
 		std::cout << exp.what() << std::endl;
 		return (1);

@@ -30,7 +30,8 @@ void Bot::reConnection()
 		std::cout << '\r' << std::setw(2) << std::setfill('0') << counter-- << std::flush;
 		sleep(1);
 	}
-	std::cout << "\nRetry again!!!\n" << std::flush;
+	std::cout << "\nRetry again!!!\n"
+			  << std::flush;
 	close(server_fd_);
 	setRegisterStatus(false);
 	init_bot();
@@ -54,7 +55,36 @@ void Bot::send_response(int fd, const std::string &response)
 		std::cerr << "Response send() faild" << std::endl;
 }
 
-std::vector <std::string> const &Bot::getFbombs() const
+void	Bot::readConfigFile()
 {
-	return fbombs_;
+	std::ifstream config_file(CONFIG_FILE);
+	if (config_file.is_open())
+	{
+		std::stringstream ss;
+		ss << config_file.rdbuf();
+		std::string line;
+		std::cout << RED << "reading the file" << RESET << std::endl;
+		while (ss >> line)
+		{
+			if (line.find(' ') != std::string::npos)
+				continue;
+			std::cout << RED << "line = " << line << RESET << std::endl;
+			forbidden_words_.push_back(line);
+		}
+	}
+}
+
+std::vector<std::string> const &Bot::getForbiddenWords() const
+{
+	return forbidden_words_;
+}
+
+std::vector<std::string> const &Bot::getViolatedUsers() const
+{
+	return violated_users_;
+}
+
+void Bot::insertInViolatedUsers(std::string const &username)
+{
+	violated_users_.push_back(username);
 }
