@@ -118,6 +118,8 @@ void Command::applyUserMode(std::shared_ptr<Client> client_ptr, std::string mode
         std::string usermode = "+";
         if (client_ptr->getModeI() == true)
             usermode += "i";
+		if (client_ptr->getModeLocalOp() == true)
+			usermode += "O";
         server_->send_response(fd, RPL_UMODEIS(server_->getServerHostname(), client_ptr->getNickname(), usermode));
     }
 }

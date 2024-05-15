@@ -55,6 +55,11 @@ bool	const &Client::getModeI() const
 	return this->mode_i_;
 }
 
+bool	const &Client::getModeLocalOp() const
+{
+	return this->mode_local_op_;
+}
+
 // setters
 
 void Client::setFd(int const &fd)
@@ -87,6 +92,11 @@ void Client::setRealname(std::string const &realname)
 void Client::setModeI(bool status)
 {
 	this->mode_i_ = status;
+}
+
+void Client::setModeLocalOp(bool status)
+{
+	this->mode_local_op_ = status;
 }
 
 void Client::setIpAddress(std::string const &ip_address)

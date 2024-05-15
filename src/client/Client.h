@@ -27,7 +27,7 @@ class Client{
 	std::string													client_prefix_;
 	std::string													buffer;
 	bool														mode_i_;
-	// bool														invited_;
+	bool														mode_local_op_;
 	bool														awayStatus;
     std::string													awayMessage;
 	std::vector<std::shared_ptr<Channel>>						channels_;
@@ -49,6 +49,7 @@ class Client{
 	std::string const	&getRealname() const;
 	std::string const	&getIpAddress() const;
 	bool	 	const	&getModeI() const;
+	bool		const   &getModeLocalOp() const;
 	bool		const	&getRegisterStatus() const;
 	std::string const	&getClientPrefix() const;
 	std::string 		getAwayMessage() const;
@@ -70,6 +71,7 @@ class Client{
 	void        setClientPrefix();
 	void		setAway(bool status, const std::string& message = "");
 	void		setModeI(bool status);
+	void		setModeLocalOp(bool status);
 	void		setRejectedStatus(bool const &status);
 	// member functions
 	void		registerClient();
