@@ -48,7 +48,7 @@
 #define ERR_NONICKNAMEGIVEN(client_prefix) (client_prefix + " 431 :No nickname given" + CRLF)
 #define ERR_ERRONEUSNICK(servername, nickname, bad_nickname) (":" + servername + " 432 " + nickname + " " + bad_nickname + " :Erroneus nickname" + CRLF)
 #define ERR_NICKINUSE(servername, nickname) (":" + servername + " 433 * " + nickname + " :Nickname is already in use" + CRLF)
-#define ERR_USERNOTINCHANNEL(client_prefix, nickname, target_nick, channel) (":" + client_prefix + " 441 " + nickname + " " + target_nick + " " + channel + " :They aren't on that channel" + CRLF)
+#define ERR_USERNOTINCHANNEL(servername, nickname, target_nick, channel) (":" + servername + " 441 " + nickname + " " + target_nick + " " + channel + " :They aren't on that channel" + CRLF)
 #define ERR_USERONCHANNEL(servername, nickname, invited, channel) (":" + servername + " 443 " + nickname + " " + invited + " " + channel + " :is already on channel" + CRLF)
 #define ERR_NOTONCHANNEL(servername, nickname, channelname) (":" + servername + " 442 " + nickname + " " + channelname + " :You're not on that channel" + CRLF)
 #define ERR_NOTREGISTERED(servername) (":" + servername + " 451 " + "*" + " :You have not registered." + CRLF)
@@ -61,6 +61,7 @@
 #define ERR_BADCHANNELKEY(servername, nickname, channel) (":" + servername + " 475 " + nickname + " " + channel + " :Cannot join channel (+k)" + CRLF)
 #define ERR_BADCHANMASK(servername, channel) (":" + servername + " 476 " + channel + " :Bad Channel Mask" + CRLF)
 #define ERR_CHANOPRIVSNEEDED(servername, channel) (":" + servername + " 482 " + channel + " :You're not a channel operator" + CRLF)
+#define ERR_NOOPERHOST(servername, nickname)(":" + servername + " 491 " + nickname + " No O-lines for your host" + CRLF)
 #define ERR_UMODEUNKNOWNFLAG(servername, nickname, mode) (":" + servername + " 501 " + nickname + " " + mode + " :Unknown MODE flag" + CRLF)
 #define ERR_USERSDONTMATCH(servername, nickname) (":" + servername + " 502 " + nickname + ":Can't change mode for other users" + CRLF)
 
