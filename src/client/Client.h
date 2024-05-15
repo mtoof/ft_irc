@@ -31,7 +31,7 @@ class Client{
 	bool														awayStatus;
     std::string													awayMessage;
 	std::vector<std::shared_ptr<Channel>>						channels_;
-	mutable std::mutex 											channels_mutex_;
+	//mutable std::mutex 											channels_mutex_;
 	// TODO monitoring ping pong status
 	// clients that have not replied in a long time should be dropped from the server
 

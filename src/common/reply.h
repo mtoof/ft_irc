@@ -4,7 +4,8 @@
 #define CRLF "\r\n"
 
 // custom replies
-#define ERR_KILLED(servername, killer, reason)("Closing Link: " + servername + " this connection Killed by " + killer + " :" + reason + CRLF)
+#define RPL_KILLED(servername, killer, reason) ("Closing Link: " + servername + " (Killed (<" + killer + "> " + reason + ")" + CRLF)
+#define RPL_KILLMSG(client_prefix, target, content) (":" + client_prefix + " " + target + " :" + content + CRLF)
 #define PONG(servername, token) (":" + servername + " PONG " + servername + " :" + token + CRLF)
 #define RPL_CHANGEMODE(client_prefix, channelname, mode, arguments) (":" + client_prefix + " MODE " + channelname + " " + mode + " " + arguments + CRLF)
 #define RPL_INVITED(CLIENT, nickname, channelname) (":" + CLIENT + " INVITE " + nickname + " :" + channelname + CRLF)
@@ -33,7 +34,7 @@
 #define RPL_NOTOPIC(servername, nickname, channelname) (":" + servername + " 331 " + nickname + " " + channelname + " :No topic is set" + CRLF)
 #define RPL_TOPIC(servername, nickname, channelname, topic) (":" + servername + " 332 " + nickname + " " + channelname + " :" + topic + CRLF)
 #define RPL_INVITING(servername, nickname, invited, channelname) (":" + servername + " 341 " + nickname + " " + invited + " " + channelname + CRLF)
-#define RPL_WHOREPLY(servername, nick, channelname, username, host, userlist, flag, realname) (":" + servername + " 352 " + nick + " " + channelname + " ~" + username + " " + host + " " + userlist + " " + flag + "H" + " " + ":0 " + realname + CRLF)
+#define RPL_WHOREPLY(servername, user_nick, channelname, who_username, who_host, who_nick, flag, who_realname) (":" + servername + " 352 " + user_nick + " " + channelname + " ~" + who_username + " " + who_host + " " + servername + " " + who_nick + " " + flag + " :0 " + who_realname + CRLF)
 #define RPL_NAMREPLY(servername, nickname, channelname, clientslist) (":" + servername + " 353 " + nickname + " = " + channelname + " :" + clientslist + CRLF)
 #define RPL_ENDOFNAMES(servername, nickname, channelname) (":" + servername + " 366 " + nickname + " " + channelname + " :END of /NAMES list" + CRLF)
 #define RPL_MOTD(servername, nickname, message)(":" + servername + " 372 " + nickname + " :- " + message + CRLF)
