@@ -46,7 +46,7 @@ void Command::handleOper(const Message &msg)
 				}
 				else
 				{
-					server_->send_response(fd, ERR_INCORPASS(requested_nick));
+					server_->send_response(fd, ERR_INCORPASS(server_->getServerHostname(), requested_nick));
 					return;
 				}
 			}

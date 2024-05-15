@@ -12,7 +12,6 @@
 #define RPL_KICK(clientprefix, channelname, nickname, msg) (":" + clientprefix + " KICK " + channelname + " " + nickname + " :" + msg + CRLF)
 #define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
 #define RPL_NICKCHANGE(oldprefix, nickname) (":" + oldprefix + " NICK " + nickname + CRLF)
-
 #define RPL_PRIVMSG(client_prefix, target, message) (":" + client_prefix + " PRIVMSG " + target + " :" + message + CRLF)
 #define RPL_UMODECHANGE(NICK, mode) (":" + NICK + " MODE " + NICK + " :" + mode + CRLF)
 #define RPL_QUIT(CLIENT, msg) (":" + CLIENT + " QUIT " + msg + CRLF)
@@ -62,6 +61,7 @@
 #define ERR_INVITEONLYCHAN(servername, nickname, channel) (":" + servername + " 473 " + nickname + " " + channel + " :Cannot join channel (+i)" + CRLF)
 #define ERR_BADCHANNELKEY(servername, nickname, channel) (":" + servername + " 475 " + nickname + " " + channel + " :Cannot join channel (+k)" + CRLF)
 #define ERR_BADCHANMASK(servername, channel) (":" + servername + " 476 " + channel + " :Bad Channel Mask" + CRLF)
+#define ERR_NOPRIVILEGES(nickname) (": 481 " + nickname + " :Permission Denied- You're not an IRC operator" + CRLF)
 #define ERR_CHANOPRIVSNEEDED(servername, channel) (":" + servername + " 482 " + channel + " :You're not a channel operator" + CRLF)
 #define ERR_NOOPERHOST(servername, nickname)(":" + servername + " 491 " + nickname + " No O-lines for your host" + CRLF)
 #define ERR_UMODEUNKNOWNFLAG(servername, nickname, mode) (":" + servername + " 501 " + nickname + " " + mode + " :Unknown MODE flag" + CRLF)
