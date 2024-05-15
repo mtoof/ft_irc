@@ -325,3 +325,33 @@ bool Server::hasClientSentPass(std::shared_ptr <Client> const &client_ptr)
 	}
 	return true;
 }
+
+void Server::initOperators(const std::stringstream &config_file)
+{
+	t_opers op;
+	std::stringstream ss;
+	ss << config_file.str();
+	while (ss)
+	{
+		ss >> op.nick >> op.hostmask >> op.password;
+		if (!op.nick.empty() && !op.hostmask.empty() && !op.password.empty())
+			operators_file_.push_back(op);
+		else
+			std::cerr << RED "Invalid record in config_file" << RESET << std::endl;
+	}
+}
+
+std::vector<t_opers> const	&Server::getOperatorsFile() const
+{
+	return operators_file_;
+}
+
+void Server::insertInOperators(std::pair<int, std::shared_ptr <Client>> const &element)
+{
+	operators_.insert(element);
+}
+
+std::map <int, std::shared_ptr<Client>> const	&Server::getOperatorUsers() const
+{
+	return operators_;
+}

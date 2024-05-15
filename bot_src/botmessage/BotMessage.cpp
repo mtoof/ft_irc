@@ -7,18 +7,12 @@
 BotMessage::BotMessage(std::string raw_message)
 : raw_message_(raw_message), valid_message_(false)
 {
-	std::cout << "Message constructor. Raw message: " << raw_message_ << std::endl;	
 	valid_message_ = analyzeMessage();
-	// printMessageContents();
-	// TODO: Parsing the message and saving it to the members of the class
-	// Parser is below, modularize it to subfunctions that save each element of the message to correct members
-	// once parsing/analyzing is done, it's sent for COMMAND class (also TODO)
-	// THIS IS ABOUT FORMATTING
+	printMessageContents();
 }
 
 BotMessage::~BotMessage()
 {
-	std::cout << "BotMessage destructor" << std::endl;
 }
 
 bool BotMessage::analyzeMessage()
@@ -33,10 +27,10 @@ bool BotMessage::analyzeMessage()
 		prefix_ = prefix;
 	}
 
-	std::string command, param;
+	std::string reply_num, param;
 		
-	iss >> command;
-	command_ = command;
+	iss >> reply_num;
+	reply_num_ = reply_num;
 	while (iss >> param)
 	{
 		if (param.front() == ':')
@@ -60,7 +54,7 @@ void	BotMessage::printMessageContents()
 {
 	std::cout << "Printing contents:\n";
 	std::cout << "Prefix: " << prefix_ << "\n";
-	std::cout << "command: " << command_ << "\n";
+	std::cout << "Reply number: " << reply_num_ << "\n";
 	std::cout << "Params:\n";
 	for (auto param : parameters_)
 	{
@@ -70,12 +64,12 @@ void	BotMessage::printMessageContents()
 	
 }
 
-std::string BotMessage::getCommand() const
+std::string const &BotMessage::getReplyNumber() const
 {
-	return command_;
+	return reply_num_;
 }
 
-std::vector<std::string> BotMessage::getParameters() const
+std::vector<std::string> const &BotMessage::getParameters() const
 {
 	return parameters_;
 }
@@ -85,7 +79,12 @@ bool BotMessage::isValidMessage()
 	return valid_message_;
 }
 
-std::string BotMessage::getTrailer() const
+std::string const &BotMessage::getTrailer() const
 {
 	return trailer_;
+}
+
+std::string const &BotMessage::getPrefix() const
+{
+	return prefix_;
 }

@@ -35,12 +35,12 @@ class Message{
 	void setParams(std::string raw_message);
 	void setTrailer(std::string raw_message);
 	
-	std::string getCommand() const;
-	std::vector<std::string> getParameters() const;
-	std::string getTrailer() const;
-	int getClientfd() const;
+	std::string				 const 	&getCommand() const;
+	std::vector<std::string> const	&getParameters() const;
+	std::string 			 const 	&getTrailer() const;
+	int 					 const 	&getClientfd() const;
+	std::shared_ptr<Client>	 const 	&getClientPtr() const;
 	void printMessageContents();
-	std::shared_ptr<Client> getClientPtr() const;
 };
 
 #endif

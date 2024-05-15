@@ -4,6 +4,7 @@
 #define CRLF "\r\n"
 
 // custom replies
+#define ERR_KILLED(servername, killer, reason)("Closing Link: " + servername + " this connection Killed by " + killer + " :" + reason + CRLF)
 #define PONG(servername, token) (":" + servername + " PONG " + servername + " :" + token + CRLF)
 #define RPL_CHANGEMODE(client_prefix, channelname, mode, arguments) (":" + client_prefix + " MODE " + channelname + " " + mode + " " + arguments + CRLF)
 #define RPL_INVITED(CLIENT, nickname, channelname) (":" + CLIENT + " INVITE " + nickname + " :" + channelname + CRLF)
@@ -39,6 +40,7 @@
 #define RPL_MOTD(servername, nickname, message)(":" + servername + " 372 " + nickname + " :- " + message + CRLF)
 #define RPL_MOTDSTART(servername, nickname)(":" + servername + " 375 " + nickname + " :- " + servername + " Message of the day -" + CRLF)
 #define RPL_MOTDEND(servername, nickname)(":" + servername + " 376 " + nickname + " :End of MOTD command" + CRLF)
+#define RPL_YOUREOPER(servername, nickname)(":" + servername + " 381 " + nickname + " You are now an IRC operator" + CRLF)
 #define ERR_NOSUCHNICK(servername, nickname, target) (":" + servername + " 401 " + nickname + " " + target +" :No such nick/channel" + CRLF)
 #define ERR_NOSUCHCHANNEL(servername, nickname, channel_name) (":" + servername + " 403 " + nickname + " " + channel_name + " :No such channel" + CRLF)
 #define ERR_CANNOTSENDTOCHAN(servername, nickname, channel) (":" + servername + " 404 " + nickname + " " + channel + " :Cannot send to channel" + CRLF)

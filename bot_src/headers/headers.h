@@ -26,7 +26,13 @@
 #include <netdb.h>
 #include <memory>
 #include <map>
+#include <regex>
 #include <sys/stat.h>
 #include "./colour.h"
+#include "reply.h"
+
+#define DEFAULTPORT 6667
+#define NICK_MAX_LENGTH 9
+#define CRLF "\r\n"
 
 #endif

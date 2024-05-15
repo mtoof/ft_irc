@@ -1,5 +1,5 @@
 #include "bot/Bot.h"
-#include "headers.h"
+#include "headers/headers.h"
 
 void convertArgs(std::string &server_address, int &port, std::string &password, char **av)
 {
@@ -27,21 +27,12 @@ int main(int ac, char **av)
 	{
 		switch (ac)
 		{
-			case 1:
-				server_address = "127.0.0.1";
-				port = DEFAULTPORT;
-				break;
-			case 2:
-				port = DEFAULTPORT;
-				break;
-			case 3:
-			case 4:
-			case 5:
+			case 6:
 				convertArgs(server_address, port, password, av);
 				break;
 			default:
-				std::cout << "Usage:\n./ircserv <Port> <Password>";
-				break ;
+				std::cout << "Usage:\n./bot_v1 <server ip address> <Port> <Password> <Nickname> <Username>";
+				return (1);
 		}
 	}
 	catch (std::exception &e)
@@ -51,11 +42,7 @@ int main(int ac, char **av)
 	}
 	try
 	{
-		if (ac < 4)
-			info_file_name = "test_file";
-		else if (ac == 5)
-			info_file_name = av[4];
-		Bot bot(server_address, port, password, info_file_name);
+		Bot bot(server_address, port, password, av);
 		std::signal(SIGINT, Bot::signalhandler);
 		std::signal(SIGQUIT, Bot::signalhandler);
 		bot.init_bot();

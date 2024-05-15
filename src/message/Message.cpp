@@ -81,12 +81,12 @@ void	Message::printMessageContents()
 
 }
 
-std::string Message::getCommand() const
+std::string const &Message::getCommand() const
 {
 	return command_;
 }
 
-std::vector<std::string> Message::getParameters() const
+std::vector<std::string> const &Message::getParameters() const
 {
 	return parameters_;
 }
@@ -96,17 +96,17 @@ bool Message::isValidMessage()
 	return valid_message_;
 }
 
-std::string Message::getTrailer() const
+std::string const &Message::getTrailer() const
 {
 	return trailer_;
 }
 
-int Message::getClientfd() const
+int const &Message::getClientfd() const
 {
 	return client_fd_;
 }
 
-std::shared_ptr<Client> Message::getClientPtr() const
+std::shared_ptr<Client> const &Message::getClientPtr() const
 {
 	return client_ptr_;
 }

@@ -77,7 +77,10 @@ void Command::handleJoin(const Message &msg)
 				return;
 			}
 		}
-		channel_ptr->addUser(client_ptr, false);
+		if (channel_ptr->getUsers().size())
+			channel_ptr->addUser(client_ptr, false);
+		else
+			channel_ptr->addUser(client_ptr, true);
 	}
 	client_ptr->joinChannel(channel_ptr);
 	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));

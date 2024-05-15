@@ -44,14 +44,42 @@ void Bot::processBuffer()
 		std::string line = this->buffer_.substr(0, pos);
 		this->buffer_.erase(0, pos + 2);
 		if (!line.empty() && line.back() == '\r')
-			line.pop_back(); // Remove the trailing \r
-		//processCommand(line, this->fd_);
-
-		BotMessage message(line); // Parse the message
+			line.pop_back();
+		BotMessage message(line);
 		if(message.isValidMessage() == true)
+			processCommand(message);
+	}
+}
+
+void Bot::processCommand(BotMessage &message)
+{
+	std::string command;
+	try
+	{
+		int rpl_number = std::stoi(message.getReplyNumber());
+
+		switch (rpl_number)
 		{
-			//TODO: send the message to command
-			// processCommand(message);
+			case 001:
+				this->setRegisterStatus(true);
+				return;
+			case 433:
+				command = "NICK";
+				break;
+			case 451:
+				command = "JOIN";
+				break;
 		}
 	}
+	catch(const std::exception& e)
+	{
+		command = message.getReplyNumber();
+	}
+    auto it = this->getSupportedCommands().find(command);
+    if (it != this->getSupportedCommands().end())
+    {
+       auto handler = it->second; // Get the function pointer from the map
+       BotCommand commandObject(this);
+       (commandObject.*handler)(message);
+    }
 }

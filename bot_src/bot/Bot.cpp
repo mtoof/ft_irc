@@ -1,15 +1,31 @@
 #include "Bot.h"
 
 bool Bot::signal_ = false;
-Bot::Bot(std::string &server_address, int &port, std::string &password, std::string const &filename)
-: server_addr_(server_address), server_port_(port), server_password_(password), info_file_(filename)
+Bot::Bot(std::string &server_address, int &port, std::string &password, char **av)
+: server_addr_(server_address), server_port_(port), server_password_(password)
 {
-	std::cout << RED "constructor called" RESET << std::endl;
+	if (isValidNickname(av[4]))
+		nickname_ = av[4];
+	else
+		throw std::runtime_error("Invalid Nickname format");
+	username_ = av[5];
+	register_status_ = false;
+	supported_commands_.insert(std::pair("JOIN", &BotCommand::handleJoin));
+	supported_commands_.insert(std::pair("INVITE", &BotCommand::handleInvite));
+	supported_commands_.insert(std::pair("NICK", &BotCommand::handleNick));
+	supported_commands_.insert(std::pair("PRIVMSG", &BotCommand::handlePrivmsg));
+	supported_commands_.insert(std::pair("KICK", &BotCommand::handleKick));
+	fbombs_ = {
+        "ass", "bitch", "cunt", "dick", "faggot", "nigger", "pussy", "slut",
+        "tits", "whore", "asshole", "bastard", "bimbo", "chink", "cracker", "dyke",
+        "freak", "gook", "homo", "jap", "kike", "nazi", "paki", "queer", "spic",
+        "tranny", "ugly", "vag", "wetback", "xenophobe", "yid", "zog", "shit", 
+		"fuck", "wanker" , "turd", "twat", "sh*t", "f*ck" 
+    };
 }
 
 Bot::~Bot()
 {
-	std::cout << RED "destructor called" RESET << std::endl;
 }
 
 void Bot::init_bot()
@@ -18,19 +34,23 @@ void Bot::init_bot()
 		return;
 	createBotSocket();
 	poll_fd_.fd = server_fd_;
-    poll_fd_.events = POLLIN | POLL_OUT;
-    poll_fd_.revents = 0;
+	poll_fd_.events = POLLIN;
+	poll_fd_.revents = 0;
 	int event;
 	while (!Bot::signal_)
 	{
-		event = poll(&poll_fd_, POLL_IN, -1);
+		event = poll(&poll_fd_, POLL_IN, 1000);
+		if (event == 0 && this->getRegisterStatus() == false)
+			testConnection();
 		if (event == -1 && !Bot::signal_)
 			throw std::runtime_error("Error poll");
-		if (poll_fd_.revents & (POLL_IN | POLL_OUT))
+		if (poll_fd_.revents && POLL_IN)
 		{
 			readBuffer();
 		}
 	}
+	std::string msg = "QUIT :TERMINATED";
+	send_response(server_fd_, msg + CRLF);
 	close(poll_fd_.fd);
 	close(server_fd_);
 }
@@ -70,54 +90,14 @@ void Bot::createBotSocket()
 	}
 	std::cout << "Bot connected to server successfuly" << std::endl;
 	free(serv_addr_info_);
-	sendInfo();
 }
 
-void Bot::sendInfo()
+void Bot::testConnection()
 {
-	if (info_file_.empty())
-	throw std::runtime_error("Need a config file");
-	std::ifstream info_file(info_file_);
-	readFile(info_file);
-	std::string line;
-	line.clear();
-	while (std::getline(info_file, line))
+	if (!this->getRegisterStatus())
 	{
-		line += "\r\n";
-		if (send(server_fd_, line.c_str(), line.length(), 0) < 0)
-		{
-			std::cout << RED "Couldn't send data, Check the connection please!" RESET << std::endl;
-			info_file.clear();
-			info_file.seekg(0, info_file.beg);
-			info_file.close();
-			close(server_fd_);
-			reConnection();
-		}
-		
-	}
-	info_file.clear();
-	info_file.seekg(0, info_file.beg);
-	info_file.close();
-}
-
-void Bot::readFile(std::ifstream &info_file)
-{
-	if (!info_file.is_open())
-	{
-		throw std::runtime_error("Error opening the file!");
-	}
-	struct stat fileStat;
-	if (stat(info_file_.c_str(), &fileStat) == 0)
-	{
-		if (S_ISDIR(fileStat.st_mode))
-		{
-			std::cout << info_file_;
-			throw std::runtime_error(" Is a directory");
-		}
-	}
-	if (info_file.eof())
-	{
-		throw std::runtime_error("Config file is empty");	
+		std::string msg = "JOIN";
+		send_response(server_fd_, msg + CRLF);
 	}
 }
 
@@ -150,21 +130,32 @@ int const &Bot::getServerPort() const
     return this->server_port_;
 }
 
-std::string const	&Bot::getInfoFile() const
+std::string const &Bot::getNickname() const
 {
-	return info_file_;
+	return nickname_;
 }
 
-void Bot::reConnection()
+std::string const &Bot::getUsername() const
 {
-	int counter = 10;
-	while (counter && !Bot::signal_)
-	{
-		std::cout << '\r' << std::setw(2) << std::setfill('0') << counter-- << std::flush;
-		sleep(1);
-	}
-	std::cout << "\nRetry again!!!\n" << std::flush;
-	counter = 10;
-	close(server_fd_);
-	init_bot();
+	return username_;
+}
+
+void Bot::setNickname(std::string const &nickname)
+{
+	nickname_ = nickname;
+}
+
+void Bot::setUsername(std::string const &username)
+{
+	username_ = username;
+}
+
+void	Bot::setRegisterStatus(bool const &status)
+{
+	register_status_ = status;
+}
+
+bool const	&Bot::getRegisterStatus() const
+{
+	return register_status_;
 }

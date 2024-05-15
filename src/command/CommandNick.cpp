@@ -22,14 +22,17 @@ void Command::handleNick(const Message &msg)
 		server_->send_response(fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
 		return;
 	}
-	std::string new_nickname = parameters.front(); // desired nickname is the first parameter, we'll just ignore the rest for now
+	std::string new_nickname = parameters[0]; // desired nickname is the first parameter, we'll just ignore the rest for now
 	std::string current_nickname = client_ptr->getNickname();
+
 	if (new_nickname == current_nickname)
 		return;
 	std::string new_nick_lowercase = new_nickname;
 	std::string current_nick_lowercase = current_nickname;
+
 	std::transform(new_nick_lowercase.begin(), new_nick_lowercase .end(), new_nick_lowercase.begin(), ::tolower); // Convert the nickname to lowercase
-	std::transform(current_nick_lowercase.begin(), current_nick_lowercase .end(), new_nick_lowercase.begin(), ::tolower); // Convert the nickname to lowercase
+	std::transform(current_nick_lowercase.begin(), current_nick_lowercase .end(), current_nick_lowercase.begin(), ::tolower); // Convert the nickname to lowercase
+
 	if (new_nick_lowercase != current_nick_lowercase)
 	{
 		if (isValidNickname(new_nickname) == false)
@@ -43,6 +46,7 @@ void Command::handleNick(const Message &msg)
 			return;
 		}
 	}
+
 	std::string old_prefix = client_ptr->getClientPrefix();
 	server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
 	client_ptr->setNickname(new_nickname);
