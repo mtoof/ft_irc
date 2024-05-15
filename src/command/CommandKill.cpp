@@ -23,10 +23,10 @@ void Command::handleKill(const Message &msg)
 		std::shared_ptr <Client> target_client = server_->findClientUsingNickname(target_nick);
 		if (target_client)
 		{
-			server_->send_response(target_client->getFd(), ERR_KILLED(server_->getServerHostname(), sender_nick, comment));
-			std::string reason = "Closing Link: " + server_->getServerHostname() + " Killed by " + sender_nick + " " + comment;
-			Message kill_msg("QUIT :" + reason, server_, target_client->getFd());
-			target_client->processCommand(kill_msg, server_);
+			std::string reason = RPL_KILLED(server_->getServerHostname(), sender_nick, comment);
+			server_->send_response(target_client->getFd(), RPL_KILLMSG(client_ptr->getClientPrefix(), target_client->getNickname(), reason));
+			Message quit_msg("QUIT :" + reason, server_, target_client->getFd());
+			target_client->processCommand(quit_msg, server_);
 			return;
 		}
 		else

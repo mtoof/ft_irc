@@ -245,7 +245,7 @@ bool	Client::joinChannel(const std::shared_ptr<Channel>& channel_ptr)
 {
 	if (channels_.size() >= CLIENT_MAX_CHANNELS)
 		return false;
-    std::lock_guard<std::mutex> lock(channels_mutex_);
+    //std::lock_guard<std::mutex> lock(channels_mutex_);
     channels_.push_back(channel_ptr);
 	return true;
 }
@@ -258,8 +258,8 @@ void Client::leaveChannel(const std::shared_ptr<Channel>& channel_ptr)
 
 std::vector<std::shared_ptr<Channel>> Client::getChannels() const 
 {
-       // std::lock_guard<std::mutex> lock(channels_mutex_);
-        return channels_;
+    // std::lock_guard<std::mutex> lock(channels_mutex_);
+    return channels_;
 }
 
 void Client::setRejectedStatus(bool const &status)

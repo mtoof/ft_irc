@@ -64,10 +64,12 @@ void Command::handleMode(const Message &msg)
         {
             server_->send_response(fd, RPL_CHANNELMODEIS(server_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName(), getChannelModes(channel_ptr)));
         }
-        else if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
+		else if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
         {
             server_->send_response(fd, ERR_NOTONCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
         }
+		else if (mode_string == "b")
+			return;
         else if (!channel_ptr->isOperator(client_ptr))
         {
             server_->send_response(fd, ERR_CHANOPRIVSNEEDED(server_->getServerHostname(), channel_ptr->getName()));
@@ -151,12 +153,8 @@ void Command::applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_
 	std::string mode_chars;
 	for (auto &[mode_char, plusmode] : mode_vector)
 	{
-		// if (mode_index > 0)
-	 	// {
-			// auto it = mode_vector.find(mode_vector.begin(), )
 		if (mode_chars.find_first_of(mode_char) != std::string::npos)
 				continue;
-		// }	
 		bool requires_param = modeRequiresParameter(mode_char);
         bool param_is_mandatory = mandatoryModeParameter(mode_char);
 
@@ -281,19 +279,17 @@ bool Command::mandatoryModeParameter(char mode)
 bool Command::applyModeO(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, std::string target, bool mode)
 {
     std::shared_ptr<Client> target_ptr = server_->findClientUsingNickname(target);
-	bool isTrue = true;
-    if (target_ptr == nullptr)
+	if (target_ptr == nullptr)
     {
         server_->send_response(client_ptr->getFd(), ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), target));
-		isTrue = false;
+		return false;
     }
 	if (!channel_ptr->isUserOnChannel(target))
     {
         server_->send_response(client_ptr->getFd(), ERR_USERNOTINCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), target, channel_ptr->getName()));
-		isTrue = false;
+		return false;
     }
-    isTrue = channel_ptr->changeOpStatus(target_ptr, mode);
-	return isTrue;
+    return channel_ptr->changeOpStatus(target_ptr, mode);
 }
 
 void Command::appendToChangedModeString(bool plusmode, std::string &changed_modes, char &last_mode_char, char &mode_char)
