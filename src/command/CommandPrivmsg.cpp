@@ -55,20 +55,6 @@ void Command::handlePrivmsg(const Message &msg)
 		return;
 	}
 
-	// // Check for host or server mask targeting, which is reserved for operators
-    // if ((recipient[0] == '#' || recipient[0] == '$') && !channel_->userIsOperator(client_ptr->getNickname())) // if the recipient is a channel and the client is not an operator
-	// {
-    //     server_->send_response(fd, ERR_NOPRIVILEGES(client_ptr->getClientPrefix()));
-    //     return;
-    // }
-
-	//     // Handling wildcards in top-level domain
-    // if (recipient.find('.') != std::string::npos && recipient.find_last_of('.') < recipient.size() - 2) // we need to make sure there is at least 2 characters after the last dot
-	// {
-    //     server_->send_response(fd, ERR_WILDTOPLEVEL(client_ptr->getClientPrefix(), recipient));
-    //     return;
-    // }
-
     std::shared_ptr<Client> recipient_ptr = server_->findClientUsingNickname(recipient);
     if (recipient_ptr)
 	{
@@ -81,7 +67,7 @@ void Command::handlePrivmsg(const Message &msg)
     std::shared_ptr<Channel> channel_ptr = server_->findChannel(recipient);
     if (channel_ptr)	// if the recipient is a channel
 	{
-        if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
+        if (channel_ptr->getModeN() && !channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
             server_->send_response(fd, ERR_CANNOTSENDTOCHAN(server_->getServerHostname(), client_ptr->getNickname(), recipient));
             return;

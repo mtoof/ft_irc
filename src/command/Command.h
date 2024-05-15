@@ -56,11 +56,13 @@ public:
 	std::vector<std::string> split(const std::string &s, char delim);
 	void extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string);
 	void applyUserMode(std::shared_ptr<Client> client_ptr, std::string mode_string);
-	void applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, const std::string &mode_string, const std::string &mode_arguments);
+	void applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, const std::string &mode_string, const std::vector<std::string> &mode_arguments);
 	bool applyModeO(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, std::string target, bool mode);
 	void send_responses_based_on_client_info(const std::shared_ptr<Client> &whois_client_ptr, int fd);
+	void appendToChangedModeString(bool plusmode, std::string &changed_modes, char &last_mode_char, char &mode_char);
 	bool modeRequiresParameter(char mode);
 	bool mandatoryModeParameter(char mode);
+
 };
 
 #endif

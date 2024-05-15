@@ -54,6 +54,12 @@ bool Channel::getModeL() const
 	return mode_l_;
 }
 
+// Get mode_n
+bool Channel::getModeN() const
+{
+	return mode_n_;
+}
+
 // Set channel name
 void Channel::setName(const std::string &name)
 {
@@ -107,6 +113,11 @@ void Channel::setModeL(bool mode_l, unsigned int limit)
 		limit_ = limit;
 	else
 		limit_ = DEFAULT_MAX_CLIENTS;
+}
+
+void Channel::setModeN(bool mode_n)
+{
+	mode_n_ = mode_n;
 }
 
 // Check if the channel is full

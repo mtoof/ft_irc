@@ -26,6 +26,7 @@ class Channel
 		bool									mode_i_; // Invite-only mode
 		bool									mode_k_; // Key-protected mode
 		bool 									mode_l_; // User limit mode
+		bool									mode_n_; // no external messages
 		std::string 							mode_; // Channel modes
 		unsigned int 							limit_;
 		std::shared_ptr<Server>					server_;
@@ -43,6 +44,7 @@ class Channel
 		bool getModeI() const;
 		bool getModeK() const;
 		bool getModeL() const;
+		bool getModeN() const;
 		std::string const &getMode() const;
 
 		// Mutator methods
@@ -55,6 +57,7 @@ class Channel
 		void setModeI(bool mode_i);
 		void setModeK(bool mode_k);
 		void setModeL(bool mode_l, unsigned int limit = DEFAULT_MAX_CLIENTS);
+		void setModeN(bool mode_n);
 
 
 		// Functional methods

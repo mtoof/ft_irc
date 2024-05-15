@@ -19,7 +19,7 @@
 // numerical replies
 
 #define RPL_CONNECTED(servername, nickname, client_prefix) (":" + servername + " 001 " + nickname + " :Welcome to the best ever IRC server! " + client_prefix + CRLF)
-#define RPL_ISUPPORT(servername, nickname) (":" + servername + " 005 " + nickname + " AWAYLEN=AWAY_MAX_LENGTH CHANMODES=l,k,it NICKLEN=NICK_MAX_LENGTH TOPICLEN=TOPIC_MAX_LENGTH MODES=4 KICKLEN=255 CHANTYPES=# CHANNELLEN=32 :are supported on this server" + CRLF)
+#define RPL_ISUPPORT(servername, nickname) (":" + servername + " 005 " + nickname + " AWAYLEN=AWAY_MAX_LENGTH CHANMODES=l,k,it NICKLEN=NICK_MAX_LENGTH TOPICLEN=TOPIC_MAX_LENGTH MODES=42 KICKLEN=255 CHANTYPES=# CHANNELLEN=32 :are supported on this server" + CRLF)
 #define RPL_UMODEIS(servername, nickname, modes) (":" + servername + " 221 " + nickname + " " + modes + CRLF)
 #define RPL_AWAY(servername, nickname, recipient, message) (":" + servername + " 301 " + nickname + " " + recipient + " :" + message + CRLF)
 #define RPL_UNAWAY(servername, nickname) (":" + servername + " 305 " + nickname + " :You are no longer marked as being away" + CRLF)
@@ -66,5 +66,5 @@
 #define ERR_NOOPERHOST(servername, nickname)(":" + servername + " 491 " + nickname + " No O-lines for your host" + CRLF)
 #define ERR_UMODEUNKNOWNFLAG(servername, nickname, mode) (":" + servername + " 501 " + nickname + " " + mode + " :Unknown MODE flag" + CRLF)
 #define ERR_USERSDONTMATCH(servername, nickname) (":" + servername + " 502 " + nickname + ":Can't change mode for other users" + CRLF)
-
+#define ERR_INVALIDMODEPARAM(servername, nickname, target, mode_char, parameter, description) (":" + servername + " 696 " + nickname + " " + target + " " + mode_char + " " + parameter + ": " + description + CRLF)
 #endif
