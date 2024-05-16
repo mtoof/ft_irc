@@ -37,6 +37,7 @@ void Command::handleJoin(const Message &msg)
 		case '#': // Standard channels
 		case '&': // Local to server
 			channel_ptr = server_->createNewChannel(channel_name);
+			channel_ptr->setChannelStartTimestamps();
 			channel_ptr->addUser(client_ptr, true); // First user becomes the operator
 			break;
 		case '!': // Safe channels require special handling
@@ -44,6 +45,7 @@ void Command::handleJoin(const Message &msg)
 			return;
 		case '+': // No modes can be set
 			channel_ptr = server_->createNewChannel(channel_name);
+			channel_ptr->setChannelStartTimestamps();
 			channel_ptr->addUser(client_ptr, false);
 			break;
 		default:

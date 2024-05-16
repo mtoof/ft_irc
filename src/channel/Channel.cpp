@@ -303,3 +303,8 @@ void Channel::clearTopic(const std::string &nickname)
 	topic_.second = "";
 	topic_timestamp_ = std::chrono::system_clock::now();
 }
+
+void	Channel::setChannelStartTimestamps()
+{
+	start_channel_timestamps_ = std::chrono::system_clock::now();
+}

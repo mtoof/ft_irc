@@ -20,9 +20,7 @@ class Channel
 {
 	private:
 		std::string 										name_; // Channel name
-		std::map<std::shared_ptr<Client>, bool> 			users_; // Users in the channel and their operator status (true if op)
 		std::string 										channel_key_; // Channel key
-		std::pair<std::string, std::string> 				topic_; // Channel topic (author, topic)
 		bool												topic_is_set_; // topic is set
 		bool 												mode_t_; // Topic lock mode
 		bool												mode_i_; // Invite-only mode
@@ -31,10 +29,11 @@ class Channel
 		bool												mode_n_; // no external messages
 		std::string 										mode_; // Channel modes
 		unsigned int 										limit_;
+		std::set<std::string> 								invited_users_;
+		std::pair<std::string, std::string> 				topic_; // Channel topic (author, topic)
+		std::map<std::shared_ptr<Client>, bool> 			users_; // Users in the channel and their operator status (true if op)
+		std::chrono::time_point<std::chrono::system_clock>	start_channel_timestamps_;
 		std::chrono::time_point<std::chrono::system_clock>	topic_timestamp_;
-
-		//Server*									server_ptr_;
-		std::set<std::string> 					invited_users_; 
 	public:
 		Channel(const std::string &name);
 		~Channel();
@@ -84,6 +83,7 @@ class Channel
 		void removeUserFromInvitedList(const std::string &nickname);
 		void sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr);
 		void clearTopic(const std::string &nickname);
+		void setChannelStartTimestamps();
 };
 
 #endif// CHANNEL_H
