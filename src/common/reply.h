@@ -4,16 +4,17 @@
 #define CRLF "\r\n"
 
 // custom replies
-#define RPL_KILLED(servername, killer, reason) ("Closing Link: " + servername + " (Killed (<" + killer + "> " + reason + ")" + CRLF)
-#define RPL_KILLMSG(client_prefix, target, content) (":" + client_prefix + " " + target + " :" + content + CRLF)
 #define PONG(servername, token) (":" + servername + " PONG " + servername + " :" + token + CRLF)
 #define RPL_CHANGEMODE(client_prefix, channelname, mode, arguments) (":" + client_prefix + " MODE " + channelname + " " + mode + " " + arguments + CRLF)
 #define RPL_INVITED(CLIENT, nickname, channelname) (":" + CLIENT + " INVITE " + nickname + " :" + channelname + CRLF)
 #define RPL_JOINMSG(clientprefix, channelname) (":" + clientprefix + " JOIN " + channelname + CRLF)
 #define RPL_KICK(clientprefix, channelname, nickname, msg) (":" + clientprefix + " KICK " + channelname + " " + nickname + " :" + msg + CRLF)
+#define RPL_KILLED(servername, killer, reason) ("Closing Link: " + servername + " (Killed (<" + killer + "> " + reason + ")" + CRLF)
+#define RPL_KILLMSG(client_prefix, target, content) (":" + client_prefix + " " + target + " :" + content + CRLF)
 #define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
 #define RPL_NICKCHANGE(oldprefix, nickname) (":" + oldprefix + " NICK " + nickname + CRLF)
 #define RPL_PRIVMSG(client_prefix, target, message) (":" + client_prefix + " PRIVMSG " + target + " :" + message + CRLF)
+#define RPL_TOPICCHANGE(client_prefix, channel_name, new_topic) (":" + client_prefix + " TOPIC " + channel_name + " :" + new_topic + CRLF)
 #define RPL_UMODECHANGE(NICK, mode) (":" + NICK + " MODE " + NICK + " :" + mode + CRLF)
 #define RPL_QUIT(CLIENT, msg) (":" + CLIENT + " QUIT " + msg + CRLF)
 
@@ -33,6 +34,7 @@
 #define RPL_CREATIONTIME(nickname, channelname, creationtime) (": 329 " + nickname + " " + channelname + " " + creationtime + CRLF)
 #define RPL_NOTOPIC(servername, nickname, channelname) (":" + servername + " 331 " + nickname + " " + channelname + " :No topic is set" + CRLF)
 #define RPL_TOPIC(servername, nickname, channelname, topic) (":" + servername + " 332 " + nickname + " " + channelname + " :" + topic + CRLF)
+#define RPL_TOPICWHOTIME(servername, nickname, channelname, author, timestamp) (":" + servername + " 333 " + nickname + " " + channelname + " " + author + " " + timestamp + CRLF)
 #define RPL_INVITING(servername, nickname, invited, channelname) (":" + servername + " 341 " + nickname + " " + invited + " " + channelname + CRLF)
 #define RPL_WHOREPLY(servername, user_nick, channelname, who_username, who_host, who_nick, flag, who_realname) (":" + servername + " 352 " + user_nick + " " + channelname + " ~" + who_username + " " + who_host + " " + servername + " " + who_nick + " " + flag + " :0 " + who_realname + CRLF)
 #define RPL_NAMREPLY(servername, nickname, channelname, clientslist) (":" + servername + " 353 " + nickname + " = " + channelname + " :" + clientslist + CRLF)

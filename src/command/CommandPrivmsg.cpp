@@ -72,7 +72,7 @@ void Command::handlePrivmsg(const Message &msg)
             server_->send_response(fd, ERR_CANNOTSENDTOCHAN(server_->getServerHostname(), client_ptr->getNickname(), recipient));
             return;
         }
-        channel_ptr->broadcastMessage(client_ptr, RPL_PRIVMSG(client_ptr->getClientPrefix(), channel_ptr->getName(), message_body)); // broadcast the message to all users in the channel except the sender
+        channel_ptr->broadcastMessage(client_ptr, RPL_PRIVMSG(client_ptr->getClientPrefix(), channel_ptr->getName(), message_body), server_); // broadcast the message to all users in the channel except the sender
         return;
     }
 

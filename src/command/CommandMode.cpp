@@ -248,7 +248,7 @@ void Command::applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_
             changed_modes,
             used_params);
         server_->send_response(fd, final_response);
-        channel_ptr->broadcastMessage(client_ptr, final_response);
+        channel_ptr->broadcastMessage(client_ptr, final_response, server_);
     }
 }
 

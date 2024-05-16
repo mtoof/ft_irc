@@ -86,6 +86,7 @@ void Command::handleJoin(const Message &msg)
 	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
 	sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), fd);
 	broadcastJoinToChannel(channel_ptr, client_ptr);
+	channel_ptr->sendTopicToClient(client_ptr, server_);
 }
 
 

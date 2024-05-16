@@ -61,7 +61,7 @@ void Command::handleNick(const Message &msg)
 	{
 		for (auto channel: channel_list)
 		{
-			channel->broadcastMessage(client_ptr, RPL_NICKCHANGECHANNEL(old_prefix, new_nickname));
+			channel->broadcastMessage(client_ptr, RPL_NICKCHANGECHANNEL(old_prefix, new_nickname), server_);
 		}
 	}
 }

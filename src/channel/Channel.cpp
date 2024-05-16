@@ -1,7 +1,8 @@
 #include "Channel.h"
 
-Channel::Channel(const std::string &name) : name_(name), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), limit_(DEFAULT_MAX_CLIENTS)
+Channel::Channel(const std::string &name) : name_(name), channel_key_(""), topic_is_set_(false), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), mode_n_(false), limit_(DEFAULT_MAX_CLIENTS)
 {
+
 }
 
 Channel::~Channel()
@@ -86,6 +87,8 @@ void Channel::setChannelKey(const std::string &channel_key)
 void Channel::setTopic(const std::pair<std::string, std::string> &topic)
 {
 	topic_ = topic;
+	topic_is_set_ = true;
+	topic_timestamp_ = std::chrono::system_clock::now();
 }
 
 // Set mode_t
@@ -139,15 +142,6 @@ bool Channel::isPasswordProtected() const
 	return mode_k_ && !channel_key_.empty();
 }
 
-// Additional method to update topic with validation
-void Channel::updateTopic(const std::string &newTopic, const std::string &author, bool isAdmin)
-{
-	if (mode_t_ && !isAdmin)
-		throw std::runtime_error("Topic is locked.");
-	topic_ = {author, newTopic}; // Update topic with author and new topic text
-}
-
-
 void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
 {
 	if (client)
@@ -185,16 +179,16 @@ bool Channel::isUserOnChannel(std::string const &nickname)
 	return false;
 }
 
-bool Channel::userIsOperator(std::string const &nickname)
-{
-	//std::string lowerCaseNick = ;
-	for (auto const &user : users_)
-	{
-		if (server_->toLower(user.first->getNickname()) == server_->toLower(nickname) && user.second == true)
-			return true;
-	}
-	return false;
-}
+// bool Channel::userIsOperator(std::string const &nickname)
+// {
+// 	//std::string lowerCaseNick = ;
+// 	for (auto const &user : users_)
+// 	{
+// 		if (server_ptr_->toLower(user.first->getNickname()) == server_ptr_->toLower(nickname) && user.second == true)
+// 			return true;
+// 	}
+// 	return false;
+// }
 bool Channel::isValidChannelName(const std::string& channelName) const
 {
 	// Regex to match valid channel names
@@ -213,7 +207,7 @@ bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
 	return false;
 }
 
-void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message)
+void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message, Server* server_ptr)
 {
 	if (sender_ptr)
 	{
@@ -223,20 +217,20 @@ void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const 
 			if (user != sender_ptr) // Don't send the message to the sender
 			{
 				//std::string fullMessage = ":" + sender_prefix + " PRIVMSG " + this->name_ + " :" + message + CRLF;
-				server_->send_response(user->getFd(), message);
+				server_ptr->send_response(user->getFd(), message);
 			}
 		}
 	}
 }
 
-void Channel::broadcastMessageToAll(const std::string &message)
+void Channel::broadcastMessageToAll(const std::string &message, Server* server_ptr)
 {
 	//std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
 
 	for (const auto &userPair : users_)
 	{
 		std::shared_ptr<Client> user = userPair.first;
-			server_->send_response(user->getFd(), message);
+			server_ptr->send_response(user->getFd(), message);
 	}
 }
 
@@ -287,4 +281,25 @@ void Channel::addUserToInvitedList(const std::string &nickname)
 void Channel::removeUserFromInvitedList(const std::string &nickname)
 {
 	invited_users_.erase(nickname);
+}
+
+void Channel::sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr)
+{
+	if (this->topic_is_set_ == false)
+		server_ptr->send_response(client_ptr->getFd(), RPL_NOTOPIC(server_ptr->getServerHostname(), client_ptr->getNickname(), getName()));
+	else
+	{
+		std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(topic_timestamp_);
+		std::string timestamp_string = std::to_string(unix_timestamp);
+		server_ptr->send_response(client_ptr->getFd(), RPL_TOPIC(server_ptr->getServerHostname(), client_ptr->getNickname(), getName(), getTopic().second));
+		server_ptr->send_response(client_ptr->getFd(), RPL_TOPICWHOTIME(server_ptr->getServerHostname(), client_ptr->getNickname(), getName(), getTopic().first, timestamp_string));
+	}
+}
+
+void Channel::clearTopic(const std::string &nickname)
+{
+	topic_is_set_ = false;
+	topic_.first = nickname;
+	topic_.second = "";
+	topic_timestamp_ = std::chrono::system_clock::now();
 }

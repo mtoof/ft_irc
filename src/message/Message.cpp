@@ -5,7 +5,7 @@
 /// @param server
 /// @param clientfd
 Message::Message(std::string raw_message, Server *server, int clientfd)
-: raw_message_(raw_message), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
+: raw_message_(raw_message), has_trailer_(false), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
 {
 	client_ptr_ = server_ptr_->findClientUsingFd(client_fd_);
 	if (!client_ptr_)
@@ -48,22 +48,23 @@ bool Message::analyzeMessage()
 
 	iss >> command;
 	command_ = command;
-	while (iss >> param)
-	{
-		if (param.front() == ':')
-		{
-			if (param.size() > 1)
-			{
-				trailer_ = param;
-				while (iss >> param)
-					trailer_ += " " + param;
-				trailer_.erase(trailer_.begin());
-			}
-			break;
-		}
-		parameters_.push_back(param);
-	}
+    while (iss >> param) {
+        if (param.front() == ':') {
+            has_trailer_ = true;
+            trailer_ = param.substr(1); // Remove the colon
+            break;
+        }
+        parameters_.push_back(param);
+    }
 
+    // Read the rest of the line for the trailer
+    if (has_trailer_) {
+        std::string remaining;
+        std::getline(iss, remaining);
+        if (!remaining.empty()) {
+            trailer_ += remaining;
+        }
+    }
 	return true;
 }
 
@@ -94,6 +95,11 @@ std::vector<std::string> const &Message::getParameters() const
 bool Message::isValidMessage()
 {
 	return valid_message_;
+}
+
+bool Message::hasTrailer() const
+{
+	return has_trailer_;
 }
 
 std::string const &Message::getTrailer() const

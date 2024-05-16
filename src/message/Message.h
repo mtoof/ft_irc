@@ -15,6 +15,7 @@ class Message{
 	std::string						command_;
 	std::vector<std::string>		parameters_;
 	std::string						trailer_;
+	bool							has_trailer_;
 	Server*							server_ptr_;
 	const int						client_fd_;
 	std::shared_ptr<Client>			client_ptr_;
@@ -40,6 +41,7 @@ class Message{
 	std::string 			 const 	&getTrailer() const;
 	int 					 const 	&getClientfd() const;
 	std::shared_ptr<Client>	 const 	&getClientPtr() const;
+	bool							hasTrailer() const;
 	void printMessageContents();
 };
 

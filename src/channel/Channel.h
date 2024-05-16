@@ -8,6 +8,7 @@
 #include <memory>
 #include <cctype>
 #include <set>
+#include <chrono>
 
 #include "../client/Client.h"
 #include "../common/MagicNumbers.h"
@@ -18,18 +19,21 @@ class Server;
 class Channel
 {
 	private:
-		std::string 							name_; // Channel name
-		std::map<std::shared_ptr<Client>, bool> users_; // Users in the channel and their operator status (true if op)
-		std::string 							channel_key_; // Channel key
-		std::pair<std::string, std::string> 	topic_; // Channel topic (author, topic)
-		bool 									mode_t_; // Topic lock mode
-		bool									mode_i_; // Invite-only mode
-		bool									mode_k_; // Key-protected mode
-		bool 									mode_l_; // User limit mode
-		bool									mode_n_; // no external messages
-		std::string 							mode_; // Channel modes
-		unsigned int 							limit_;
-		std::shared_ptr<Server>					server_;
+		std::string 										name_; // Channel name
+		std::map<std::shared_ptr<Client>, bool> 			users_; // Users in the channel and their operator status (true if op)
+		std::string 										channel_key_; // Channel key
+		std::pair<std::string, std::string> 				topic_; // Channel topic (author, topic)
+		bool												topic_is_set_; // topic is set
+		bool 												mode_t_; // Topic lock mode
+		bool												mode_i_; // Invite-only mode
+		bool												mode_k_; // Key-protected mode
+		bool 												mode_l_; // User limit mode
+		bool												mode_n_; // no external messages
+		std::string 										mode_; // Channel modes
+		unsigned int 										limit_;
+		std::chrono::time_point<std::chrono::system_clock>	topic_timestamp_;
+
+		//Server*									server_ptr_;
 		std::set<std::string> 					invited_users_; 
 	public:
 		Channel(const std::string &name);
@@ -68,10 +72,9 @@ class Channel
 		void removeUser(std::shared_ptr<Client> client);
 		bool isUserOnChannel(std::string const &nickname);
 		bool userIsOperator(std::string const &nickname);
-		void updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin);
 		bool isValidChannelName(const std::string& channelName) const;
-		void broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message);
-		void broadcastMessageToAll(const std::string &message);
+		void broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message, Server* server_ptr);
+		void broadcastMessageToAll(const std::string &message, Server* server_ptr);
 		bool changeOpStatus(std::shared_ptr<Client> client_ptr, bool status);
 		bool isOperator(std::shared_ptr<Client> client_ptr);
 		bool canChangeTopic(std::shared_ptr<Client> client_ptr);
@@ -79,7 +82,8 @@ class Channel
 		bool isUserInvited(const std::string &nickname) const;
 		void addUserToInvitedList(const std::string &nickname);
 		void removeUserFromInvitedList(const std::string &nickname);
-
+		void sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr);
+		void clearTopic(const std::string &nickname);
 };
 
 #endif// CHANNEL_H
