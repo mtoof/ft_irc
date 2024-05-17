@@ -28,6 +28,7 @@ Server::Server(const int &port, const std::string &password, const std::stringst
 	supported_commands_.insert(std::pair("USER", &Command::handleUser));
 	supported_commands_.insert(std::pair("PING", &Command::handlePing));
 	supported_commands_.insert(std::pair("WHOIS", &Command::handleWhois));
+	supported_commands_.insert(std::pair("WHOWAS", &Command::handleWhois));
 	supported_commands_.insert(std::pair("PART", &Command::handlePart));
 	supported_commands_.insert(std::pair("MODE", &Command::handleMode));
 	supported_commands_.insert(std::pair("KICK", &Command::handleKick));
