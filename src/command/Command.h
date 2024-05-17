@@ -56,13 +56,10 @@ public:
 	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
 	void sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
 	void broadcastJoinToChannel(std::shared_ptr<Channel> channel, std::shared_ptr<Client> joiningClient);
-	void leaveAllChannels(std::shared_ptr<Client> client_ptr, const std::string &command);
 	std::vector<std::string> split(const std::string &s, char delim);
-	void extractMode(const Message &msg, const std::vector<std::string> &params, std::string &mode_string);
 	void applyUserMode(std::shared_ptr<Client> client, const std::string& modeString);
 	void applyChannelModes(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::string& modeString, const std::vector<std::string>& modeArguments);
 	bool applyModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::string& targetNickname, bool setMode);
-	void send_responses_based_on_client_info(const std::shared_ptr<Client> &whois_client_ptr, int fd);
 	void appendToChangedModeString(bool setMode, std::string& changedModes, char& lastModeChar, char modeChar);
 	bool modeRequiresParameter(char mode);
 	bool mandatoryModeParameter(char mode);
