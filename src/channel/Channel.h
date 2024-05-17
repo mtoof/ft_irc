@@ -49,6 +49,7 @@ class Channel
 		bool getModeL() const;
 		bool getModeN() const;
 		std::string const &getMode() const;
+		std::chrono::time_point<std::chrono::system_clock> const &getStartChannelTimestamps() const;
 
 		// Mutator methods
 		void setName(const std::string &name);
@@ -61,6 +62,8 @@ class Channel
 		void setModeK(bool mode_k);
 		void setModeL(bool mode_l, unsigned int limit = DEFAULT_MAX_CLIENTS);
 		void setModeN(bool mode_n);
+		void setStartChannelTimestamps();
+
 
 
 		// Functional methods
@@ -83,7 +86,6 @@ class Channel
 		void removeUserFromInvitedList(const std::string &nickname);
 		void sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr);
 		void clearTopic(const std::string &nickname);
-		void setChannelStartTimestamps();
 };
 
 #endif// CHANNEL_H

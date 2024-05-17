@@ -37,7 +37,7 @@ void Command::handleJoin(const Message &msg)
 		case '#': // Standard channels
 		case '&': // Local to server
 			channel_ptr = server_->createNewChannel(channel_name);
-			channel_ptr->setChannelStartTimestamps();
+			channel_ptr->setStartChannelTimestamps();
 			channel_ptr->addUser(client_ptr, true); // First user becomes the operator
 			break;
 		case '!': // Safe channels require special handling
@@ -45,7 +45,7 @@ void Command::handleJoin(const Message &msg)
 			return;
 		case '+': // No modes can be set
 			channel_ptr = server_->createNewChannel(channel_name);
-			channel_ptr->setChannelStartTimestamps();
+			channel_ptr->setStartChannelTimestamps();
 			channel_ptr->addUser(client_ptr, false);
 			break;
 		default:
@@ -82,11 +82,17 @@ void Command::handleJoin(const Message &msg)
 		if (channel_ptr->getUsers().size())
 			channel_ptr->addUser(client_ptr, false);
 		else
+		{
+			channel_ptr->setStartChannelTimestamps();
 			channel_ptr->addUser(client_ptr, true);
+		}
 	}
 	client_ptr->joinChannel(channel_ptr);
 	server_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
 	sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), fd);
+	std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(channel_ptr->getStartChannelTimestamps());
+	std::string start_channel_timestamp_string = std::to_string(unix_timestamp);
+	server_->send_response(fd, RPL_CREATIONTIME(client_ptr->getNickname(), channel_name, start_channel_timestamp_string));
 	broadcastJoinToChannel(channel_ptr, client_ptr);
 	channel_ptr->sendTopicToClient(client_ptr, server_);
 }
