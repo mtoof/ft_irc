@@ -31,6 +31,10 @@ std::pair<std::string, std::string> Channel::getTopic() const
 	return topic_;
 }
 
+unsigned int Channel::getChannelLimit() const
+{
+	return limit_;
+}
 // Get mode_t (topic lock mode)
 bool Channel::getModeT() const
 {

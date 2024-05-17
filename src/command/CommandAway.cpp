@@ -21,13 +21,13 @@ void Command::handleAway(const Message &msg)
 	if (away_message.empty())
 	{
 		client_ptr->setAway(false);
-		server_->send_response(fd, RPL_UNAWAY(server_->getServerHostname(), client_ptr->getNickname()));
+		server_ptr_->send_response(fd, RPL_UNAWAY(server_ptr_->getServerHostname(), client_ptr->getNickname()));
 	}
 	else
 	{
 		if (away_message.size() > AWAY_MAX_LENGTH) // if away message is too long, it gets truncated
 			away_message = away_message.substr(0, AWAY_MAX_LENGTH);
 		client_ptr->setAway(true, away_message);
-		server_->send_response(fd, RPL_NOWAWAY(server_->getServerHostname(), client_ptr->getNickname()));
+		server_ptr_->send_response(fd, RPL_NOWAWAY(server_ptr_->getServerHostname(), client_ptr->getNickname()));
 	}
 }

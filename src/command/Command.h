@@ -20,8 +20,7 @@ class Message;
 class Command
 {
 private:
-	Server *server_;
-	Channel *channel_;
+	Server *server_ptr_;
 
 public:
 
@@ -52,6 +51,7 @@ public:
 	void handleModeChange(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, char modeChar, bool setMode, const std::vector<std::string> &modeArguments, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);
+	bool isValidChannelName(const std::string& channel_name) const;
 	bool channelExists(std::string const &channel_name);
 	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
 	void sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);

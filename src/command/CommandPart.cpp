@@ -8,7 +8,7 @@ void Command::handlePart(const Message &msg)
 
 	if (parameters.empty())
 	{
-		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PART"));
+		server_ptr_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PART"));
 		return;
 	}
 
@@ -17,21 +17,21 @@ void Command::handlePart(const Message &msg)
 
 	for (const std::string &channel_name : channels)
 	{
-		std::shared_ptr<Channel> channel_ptr = server_->findChannel(channel_name);
+		std::shared_ptr<Channel> channel_ptr = server_ptr_->findChannel(channel_name);
 		if (!channel_ptr)
 		{
-			server_->send_response(fd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_name));
+			server_ptr_->send_response(fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			continue;
 		}
 
 		if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-			server_->send_response(fd, ERR_NOTONCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
+			server_ptr_->send_response(fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
 			continue;
 		}
 		channel_ptr->removeUser(client_ptr);
 		client_ptr->leaveChannel(channel_ptr);
-		server_->send_response(fd, ":" + client_ptr->getClientPrefix() + " PART " + channel_name + " :" + part_message + CRLF);
-		channel_ptr->broadcastMessage(client_ptr, ":" + client_ptr->getClientPrefix() + " PART " + channel_name + " :" + part_message + CRLF, server_);
+		server_ptr_->send_response(fd, ":" + client_ptr->getClientPrefix() + " PART " + channel_name + " :" + part_message + CRLF);
+		channel_ptr->broadcastMessage(client_ptr, ":" + client_ptr->getClientPrefix() + " PART " + channel_name + " :" + part_message + CRLF, server_ptr_);
 	}
 }

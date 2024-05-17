@@ -3,31 +3,42 @@
 /**
  * Extracts additional mode parameters from the command line input starting from the given index.
  *
- * @param modeArguments Vector to store extracted mode arguments.
+ * @param mode_arguments Vector to store extracted mode arguments.
  * @param parameters Vector containing all command parameters.
- * @param startIndex Index to start extraction from.
+ * @param start_index Index to start extraction from.
  */
-static void extractModeArguments(std::vector<std::string> &modeArguments, const std::vector<std::string> &parameters, size_t startIndex)
+static void extractModeArguments(std::vector<std::string> &mode_arguments, const std::vector<std::string> &parameters, size_t start_index)
 {
-    for (size_t i = startIndex; i < parameters.size(); ++i)
-        modeArguments.push_back(parameters[i]);
+    for (size_t i = start_index; i < parameters.size(); ++i)
+        mode_arguments.push_back(parameters[i]);
 }
 
 /**
  * Retrieves the current modes set on a channel.
  *
- * @param channel Shared pointer to the channel object.
+ * @param channel_ptr Shared pointer to the channel object.
+ * @param user_on_channel Determines whether user sending the command is on said channel
  * @return A string representing the modes set on the channel.
  */
-static std::string getChannelModes(std::shared_ptr<Channel> channel)
+static std::string getChannelModes(std::shared_ptr<Channel> channel_ptr, bool user_on_channel)
 {
-    std::string modes = "+";
-    if (channel->getModeN()) modes += "n";
-    if (channel->getModeI()) modes += "i";
-    if (channel->getModeT()) modes += "t";
-    if (channel->getModeL()) modes += "l";
-    if (channel->getModeK()) modes += "k";
-    return modes;
+    std::string channel_modes = "+";
+	std::string mode_params = "";
+    if (channel_ptr->getModeN()) channel_modes += "n";
+    if (channel_ptr->getModeI()) channel_modes += "i";
+    if (channel_ptr->getModeT()) channel_modes += "t";
+    if (channel_ptr->getModeK())
+	{
+		channel_modes += "k";
+		if (user_on_channel) // only show the key if user is on channel
+			mode_params += " " + channel_ptr->getChannelKey();
+	}
+    if (channel_ptr->getModeL())
+	{
+		channel_modes += "l";
+		mode_params += " " + std::to_string(channel_ptr->getChannelLimit());
+	}
+    return channel_modes + mode_params;
 }
 
 /**
@@ -37,26 +48,26 @@ static std::string getChannelModes(std::shared_ptr<Channel> channel)
  */
 void Command::handleMode(const Message &msg)
 {
-    auto client = msg.getClientPtr();
-    int clientFd = client->getFd();
+    auto client_ptr = msg.getClientPtr();
+    int client_fd = client_ptr->getFd();
     const auto &parameters = msg.getParameters();
 
     if (parameters.empty())
     {
-        server_->send_response(clientFd, ERR_NEEDMOREPARAMS(client->getClientPrefix(), "MODE"));
+        server_ptr_->send_response(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));
         return;
     }
 
     const std::string &target = parameters[0];
-    std::string modeString = parameters.size() > 1 ? parameters[1] : "";
-    std::vector<std::string> modeArguments;
+    std::string mode_string = parameters.size() > 1 ? parameters[1] : "";
+    std::vector<std::string> mode_arguments;
     if (parameters.size() > 2)
-        extractModeArguments(modeArguments, parameters, 2);
+        extractModeArguments(mode_arguments, parameters, 2);
 
     if (target.front() != '#' && target.front() != '&')
-        handleUserMode(client, target, modeString);
+        handleUserMode(client_ptr, target, mode_string);
     else
-        handleChannelMode(client, target, modeString, modeArguments);
+        handleChannelMode(client_ptr, target, mode_string, mode_arguments);
 }
 
 /**
@@ -64,18 +75,18 @@ void Command::handleMode(const Message &msg)
  *
  * @param client Shared pointer to the client object.
  * @param target The target user for the mode change.
- * @param modeString The string representing the modes to be applied.
+ * @param mode_string The string representing the modes to be applied.
  */
-void Command::handleUserMode(std::shared_ptr<Client> client, const std::string &target, const std::string &modeString)
+void Command::handleUserMode(std::shared_ptr<Client> client_ptr, const std::string &target, const std::string &mode_string)
 {
-    int clientFd = client->getFd();
+    int client_fd = client_ptr->getFd();
 
-    if (target == client->getNickname())
-        applyUserMode(client, modeString);
-    else if (server_->findClientUsingNickname(target))
-        server_->send_response(clientFd, ERR_USERSDONTMATCH(server_->getServerHostname(), client->getNickname()));
+    if (target == client_ptr->getNickname())
+        applyUserMode(client_ptr, mode_string);
+    else if (server_ptr_->findClientUsingNickname(target))
+        server_ptr_->send_response(client_fd, ERR_USERSDONTMATCH(server_ptr_->getServerHostname(), client_ptr->getNickname()));
     else
-        server_->send_response(clientFd, ERR_NOSUCHNICK(server_->getServerHostname(), client->getNickname(), target));
+        server_ptr_->send_response(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), target));
 }
 
 /**
@@ -83,43 +94,45 @@ void Command::handleUserMode(std::shared_ptr<Client> client, const std::string &
  *
  * @param client Shared pointer to the client object.
  * @param target The target channel for the mode change.
- * @param modeString The string representing the modes to be applied.
- * @param modeArguments The arguments associated with the modes.
+ * @param mode_string The string representing the modes to be applied.
+ * @param mode_arguments The arguments associated with the modes.
  */
-void Command::handleChannelMode(std::shared_ptr<Client> client, const std::string &target, const std::string &modeString, const std::vector<std::string> &modeArguments)
+void Command::handleChannelMode(std::shared_ptr<Client> client_ptr, const std::string &target, const std::string &mode_string, const std::vector<std::string> &mode_arguments)
 {
-    auto channel = server_->findChannel(target);
-    int clientFd = client->getFd();
+    auto channel_ptr = server_ptr_->findChannel(target);
+    int client_fd = client_ptr->getFd();
 
-    if (!channel)
-        server_->send_response(clientFd, ERR_NOSUCHCHANNEL(server_->getServerHostname(), client->getNickname(), target));
-    else if (modeString.empty())
-        server_->send_response(clientFd, RPL_CHANNELMODEIS(server_->getServerHostname(), client->getNickname(), channel->getName(), getChannelModes(channel)));
-    else if (!channel->isUserOnChannel(client->getNickname()))
-        server_->send_response(clientFd, ERR_NOTONCHANNEL(server_->getServerHostname(), client->getNickname(), channel->getName()));
-    else if (!channel->isOperator(client))
-        server_->send_response(clientFd, ERR_CHANOPRIVSNEEDED(server_->getServerHostname(), channel->getName()));
+    if (!channel_ptr)
+        server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), target));
+    else if (mode_string.empty())
+        server_ptr_->send_response(client_fd, RPL_CHANNELMODEIS(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName(), getChannelModes(channel_ptr, channel_ptr->isUserOnChannel(client_ptr->getNickname()))));
+	else if (mode_string == "b")
+		return;
+    else if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
+        server_ptr_->send_response(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
+    else if (!channel_ptr->isOperator(client_ptr))
+        server_ptr_->send_response(client_fd, ERR_CHANOPRIVSNEEDED(server_ptr_->getServerHostname(), channel_ptr->getName()));
     else
-        applyChannelModes(client, channel, modeString, modeArguments);
+        applyChannelModes(client_ptr, channel_ptr, mode_string, mode_arguments);
 }
 
 /**
  * Applies mode changes to a user.
  *
- * @param client Shared pointer to the client object.
- * @param modeString The string representing the modes to be applied.
+ * @param client_ptr Shared pointer to the client object.
+ * @param mode_string The string representing the modes to be applied.
  */
-void Command::applyUserMode(std::shared_ptr<Client> client, const std::string &modeString)
+void Command::applyUserMode(std::shared_ptr<Client> client_ptr, const std::string &mode_string)
 {
-    int clientFd = client->getFd();
+    int client_fd = client_ptr->getFd();
     std::string modeChange;
 
-    if (!modeString.empty())
+    if (!mode_string.empty())
     {
         bool isSettingMode = true;
-        char lastModeChar = '\0';
+        char last_sign = '\0';
 
-        for (char mode : modeString)
+        for (char mode : mode_string)
         {
             if (mode == '-')
                 isSettingMode = false;
@@ -127,50 +140,50 @@ void Command::applyUserMode(std::shared_ptr<Client> client, const std::string &m
                 isSettingMode = true;
             else if (mode == 'i')
             {
-                client->setModeI(isSettingMode);
-                appendModeChange(modeChange, lastModeChar, isSettingMode, mode);
+                client_ptr->setModeI(isSettingMode);
+                appendModeChange(modeChange, last_sign, isSettingMode, mode);
             }
             else
-                server_->send_response(clientFd, ERR_UMODEUNKNOWNFLAG(server_->getServerHostname(), client->getNickname(), mode));
+                server_ptr_->send_response(client_fd, ERR_UMODEUNKNOWNFLAG(server_ptr_->getServerHostname(), client_ptr->getNickname(), mode));
         }
-        server_->send_response(clientFd, RPL_UMODECHANGE(client->getNickname(), modeChange));
+        server_ptr_->send_response(client_fd, RPL_UMODECHANGE(client_ptr->getNickname(), modeChange));
     }
     else
-        sendCurrentUserModes(client);
+        sendCurrentUserModes(client_ptr);
 }
 
 /**
  * Appends mode changes to the mode change string.
  *
  * @param modeChange The string representing the current mode changes.
- * @param lastModeChar The last mode character processed.
+ * @param last_sign The last mode character processed.
  * @param isSettingMode Boolean indicating if the mode is being set or unset.
  * @param mode The mode character being processed.
  */
-void Command::appendModeChange(std::string &modeChange, char &lastModeChar, bool isSettingMode, char mode)
+void Command::appendModeChange(std::string &modeChange, char &last_sign, bool isSettingMode, char mode)
 {
-    if (isSettingMode && lastModeChar != '+')
+    if (isSettingMode && last_sign != '+')
         modeChange += '+';
-    if (!isSettingMode && lastModeChar != '-')
+    if (!isSettingMode && last_sign != '-')
         modeChange += '-';
     modeChange += mode;
-    lastModeChar = isSettingMode ? '+' : '-';
+    last_sign = isSettingMode ? '+' : '-';
 }
 
 /**
  * Sends the current modes set on a user to the client.
  *
- * @param client Shared pointer to the client object.
+ * @param client_ptr Shared pointer to the client object.
  */
-void Command::sendCurrentUserModes(std::shared_ptr<Client> client)
+void Command::sendCurrentUserModes(std::shared_ptr<Client> client_ptr)
 {
-    int clientFd = client->getFd();
+    int client_fd = client_ptr->getFd();
     std::string currentUserModes = "+";
-    if (client->getModeI())
+    if (client_ptr->getModeI())
         currentUserModes += "i";
-    if (client->getModeLocalOp())
+    if (client_ptr->getModeLocalOp())
         currentUserModes += "O";
-    server_->send_response(clientFd, RPL_UMODEIS(server_->getServerHostname(), client->getNickname(), currentUserModes));
+    server_ptr_->send_response(client_fd, RPL_UMODEIS(server_ptr_->getServerHostname(), client_ptr->getNickname(), currentUserModes));
 }
 
 /**
@@ -178,48 +191,48 @@ void Command::sendCurrentUserModes(std::shared_ptr<Client> client)
  *
  * @param client Shared pointer to the client object.
  * @param channel Shared pointer to the channel object.
- * @param modeString The string representing the modes to be applied.
+ * @param mode_string The string representing the modes to be applied.
  * @param modeArguments The arguments associated with the modes.
  */
-void Command::applyChannelModes(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::string &modeString, const std::vector<std::string> &modeArguments)
+void Command::applyChannelModes(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::string &mode_string, const std::vector<std::string> &modeArguments)
 {
-    int clientFd = client->getFd();
+    int client_fd = client->getFd();
     bool isSettingMode = true;
     std::string changedModes, usedParameters;
     size_t argumentIndex = 0;
     std::vector<std::pair<char, bool>> modeChanges;
 
-    parseModeString(modeString, modeChanges, isSettingMode);
+    parseModeString(mode_string, modeChanges, isSettingMode);
 
-    char lastModeChar = '\0';
+    char last_sign = '\0';
     std::string processedModes;
 
     for (const auto &[modeChar, setMode] : modeChanges)
     {
         if (processedModes.find(modeChar) != std::string::npos)
             continue;
-        handleModeChange(client, channel, modeChar, setMode, modeArguments, argumentIndex, changedModes, usedParameters, lastModeChar);
+        handleModeChange(client, channel, modeChar, setMode, modeArguments, argumentIndex, changedModes, usedParameters, last_sign);
         processedModes += modeChar;
     }
 
     if (!changedModes.empty())
     {
         std::string finalResponse = RPL_CHANGEMODE(client->getClientPrefix(), channel->getName(), changedModes, usedParameters);
-        server_->send_response(clientFd, finalResponse);
-        channel->broadcastMessage(client, finalResponse, server_);
+        server_ptr_->send_response(client_fd, finalResponse);
+        channel->broadcastMessage(client, finalResponse, server_ptr_);
     }
 }
 
 /**
  * Parses a mode string and determines the mode changes.
  *
- * @param modeString The string representing the modes to be applied.
+ * @param mode_string The string representing the modes to be applied.
  * @param modeChanges Vector to store the mode changes.
  * @param isSettingMode Boolean indicating if the mode is being set or unset.
  */
-void Command::parseModeString(const std::string &modeString, std::vector<std::pair<char, bool>> &modeChanges, bool &isSettingMode)
+void Command::parseModeString(const std::string &mode_string, std::vector<std::pair<char, bool>> &modeChanges, bool &isSettingMode)
 {
-    for (char mode : modeString)
+    for (char mode : mode_string)
     {
         if (mode == '+')
             isSettingMode = true;
@@ -241,18 +254,18 @@ void Command::parseModeString(const std::string &modeString, std::vector<std::pa
  * @param argumentIndex The current index in the mode arguments.
  * @param changedModes The string representing the current mode changes.
  * @param usedParameters The string representing the used parameters.
- * @param lastModeChar The last mode character processed.
+ * @param last_sign The last mode character processed.
  */
-void Command::handleModeChange(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, char modeChar, bool setMode, const std::vector<std::string> &modeArguments, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar)
+void Command::handleModeChange(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, char modeChar, bool setMode, const std::vector<std::string> &modeArguments, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &last_sign)
 {
-    int clientFd = client->getFd();
+    int client_fd = client->getFd();
     bool requiresParam = modeRequiresParameter(modeChar);
     bool mandatoryParam = mandatoryModeParameter(modeChar);
 
     if (requiresParam && setMode && argumentIndex >= modeArguments.size())
     {
         if (mandatoryParam)
-            server_->send_response(clientFd, ERR_INVALIDMODEPARAM(server_->getServerHostname(), client->getNickname(), channel->getName(), modeChar, "", "Mode parameter missing."));
+            server_ptr_->send_response(client_fd, ERR_INVALIDMODEPARAM(server_ptr_->getServerHostname(), client->getNickname(), channel->getName(), modeChar, "", "Mode parameter missing."));
         return;
     }
 
@@ -260,27 +273,27 @@ void Command::handleModeChange(std::shared_ptr<Client> client, std::shared_ptr<C
     {
     case 'i':
         channel->setModeI(setMode);
-        appendToChangedModeString(setMode, changedModes, lastModeChar, modeChar);
+        appendToChangedModeString(setMode, changedModes, last_sign, modeChar);
         break;
     case 'k':
-        handleModeK(channel, setMode, modeArguments, argumentIndex, changedModes, usedParameters, lastModeChar);
+        handleModeK(channel, setMode, modeArguments, argumentIndex, changedModes, usedParameters, last_sign);
         break;
     case 'l':
-        handleModeL(channel, setMode, modeArguments, argumentIndex, changedModes, usedParameters, lastModeChar);
+        handleModeL(channel, setMode, modeArguments, argumentIndex, changedModes, usedParameters, last_sign);
         break;
     case 'n':
         channel->setModeN(setMode);
-        appendToChangedModeString(setMode, changedModes, lastModeChar, modeChar);
+        appendToChangedModeString(setMode, changedModes, last_sign, modeChar);
         break;
     case 't':
         channel->setModeT(setMode);
-        appendToChangedModeString(setMode, changedModes, lastModeChar, modeChar);
+        appendToChangedModeString(setMode, changedModes, last_sign, modeChar);
         break;
     case 'o':
-        handleModeO(client, channel, modeArguments, setMode, argumentIndex, changedModes, usedParameters, lastModeChar);
+        handleModeO(client, channel, modeArguments, setMode, argumentIndex, changedModes, usedParameters, last_sign);
         break;
     default:
-        server_->send_response(clientFd, ERR_UNKNOWNMODE(server_->getServerHostname(), client->getNickname(), modeChar));
+        server_ptr_->send_response(client_fd, ERR_UNKNOWNMODE(server_ptr_->getServerHostname(), client->getNickname(), modeChar));
         break;
     }
 }
@@ -294,9 +307,9 @@ void Command::handleModeChange(std::shared_ptr<Client> client, std::shared_ptr<C
  * @param argumentIndex The current index in the mode arguments.
  * @param changedModes The string representing the current mode changes.
  * @param usedParameters The string representing the used parameters.
- * @param lastModeChar The last mode character processed.
+ * @param last_sign The last mode character processed.
  */
-void Command::handleModeK(std::shared_ptr<Channel> channel, bool setMode, const std::vector<std::string> &modeArguments, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar)
+void Command::handleModeK(std::shared_ptr<Channel> channel, bool setMode, const std::vector<std::string> &modeArguments, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &last_sign)
 {
     if (setMode)
     {
@@ -304,7 +317,7 @@ void Command::handleModeK(std::shared_ptr<Channel> channel, bool setMode, const 
         {
             channel->setModeK(true);
             channel->setChannelKey(modeArguments[argumentIndex]);
-            appendToChangedModeString(setMode, changedModes, lastModeChar, 'k');
+            appendToChangedModeString(setMode, changedModes, last_sign, 'k');
             if (!usedParameters.empty())
                 usedParameters += " ";
             usedParameters += modeArguments[argumentIndex];
@@ -315,7 +328,7 @@ void Command::handleModeK(std::shared_ptr<Channel> channel, bool setMode, const 
     {
         channel->setModeK(false);
         channel->setChannelKey("");
-        appendToChangedModeString(setMode, changedModes, lastModeChar, 'k');
+        appendToChangedModeString(setMode, changedModes, last_sign, 'k');
     }
 }
 
@@ -328,9 +341,9 @@ void Command::handleModeK(std::shared_ptr<Channel> channel, bool setMode, const 
  * @param argumentIndex The current index in the mode arguments.
  * @param changedModes The string representing the current mode changes.
  * @param usedParameters The string representing the used parameters.
- * @param lastModeChar The last mode character processed.
+ * @param last_sign The last mode character processed.
  */
-void Command::handleModeL(std::shared_ptr<Channel> channel, bool setMode, const std::vector<std::string> &modeArguments, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar)
+void Command::handleModeL(std::shared_ptr<Channel> channel, bool setMode, const std::vector<std::string> &modeArguments, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &last_sign)
 {
     if (setMode && argumentIndex < modeArguments.size())
     {
@@ -338,7 +351,7 @@ void Command::handleModeL(std::shared_ptr<Channel> channel, bool setMode, const 
         {
             int limit = std::stoi(modeArguments[argumentIndex]);
             channel->setModeL(true, limit);
-            appendToChangedModeString(setMode, changedModes, lastModeChar, 'l');
+            appendToChangedModeString(setMode, changedModes, last_sign, 'l');
             if (!usedParameters.empty())
                 usedParameters += " ";
             usedParameters += std::to_string(limit);
@@ -348,7 +361,7 @@ void Command::handleModeL(std::shared_ptr<Channel> channel, bool setMode, const 
     else
     {
         channel->setModeL(false, 0);
-        appendToChangedModeString(setMode, changedModes, lastModeChar, 'l');
+        appendToChangedModeString(setMode, changedModes, last_sign, 'l');
     }
 }
 
@@ -362,15 +375,15 @@ void Command::handleModeL(std::shared_ptr<Channel> channel, bool setMode, const 
  * @param argumentIndex The current index in the mode arguments.
  * @param changedModes The string representing the current mode changes.
  * @param usedParameters The string representing the used parameters.
- * @param lastModeChar The last mode character processed.
+ * @param last_sign The last mode character processed.
  */
-void Command::handleModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::vector<std::string> &modeArguments, bool setMode, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar)
+void Command::handleModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::vector<std::string> &modeArguments, bool setMode, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &last_sign)
 {
     if (argumentIndex < modeArguments.size())
     {
         if (applyModeO(client, channel, modeArguments[argumentIndex], setMode))
         {
-            appendToChangedModeString(setMode, changedModes, lastModeChar, 'o');
+            appendToChangedModeString(setMode, changedModes, last_sign, 'o');
             if (!usedParameters.empty())
                 usedParameters += " ";
             usedParameters += modeArguments[argumentIndex];
@@ -412,18 +425,18 @@ bool Command::mandatoryModeParameter(char mode)
  */
 bool Command::applyModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::string &targetNickname, bool setMode)
 {
-    auto targetClient = server_->findClientUsingNickname(targetNickname);
-    int clientFd = client->getFd();
+    auto targetClient = server_ptr_->findClientUsingNickname(targetNickname);
+    int client_fd = client->getFd();
 
     if (!targetClient)
     {
-        server_->send_response(clientFd, ERR_NOSUCHNICK(server_->getServerHostname(), client->getNickname(), targetNickname));
+        server_ptr_->send_response(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client->getNickname(), targetNickname));
         return false;
     }
 
     if (!channel->isUserOnChannel(targetNickname))
     {
-        server_->send_response(clientFd, ERR_USERNOTINCHANNEL(server_->getServerHostname(), client->getNickname(), targetNickname, channel->getName()));
+        server_ptr_->send_response(client_fd, ERR_USERNOTINCHANNEL(server_ptr_->getServerHostname(), client->getNickname(), targetNickname, channel->getName()));
         return false;
     }
 
@@ -435,15 +448,15 @@ bool Command::applyModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel
  *
  * @param setMode Boolean indicating if the mode is being set or unset.
  * @param changedModes The string representing the current mode changes.
- * @param lastModeChar The last mode character processed.
+ * @param last_sign The last mode character processed.
  * @param modeChar The mode character being processed.
  */
-void Command::appendToChangedModeString(bool setMode, std::string &changedModes, char &lastModeChar, char modeChar)
+void Command::appendToChangedModeString(bool setMode, std::string &changedModes, char &last_sign, char modeChar)
 {
-    if (setMode && lastModeChar != '+')
+    if (setMode && last_sign != '+')
         changedModes += '+';
-    if (!setMode && lastModeChar != '-')
+    if (!setMode && last_sign != '-')
         changedModes += '-';
     changedModes += modeChar;
-    lastModeChar = setMode ? '+' : '-';
+    last_sign = setMode ? '+' : '-';
 }

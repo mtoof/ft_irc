@@ -29,20 +29,20 @@ void Command::handlePrivmsg(const Message &msg)
 	// Check if the client is registered, which is not necessary for the PRIVMSG command and can be removed
     if (!client_ptr->getRegisterStatus())
 	{
-        server_->send_response(fd, ERR_NOTREGISTERED(server_->getServerHostname()));
+        server_ptr_->send_response(fd, ERR_NOTREGISTERED(server_ptr_->getServerHostname()));
         return;
     }
 	// Check if the recipient and message body are provided
     std::vector<std::string> parameters = msg.getParameters();
     if (parameters.empty())
 	{
-        server_->send_response(fd, ERR_NORECIPIENT(server_->getServerHostname(), client_ptr->getNickname(), "PRIVMSG"));
+        server_ptr_->send_response(fd, ERR_NORECIPIENT(server_ptr_->getServerHostname(), client_ptr->getNickname(), "PRIVMSG"));
         return;
     }
 	// Check if the recipient exists and is a user or a channel
     if (parameters.size() < 1)
 	{
-        server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PRIVMSG"));
+        server_ptr_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PRIVMSG"));
         return;
     }
 
@@ -51,30 +51,30 @@ void Command::handlePrivmsg(const Message &msg)
 
 	if (message_body.empty())
 	{
-		server_->send_response(fd, ERR_NOTEXTTOSEND(server_->getServerHostname(), client_ptr->getClientPrefix()));	// No text to send
+		server_ptr_->send_response(fd, ERR_NOTEXTTOSEND(server_ptr_->getServerHostname(), client_ptr->getClientPrefix()));	// No text to send
 		return;
 	}
 
-    std::shared_ptr<Client> recipient_ptr = server_->findClientUsingNickname(recipient);
+    std::shared_ptr<Client> recipient_ptr = server_ptr_->findClientUsingNickname(recipient);
     if (recipient_ptr)
 	{
 		if (recipient_ptr->isAway()) // if the recipient is away from the server
-            server_->send_response(fd, RPL_AWAY(server_->getServerHostname(), client_ptr->getNickname(), recipient_ptr->getNickname(), recipient_ptr->getAwayMessage()));
-        server_->send_response(recipient_ptr->getFd(), RPL_PRIVMSG(client_ptr->getClientPrefix(), recipient_ptr->getNickname(), message_body)); // send the message to the recipient
+            server_ptr_->send_response(fd, RPL_AWAY(server_ptr_->getServerHostname(), client_ptr->getNickname(), recipient_ptr->getNickname(), recipient_ptr->getAwayMessage()));
+        server_ptr_->send_response(recipient_ptr->getFd(), RPL_PRIVMSG(client_ptr->getClientPrefix(), recipient_ptr->getNickname(), message_body)); // send the message to the recipient
         return;
     }
 
-    std::shared_ptr<Channel> channel_ptr = server_->findChannel(recipient);
+    std::shared_ptr<Channel> channel_ptr = server_ptr_->findChannel(recipient);
     if (channel_ptr)	// if the recipient is a channel
 	{
         if (channel_ptr->getModeN() && !channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-            server_->send_response(fd, ERR_CANNOTSENDTOCHAN(server_->getServerHostname(), client_ptr->getNickname(), recipient));
+            server_ptr_->send_response(fd, ERR_CANNOTSENDTOCHAN(server_ptr_->getServerHostname(), client_ptr->getNickname(), recipient));
             return;
         }
-        channel_ptr->broadcastMessage(client_ptr, RPL_PRIVMSG(client_ptr->getClientPrefix(), channel_ptr->getName(), message_body), server_); // broadcast the message to all users in the channel except the sender
+        channel_ptr->broadcastMessage(client_ptr, RPL_PRIVMSG(client_ptr->getClientPrefix(), channel_ptr->getName(), message_body), server_ptr_); // broadcast the message to all users in the channel except the sender
         return;
     }
 
-    server_->send_response(fd, ERR_NOSUCHNICK(server_->getServerHostname(), client_ptr->getNickname(), recipient));  // if the recipient does not exist in the server or the channel does not exist
+    server_ptr_->send_response(fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), recipient));  // if the recipient does not exist in the server or the channel does not exist
 }

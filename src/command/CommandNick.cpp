@@ -12,12 +12,12 @@ void Command::handleNick(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	int fd = client_ptr->getFd();
-	if (!server_->hasClientSentPass(client_ptr))
+	if (!server_ptr_->hasClientSentPass(client_ptr))
 		return;
 	std::vector<std::string> parameters = msg.getParameters();
 	if (parameters.empty())
 	{
-		server_->send_response(fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
+		server_ptr_->send_response(fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
 		return;
 	}
 	std::string new_nickname = parameters[0]; // desired nickname is the first parameter, we'll just ignore the rest for now
@@ -35,36 +35,36 @@ void Command::handleNick(const Message &msg)
 	{
 		if (isValidNickname(new_nickname) == false)
 		{
-			server_->send_response(fd, ERR_ERRONEUSNICK(server_->getServerHostname(), client_ptr->getNickname(), new_nickname));
+			server_ptr_->send_response(fd, ERR_ERRONEUSNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), new_nickname));
 			return;
 		}
 		if (isNicknameInUse(new_nickname) == true)
 		{
-			server_->send_response(fd, ERR_NICKINUSE(server_->getServerHostname(), new_nickname));
+			server_ptr_->send_response(fd, ERR_NICKINUSE(server_ptr_->getServerHostname(), new_nickname));
 			return;
 		}
 	}
 
 	std::string old_prefix = client_ptr->getClientPrefix();
-	server_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
+	server_ptr_->send_response(fd, RPL_NICKCHANGE(old_prefix, new_nickname));
 	client_ptr->setNickname(new_nickname);
 	client_ptr->setClientPrefix();
 	if (!client_ptr->getRegisterStatus() && !client_ptr->getUsername().empty())
 	{	
 		client_ptr->registerClient();
-		server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
+		server_ptr_->welcomeAndMOTD(fd, server_ptr_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
 	}
 	std::vector<std::shared_ptr<Channel>> channel_list = client_ptr->getChannels();//else
 	if (!channel_list.empty())
 	{
 		for (auto channel: channel_list)
-			channel->broadcastMessage(client_ptr, RPL_NICKCHANGECHANNEL(old_prefix, new_nickname), server_);
+			channel->broadcastMessage(client_ptr, RPL_NICKCHANGECHANNEL(old_prefix, new_nickname), server_ptr_);
 	}
 }
 
 bool Command::isNicknameInUse(std::string const &nickname)
 {
-	return server_->findClientUsingNickname(nickname) != nullptr;
+	return server_ptr_->findClientUsingNickname(nickname) != nullptr;
 }
 
 /**

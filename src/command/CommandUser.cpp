@@ -7,10 +7,10 @@ void Command::handleUser(const Message &msg)
 	std::vector<std::string> params = msg.getParameters();
 	int fd = msg.getClientfd();
 	std::shared_ptr <Client> client_ptr = msg.getClientPtr();
-	if (!server_->hasClientSentPass(client_ptr))
+	if (!server_ptr_->hasClientSentPass(client_ptr))
 		return;
 	if (client_ptr->getRegisterStatus() == true)
-		server_->send_response(fd, ERR_ALREADYREGISTERED(server_->getServerHostname(), client_ptr->getNickname()));
+		server_ptr_->send_response(fd, ERR_ALREADYREGISTERED(server_ptr_->getServerHostname(), client_ptr->getNickname()));
 	else if (params.size() == 3 && !msg.getTrailer().empty())
 	{
 		client_ptr->setUsername(params[0]);
@@ -20,12 +20,12 @@ void Command::handleUser(const Message &msg)
 		{
 			client_ptr->registerClient();
 			client_ptr->setClientPrefix();
-			server_->welcomeAndMOTD(fd, server_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
+			server_ptr_->welcomeAndMOTD(fd, server_ptr_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
 		}
 	}
 	else
 	{
-		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "USER"));
+		server_ptr_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "USER"));
 		return;
 	}
 }

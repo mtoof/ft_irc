@@ -43,6 +43,7 @@ class Channel
 		std::string getName() const;
 		std::map<std::shared_ptr<Client>, bool> getUsers() const;
 		std::string getChannelKey() const;
+		unsigned int getChannelLimit() const;
 		std::pair<std::string, std::string> getTopic() const;
 		bool getModeT() const;
 		bool getModeI() const;

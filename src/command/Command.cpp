@@ -2,7 +2,7 @@
 #include "Command.h"
 #include "../debug/debug.h"
 
-Command::Command(Server *server_ptr) : server_(server_ptr)
+Command::Command(Server *server_ptr) : server_ptr_(server_ptr)
 {
 }
 
@@ -24,14 +24,14 @@ void Command::handlePing(const Message &msg)
 	std::vector<std::string> parameters = msg.getParameters();
 	if (parameters.empty())
 	{
-		server_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PING"));
+		server_ptr_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PING"));
 	}
-	server_->send_response(fd, PONG(server_->getServerHostname(), parameters.front())); // latter parameter is the token received from client
+	server_ptr_->send_response(fd, PONG(server_ptr_->getServerHostname(), parameters.front())); // latter parameter is the token received from client
 }
 
 bool Command::channelExists(std::string const &channel_name)
 {
-	return server_->findChannel(channel_name) != nullptr;
+	return server_ptr_->findChannel(channel_name) != nullptr;
 }
 
 void Command::handleCap(const Message &msg)
@@ -48,4 +48,11 @@ std::vector<std::string> Command::split(const std::string &s, char delim)
 	while (std::getline(ss, item, delim))
 		result.push_back(item);
 	return result;
+}
+
+bool Command::isValidChannelName(const std::string& channel_name) const
+{
+	// Regex to match valid channel names
+	std::regex pattern("^[&#\\+!][^ ,\\x07]{1,49}$"); // Adjusted for max length of 50 and disallowed characters
+	return std::regex_match(channel_name, pattern);
 }
