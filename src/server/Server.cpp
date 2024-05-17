@@ -123,6 +123,13 @@ void Server::registerNewClient()
 	memset(&usersocketaddress, 0, sizeof(usersocketaddress));
 	socketlen = sizeof(sockaddr_in6);
 	userfd = accept(socket_, (sockaddr *)&usersocketaddress, &socketlen);
+	if (this->clients_.size() > DEFAULT_MAX_CLIENTS)
+	{
+		std::string msg = "The maximum number of clients has been reached. We cannot accept any more.";
+		send_response(userfd, msg + CRLF);
+		close(userfd);
+		return;
+	}
 	if (userfd == -1)
 	{
 		debug("Accept user socket", FAILED);
