@@ -20,7 +20,6 @@ bool BotMessage::analyzeMessage()
 	std::istringstream iss(raw_message_);
 	std::string prefix;
 
-	// Extract prefix if present
 	if (raw_message_.front() == ':')
 	{
 		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
@@ -57,9 +56,7 @@ void BotMessage::printMessageContents()
 	std::cout << "Reply number: " << reply_num_ << "\n";
 	std::cout << "Params:\n";
 	for (auto param : parameters_)
-	{
 		std::cout << param << "\n";
-	}
 	std::cout << "Trailer trash: " << trailer_ << std::endl;
 }
 

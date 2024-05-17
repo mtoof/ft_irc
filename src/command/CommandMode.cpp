@@ -136,9 +136,7 @@ void Command::applyUserMode(std::shared_ptr<Client> client, const std::string &m
         server_->send_response(clientFd, RPL_UMODECHANGE(client->getNickname(), modeChange));
     }
     else
-    {
         sendCurrentUserModes(client);
-    }
 }
 
 /**

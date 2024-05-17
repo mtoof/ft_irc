@@ -1,8 +1,5 @@
 #include "Command.h"
 
-/*
-	TODO: getIdleTime()
-*/
 void Command::handleWhois(const Message &msg) {
     std::shared_ptr<Client> client_ptr = msg.getClientPtr();
     int fd = client_ptr->getFd();

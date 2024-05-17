@@ -28,9 +28,7 @@ void Command::handleWho(const Message &msg)
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	std::shared_ptr <Channel> channel_ptr = server_->findChannel(params[0]);
 	if (channel_ptr && channel_ptr->isUserOnChannel(client_ptr->getNickname()))
-	{
 		sendNamelist(channel_ptr, client_ptr->getNickname(), fd);
-	}
 	else if (channel_ptr && !channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		server_->send_response(fd, ERR_NOTONCHANNEL(server_->getServerHostname(), client_ptr->getNickname(), params[0]));
 }

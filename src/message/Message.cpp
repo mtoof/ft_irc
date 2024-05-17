@@ -75,9 +75,7 @@ void	Message::printMessageContents()
 	std::cout << "command: " << command_ << "\n";
 	std::cout << "Params:\n";
 	for (auto param : parameters_)
-	{
 		std::cout << param << "\n";
-	}
 	std::cout << "Trailer trash: " << trailer_ << std::endl;
 
 }
