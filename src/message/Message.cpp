@@ -13,14 +13,9 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 		debug("Find client in message constructor", FAILED);
 		return;
 	}
-	// std::cout << "Message constructor. Raw message: " << raw_message_ << "\t received from fd: " << client_fd_ << std::endl;
 	
 	valid_message_ = analyzeMessage();
 	printMessageContents();
-	// TODO: Parsing the message and saving it to the members of the class
-	// Parser is below, modularize it to subfunctions that save each element of the message to correct members
-	// once parsing/analyzing is done, it's sent for COMMAND class (also TODO)
-	// THIS IS ABOUT FORMATTING
 }
 
 Message::~Message()
@@ -31,7 +26,6 @@ bool Message::analyzeMessage()
 	std::istringstream iss(raw_message_);
 	std::string prefix;
 
-	// Extract prefix if present
 	if (raw_message_.front() == ':')
 	{
 		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
@@ -75,9 +69,7 @@ void	Message::printMessageContents()
 	std::cout << "command: " << command_ << "\n";
 	std::cout << "Params:\n";
 	for (auto param : parameters_)
-	{
 		std::cout << param << "\n";
-	}
 	std::cout << "Trailer trash: " << trailer_ << std::endl;
 
 }

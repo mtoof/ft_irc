@@ -189,11 +189,6 @@ void Server::handleClientData(int fd)
 		client->processBuffer(this);
 
 	}
-	// when the buffer has been processed and we can construct a message
-	// for (auto &command : commands)
-	// {
-	// 	client->processCommand(command, fd);
-	// }
 }
 
 const std::string & Server::getPassword() const

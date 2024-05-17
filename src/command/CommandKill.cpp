@@ -36,7 +36,5 @@ void Command::handleKill(const Message &msg)
 		}
 	}
 	else if (it == opers.end())
-	{
 		server_->send_response(fd, ERR_NOPRIVILEGES(sender_nick));
-	}
 }

@@ -13,9 +13,7 @@ void Command::handleNick(const Message &msg)
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	int fd = client_ptr->getFd();
 	if (!server_->hasClientSentPass(client_ptr))
-	{
 		return;
-	}
 	std::vector<std::string> parameters = msg.getParameters();
 	if (parameters.empty())
 	{
@@ -60,9 +58,7 @@ void Command::handleNick(const Message &msg)
 	if (!channel_list.empty())
 	{
 		for (auto channel: channel_list)
-		{
 			channel->broadcastMessage(client_ptr, RPL_NICKCHANGECHANNEL(old_prefix, new_nickname), server_);
-		}
 	}
 }
 
