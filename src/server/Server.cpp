@@ -218,6 +218,18 @@ void Server::disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr)
 {
 	int fd = client_ptr->getFd();
 	std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
+	std::vector<std::shared_ptr <Channel>> client_channels = client_ptr->getChannels();
+	if (client_channels.size())
+	{
+		for (auto channel: client_channels)
+		{
+			std::string disconnect_msg = "PRIVMSG " + channel->getName() + " :" + RED + "disconnected";
+			Message msg(disconnect_msg, this, fd);
+			client_ptr->processCommand(msg, this);
+			channel->removeUser(client_ptr);
+			std::cout << RESET << std::endl;
+		}
+	}
 	deleteClient(fd);
 	closeDeletePollFd(fd);
 }
