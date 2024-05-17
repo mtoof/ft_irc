@@ -15,8 +15,8 @@ void Command::handleWhois(const Message &msg) {
     for (const auto& mask : masks)
 	{
         bool found = false;
-        std::vector<std::shared_ptr<Client>> matchedClients = server_ptr_->findClientsByMask(mask);
-        for (const auto& whois_client_ptr : matchedClients)
+        std::vector<std::shared_ptr<Client>> matched_clients = server_ptr_->findClientsByMask(mask);
+        for (const auto& whois_client_ptr : matched_clients)
 		{
             found = true;
             server_ptr_->send_response(fd, RPL_WHOISUSER(server_ptr_->getServerHostname(), client_ptr->getNickname(),

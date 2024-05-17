@@ -84,6 +84,7 @@ class Channel
 		void addUserToInvitedList(const std::string &nickname);
 		void removeUserFromInvitedList(const std::string &nickname);
 		void sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr);
+		bool hasTopic();
 		void clearTopic(const std::string &nickname);
 };
 

@@ -307,3 +307,8 @@ void Channel::clearTopic(const std::string &nickname)
 	topic_.second = "";
 	topic_timestamp_ = std::chrono::system_clock::now();
 }
+
+bool Channel::hasTopic()
+{
+	return topic_is_set_;
+}
