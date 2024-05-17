@@ -312,3 +312,13 @@ bool Channel::hasTopic()
 {
 	return topic_is_set_;
 }
+
+std::chrono::time_point<std::chrono::system_clock> const	&Channel::getStartChannelTimestamps() const
+{
+	return start_channel_timestamps_;
+}
+
+void	Channel::setStartChannelTimestamps()
+{
+	start_channel_timestamps_ = std::chrono::system_clock::now();
+}
