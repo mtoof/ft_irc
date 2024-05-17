@@ -62,7 +62,6 @@ public:
 	void applyUserMode(std::shared_ptr<Client> client, const std::string& modeString);
 	void applyChannelModes(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::string& modeString, const std::vector<std::string>& modeArguments);
 	bool applyModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::string& targetNickname, bool setMode);
-	void handleModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::vector<std::string> &modeArguments, bool setMode, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar);
 	void send_responses_based_on_client_info(const std::shared_ptr<Client> &whois_client_ptr, int fd);
 	void appendToChangedModeString(bool setMode, std::string& changedModes, char& lastModeChar, char modeChar);
 	bool modeRequiresParameter(char mode);
