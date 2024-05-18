@@ -1,6 +1,8 @@
 #include "Client.h"
 
-Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(false), password_(false), nickname_(nickname), username_(username), ip_address_(ipaddress), mode_i_(false)
+Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : 
+		fd_(fd), registered_(false), has_sent_password_(false), nickname_(nickname), username_(username),
+		ip_address_(ipaddress),	mode_i_(false), mode_local_op_(false), away_status_(false)
 {
 }
 
@@ -60,7 +62,7 @@ bool	const &Client::getModeLocalOp() const
 
 std::string Client::getAwayMessage() const
 {
-	return awayMessage;
+	return away_message_;
 }
 
 std::string const &Client::getClientPrefix() const
@@ -80,12 +82,12 @@ bool const &Client::getRejectedStatus() const
 
 bool Client::hasSentPassword()
 {
-	return password_;
+	return has_sent_password_;
 }
 
 bool Client::isAway() const
 {
-	return awayStatus;
+	return away_status_;
 }
 
 void Client::setFd(int const &fd)
@@ -124,9 +126,9 @@ void Client::setModeLocalOp(bool status)
 	this->mode_local_op_ = status;
 }
 
-void	Client::setPassword()
+void	Client::setPasswordStatus()
 {
-	password_ = true;
+	has_sent_password_ = true;
 }
 
 void Client::setIpAddress(std::string const &ip_address)
@@ -141,8 +143,8 @@ void Client::setClientPrefix()
 
 void Client::setAway(bool status, const std::string& message)
 {
-	awayStatus = status;
-	awayMessage = message;
+	away_status_ = status;
+	away_message_ = message;
 }
 
 void Client::setRejectedStatus(bool const &status)
@@ -186,8 +188,8 @@ void Client::processCommand(Message &message, Server *server_ptr)
     if (it != server_ptr->getSupportedCommands().end())
     {
        auto handler = it->second;
-       Command commandObject(server_ptr);
-       (commandObject.*handler)(message);
+       Command command_object(server_ptr);
+       (command_object.*handler)(message);
     }
 	else
 		server_ptr->send_response(getFd(), ERR_CMDNOTFOUND(server_ptr->getServerHostname(), getNickname(), command));

@@ -21,7 +21,7 @@ void Command::handlePass(const Message &msg)
 		if (parameters.front() == server_ptr_->getPassword())
 		{
 			// client->registerClient(); //This happens when the user has pass username and nick
-			client_ptr->setPassword();
+			client_ptr->setPasswordStatus();
 		}
 		else if (!server_ptr_->getPassword().empty() && parameters.front() != server_ptr_->getPassword())
 		{

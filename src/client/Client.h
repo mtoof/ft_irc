@@ -16,7 +16,7 @@ class Client{
 	private:
 	int															fd_;
 	bool														registered_;
-	bool														password_; //true if server password is set
+	bool														has_sent_password_;
 	bool														rejected_;
 	std::string													nickname_;
 	std::string													old_nickname_;
@@ -28,10 +28,9 @@ class Client{
 	std::string													buffer;
 	bool														mode_i_;
 	bool														mode_local_op_;
-	bool														awayStatus;
-    std::string													awayMessage;
+	bool														away_status_;
+    std::string													away_message_;
 	std::vector<std::shared_ptr<Channel>>						channels_;
-	//mutable std::mutex 											channels_mutex_;
 	// TODO monitoring ping pong status
 	// clients that have not replied in a long time should be dropped from the server
 
@@ -67,12 +66,13 @@ class Client{
 	void		setRealname(std::string const &realname);
 	void		setUserMode(char const &usermode);
 	void		setIpAddress(std::string const &ip_address);
-	void		setPassword();
+	void		setPasswordStatus();
 	void        setClientPrefix();
 	void		setAway(bool status, const std::string& message = "");
 	void		setModeI(bool status);
 	void		setModeLocalOp(bool status);
 	void		setRejectedStatus(bool const &status);
+	
 	// member functions
 	void		registerClient();
 	void		unregisterClient();
@@ -80,11 +80,8 @@ class Client{
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(Message &message, Server *server_ptr);
 	bool		hasSentPassword();
-	// bool 		isInvited() const; // Check if the client is invited to a channel
 	bool 		hasCorrectPassword(const std::string& password) const; // Check if the client has the correct password
 	bool 		isAway() const;
-	// void		sendMessage(std::string const &message);
-	// std::string	receiveMessage();
 	bool		joinChannel(const std::shared_ptr<Channel>& channel_ptr);
 	void		leaveChannel(const std::shared_ptr<Channel>& channel_ptr);
 	std::vector<std::shared_ptr<Channel>> getChannels() const;
