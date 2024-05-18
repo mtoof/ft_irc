@@ -4,31 +4,30 @@
 void Command::handleJoin(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	int fd = client_ptr->getFd();
+	int client_fd = client_ptr->getFd();
 	if (!client_ptr->getRegisterStatus())
 	{
-		server_ptr_->send_response(fd, ERR_NOTREGISTERED(server_ptr_->getServerHostname()));
+		server_ptr_->send_response(client_fd, ERR_NOTREGISTERED(server_ptr_->getServerHostname()));
 		return;
 	}
 
 	std::vector<std::string> parameters = msg.getParameters();
 	if (parameters.empty())
 	{
-		server_ptr_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
+		server_ptr_->send_response(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
 		return;
 	}
 
 	std::string channel_name = parameters.front();
 
-	char prefix = channel_name.front();
-
 	if (!isValidChannelName(channel_name))
 	{
-		server_ptr_->send_response(fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+		server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 		return;
 	}
 
 	std::shared_ptr<Channel> channel_ptr = server_ptr_->findChannel(channel_name);
+	char prefix = channel_name.front();
 	if (!channel_ptr)
 	{
 		// Handling based on channel prefix
@@ -41,14 +40,14 @@ void Command::handleJoin(const Message &msg)
 			channel_ptr->addUser(client_ptr, true); // First user becomes the operator
 			break;
 		case '!': // Safe channels require special handling
-			server_ptr_->send_response(fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+			server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			return;
 		case '+': // No modes can be set
 			channel_ptr = server_ptr_->createNewChannel(channel_name);
 			channel_ptr->addUser(client_ptr, false);
 			break;
 		default:
-			server_ptr_->send_response(fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+			server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			return;
 		}
 	}
@@ -61,12 +60,12 @@ void Command::handleJoin(const Message &msg)
 		}
 		if (channel_ptr->isFull())
 		{
-			server_ptr_->send_response(fd, ERR_CHANNELISFULL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+			server_ptr_->send_response(client_fd, ERR_CHANNELISFULL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			return;
 		}
 		if (channel_ptr->isInviteOnly() && !channel_ptr->isUserInvited(client_ptr->getNickname()))
 		{
-			server_ptr_->send_response(fd, ERR_INVITEONLYCHAN(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
+			server_ptr_->send_response(client_fd, ERR_INVITEONLYCHAN(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
 			return;
 		}
 		if (channel_ptr->isPasswordProtected())
@@ -74,10 +73,11 @@ void Command::handleJoin(const Message &msg)
 			std::string given_password = parameters.size() > 1 ? parameters[1] : "";
 			if (!channel_ptr->isCorrectPassword(given_password))
 			{
-				server_ptr_->send_response(fd, ERR_BADCHANNELKEY(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+				server_ptr_->send_response(client_fd, ERR_BADCHANNELKEY(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 				return;
 			}
 		}
+		// are these needed if channel is deleted?
 		if (channel_ptr->getUsers().size())
 			channel_ptr->addUser(client_ptr, false);
 		else
@@ -87,33 +87,14 @@ void Command::handleJoin(const Message &msg)
 		}
 	}
 	client_ptr->joinChannel(channel_ptr);
-	server_ptr_->send_response(fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
-	sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), fd);
+	server_ptr_->send_response(client_fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
+	sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), client_fd);
 	std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(channel_ptr->getChannelCreationTimestamps());
-	std::string start_channel_timestamp_string = std::to_string(unix_timestamp);
-	server_ptr_->send_response(fd, RPL_CREATIONTIME(client_ptr->getNickname(), channel_name, start_channel_timestamp_string));
-	broadcastJoinToChannel(channel_ptr, client_ptr);
+	std::string channel_creation_timestamp_string = std::to_string(unix_timestamp);
+	server_ptr_->send_response(client_fd, RPL_CREATIONTIME(client_ptr->getNickname(), channel_name, channel_creation_timestamp_string));
+	channel_ptr->broadcastMessage(client_ptr, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_ptr->getName()), server_ptr_);
 	if (channel_ptr->hasTopic())
 		channel_ptr->sendTopicToClient(client_ptr, server_ptr_);
-}
-
-
-/**
- * @brief Broadcasts a join message to all users in a channel
- *
- * @param channel
- * @param joiningClient
- */
-void Command::broadcastJoinToChannel(std::shared_ptr<Channel> channel_ptr, std::shared_ptr<Client> joining_client)
-{
-	auto users = channel_ptr->getUsers();
-	for (const auto &user : users)
-	{
-		if (user.first->getFd() != joining_client->getFd())
-		{ // Exclude the joining client
-			server_ptr_->send_response(user.first->getFd(), RPL_JOINMSG(joining_client->getClientPrefix(), channel_ptr->getName()));
-		}
-	}
 }
 
 /**
@@ -122,9 +103,9 @@ void Command::broadcastJoinToChannel(std::shared_ptr<Channel> channel_ptr, std::
  *
  * @param channel_ptr
  * @param nickname
- * @param fd
+ * @param client_fd
  */
-void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd)
+void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int client_fd)
 {
 	std::map<std::shared_ptr<Client>, bool> channel_users = channel_ptr->getUsers(); // get the user list
 	std::string servername = server_ptr_->getServerHostname();
@@ -137,6 +118,6 @@ void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::s
 			userlist += "@";
 		userlist += it->first->getNickname();
 	}
-	server_ptr_->send_response(fd, RPL_NAMREPLY(servername, nickname, channel_name, userlist));
-	server_ptr_->send_response(fd, RPL_ENDOFNAMES(servername, nickname, channel_name));
+	server_ptr_->send_response(client_fd, RPL_NAMREPLY(servername, nickname, channel_name, userlist));
+	server_ptr_->send_response(client_fd, RPL_ENDOFNAMES(servername, nickname, channel_name));
 }

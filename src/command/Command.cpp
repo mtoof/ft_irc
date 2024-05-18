@@ -20,13 +20,13 @@ Command::~Command()
 void Command::handlePing(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	int fd = client_ptr->getFd();
+	int client_fd = client_ptr->getFd();
 	std::vector<std::string> parameters = msg.getParameters();
 	if (parameters.empty())
 	{
-		server_ptr_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PING"));
+		server_ptr_->send_response(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PING"));
 	}
-	server_ptr_->send_response(fd, PONG(server_ptr_->getServerHostname(), parameters.front())); // latter parameter is the token received from client
+	server_ptr_->send_response(client_fd, PONG(server_ptr_->getServerHostname(), parameters.front())); // latter parameter is the token received from client
 }
 
 bool Command::channelExists(std::string const &channel_name)
