@@ -146,18 +146,18 @@ bool Channel::isPasswordProtected() const
 	return mode_k_ && !channel_key_.empty();
 }
 
-void Channel::addUser(std::shared_ptr<Client> client, bool isOp)
+void Channel::addUser(std::shared_ptr<Client> client_ptr, bool is_channel_op)
 {
-	if (client)
-		users_[client] = isOp;				   // Add the user with operator status if specified
+	if (client_ptr)
+		users_[client_ptr] = is_channel_op;				   // Add the user with operator status if specified
 	return;								   // Return true if user added successfully
 }
 
 // Remove a user from the channel
-void Channel::removeUser(std::shared_ptr<Client> client)
+void Channel::removeUser(std::shared_ptr<Client> client_ptr)
 {
-	if (client)
-		users_.erase(client);				   // Remove the user from the channel
+	if (client_ptr)
+		users_.erase(client_ptr);				   // Remove the user from the channel
 }
 
 /**
@@ -171,33 +171,16 @@ void Channel::removeUser(std::shared_ptr<Client> client)
 
 bool Channel::isUserOnChannel(std::string const &nickname)
 {
-	std::string lowerCaseNick = nickname;
-	std::transform(lowerCaseNick.begin(), lowerCaseNick.end(), lowerCaseNick.begin(), ::tolower); // Convert the nickname to lowercase
+	std::string nick_lowercase = nickname;
+	std::transform(nick_lowercase.begin(), nick_lowercase.end(), nick_lowercase.begin(), ::tolower); // Convert the nickname to lowercase
 	for (auto const &user : users_)
 	{
-		std::string userNick = user.first->getNickname();
-		std::transform(userNick.begin(), userNick.end(), userNick.begin(), ::tolower); // Convert the user's nickname to lowercase
-		if (userNick == lowerCaseNick)
+		std::string user_nick = user.first->getNickname();
+		std::transform(user_nick.begin(), user_nick.end(), user_nick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (user_nick == nick_lowercase)
 			return true;
 	}
 	return false;
-}
-
-// bool Channel::userIsOperator(std::string const &nickname)
-// {
-// 	//std::string lowerCaseNick = ;
-// 	for (auto const &user : users_)
-// 	{
-// 		if (server_ptr_->toLower(user.first->getNickname()) == server_ptr_->toLower(nickname) && user.second == true)
-// 			return true;
-// 	}
-// 	return false;
-// }
-bool Channel::isValidChannelName(const std::string& channelName) const
-{
-	// Regex to match valid channel names
-	std::regex pattern("^[&#\\+!][^ ,\\x07]{1,49}$"); // Adjusted for max length of 50 and disallowed characters
-	return std::regex_match(channelName, pattern);
 }
 
 bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
@@ -215,13 +198,12 @@ void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const 
 {
 	if (sender_ptr)
 	{
-		for (const auto &userPair : users_)
+		for (const auto &recipient_pair : users_)
 		{
-			std::shared_ptr<Client> user = userPair.first;
-			if (user != sender_ptr) // Don't send the message to the sender
+			std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
+			if (recipient_ptr != sender_ptr) // Don't send the message to the sender
 			{
-				//std::string fullMessage = ":" + sender_prefix + " PRIVMSG " + this->name_ + " :" + message + CRLF;
-				server_ptr->send_response(user->getFd(), message);
+				server_ptr->send_response(recipient_ptr->getFd(), message);
 			}
 		}
 	}
@@ -229,12 +211,10 @@ void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const 
 
 void Channel::broadcastMessageToAll(const std::string &message, Server* server_ptr)
 {
-	//std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety while iterating over users
-
-	for (const auto &userPair : users_)
+	for (const auto &recipient_pair : users_)
 	{
-		std::shared_ptr<Client> user = userPair.first;
-			server_ptr->send_response(user->getFd(), message);
+		std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
+			server_ptr->send_response(recipient_ptr->getFd(), message);
 	}
 }
 
@@ -313,12 +293,12 @@ bool Channel::hasTopic()
 	return topic_is_set_;
 }
 
-std::chrono::time_point<std::chrono::system_clock> const	&Channel::getStartChannelTimestamps() const
+std::chrono::time_point<std::chrono::system_clock> const	&Channel::getChannelCreationTimestamps() const
 {
-	return start_channel_timestamps_;
+	return channel_creation_timestamps_;
 }
 
-void	Channel::setStartChannelTimestamps()
+void	Channel::setChannelCreationTimestamps()
 {
-	start_channel_timestamps_ = std::chrono::system_clock::now();
+	channel_creation_timestamps_ = std::chrono::system_clock::now();
 }

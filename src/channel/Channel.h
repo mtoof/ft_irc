@@ -32,7 +32,7 @@ class Channel
 		std::set<std::string> 								invited_users_;
 		std::pair<std::string, std::string> 				topic_; // Channel topic (author, topic)
 		std::map<std::shared_ptr<Client>, bool> 			users_; // Users in the channel and their operator status (true if op)
-		std::chrono::time_point<std::chrono::system_clock>	start_channel_timestamps_;
+		std::chrono::time_point<std::chrono::system_clock>	channel_creation_timestamps_;
 		std::chrono::time_point<std::chrono::system_clock>	topic_timestamp_;
 	public:
 		Channel(const std::string &name);
@@ -50,7 +50,7 @@ class Channel
 		bool getModeL() const;
 		bool getModeN() const;
 		std::string const &getMode() const;
-		std::chrono::time_point<std::chrono::system_clock> const &getStartChannelTimestamps() const;
+		std::chrono::time_point<std::chrono::system_clock> const &getChannelCreationTimestamps() const;
 
 		// Mutator methods
 		void setName(const std::string &name);
@@ -63,7 +63,7 @@ class Channel
 		void setModeK(bool mode_k);
 		void setModeL(bool mode_l, unsigned int limit = DEFAULT_MAX_CLIENTS);
 		void setModeN(bool mode_n);
-		void setStartChannelTimestamps();
+		void setChannelCreationTimestamps();
 
 
 
@@ -71,8 +71,8 @@ class Channel
 		bool isFull() const;
 		bool isInviteOnly() const;
 		bool isPasswordProtected() const;
-		void addUser(std::shared_ptr<Client> client, bool isOp);
-		void removeUser(std::shared_ptr<Client> client);
+		void addUser(std::shared_ptr<Client> client_ptr, bool is_channel_op);
+		void removeUser(std::shared_ptr<Client> client_ptr);
 		bool isUserOnChannel(std::string const &nickname);
 		bool userIsOperator(std::string const &nickname);
 		bool isValidChannelName(const std::string& channelName) const;
