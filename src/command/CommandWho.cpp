@@ -1,6 +1,6 @@
 #include "Command.h"
 
-void Command::sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string user_nickname, int fd)
+void Command::sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string user_nickname, int client_fd)
 {
 	std::map<std::shared_ptr<Client>, bool> channel_users = channel_ptr->getUsers(); // get the user list
 	std::string servername = server_ptr_->getServerHostname();
@@ -15,20 +15,20 @@ void Command::sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string use
 			flag += "H";
 		if (it->first->getModeLocalOp() == true)
 			flag += "*";
-		server_ptr_->send_response(fd, RPL_WHOREPLY(servername, user_nickname, channel_name, it->first->getUsername(), it->first->getHostname(), it->first->getNickname(), flag, it->first->getRealname()));
+		server_ptr_->send_response(client_fd, RPL_WHOREPLY(servername, user_nickname, channel_name, it->first->getUsername(), it->first->getHostname(), it->first->getNickname(), flag, it->first->getRealname()));
 	}
-	server_ptr_->send_response(fd, RPL_ENDOFWHO(servername, user_nickname, channel_name));
+	server_ptr_->send_response(client_fd, RPL_ENDOFWHO(servername, user_nickname, channel_name));
 }
 
 void Command::handleWho(const Message &msg)
 {
 	std::string command = msg.getCommand();
 	std::vector <std::string> params = msg.getParameters();
-	int fd = msg.getClientfd();
+	int client_fd = msg.getClientfd();
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
 	std::shared_ptr <Channel> channel_ptr = server_ptr_->findChannel(params[0]);
 	if (channel_ptr && channel_ptr->isUserOnChannel(client_ptr->getNickname()))
-		sendNamelist(channel_ptr, client_ptr->getNickname(), fd);
+		sendNamelist(channel_ptr, client_ptr->getNickname(), client_fd);
 	else if (channel_ptr && !channel_ptr->isUserOnChannel(client_ptr->getNickname()))
-		server_ptr_->send_response(fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), params[0]));
+		server_ptr_->send_response(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), params[0]));
 }
