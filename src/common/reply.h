@@ -13,6 +13,7 @@
 #define RPL_KILLMSG(client_prefix, target, content) (":" + client_prefix + " " + target + " :" + content + CRLF)
 #define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
 #define RPL_NICKCHANGE(oldprefix, nickname) (":" + oldprefix + " NICK " + nickname + CRLF)
+#define RPL_PART(client_prefix,channel_name, part_msg) (":" + client_prefix + " PART " + channel_name + " :" + part_msg + CRLF)
 #define RPL_PRIVMSG(client_prefix, target, message) (":" + client_prefix + " PRIVMSG " + target + " :" + message + CRLF)
 #define RPL_TOPICCHANGE(client_prefix, channel_name, new_topic) (":" + client_prefix + " TOPIC " + channel_name + " :" + new_topic + CRLF)
 #define RPL_UMODECHANGE(NICK, mode) (":" + NICK + " MODE " + NICK + " :" + mode + CRLF)
