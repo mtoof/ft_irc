@@ -92,7 +92,7 @@ void Command::handleUserMode(std::shared_ptr<Client> client_ptr, const std::stri
 /**
  * Handles mode changes for a channel.
  *
- * @param client Shared pointer to the client object.
+ * @param client_ptr Shared pointer to the client object.
  * @param target The target channel for the mode change.
  * @param mode_string The string representing the modes to be applied.
  * @param mode_arguments The arguments associated with the modes.
@@ -153,8 +153,6 @@ void Command::applyUserMode(std::shared_ptr<Client> client_ptr, const std::strin
         sendCurrentUserModes(client_ptr);
 }
 
-/**
- 
 /**
  * Sends the current modes set on a user to the client.
  *

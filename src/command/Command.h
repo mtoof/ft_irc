@@ -44,27 +44,28 @@ public:
 	void handleKill(const Message &msg);
 	
 	void handleMode(const Message &msg);
-	void applyUserMode(std::shared_ptr<Client> client, const std::string& modeString);
-	void applyChannelModes(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel,
-							const std::string& modeString, const std::vector<std::string>& modeArguments);
-	bool applyModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::string& targetNickname, bool setMode);
-	void handleModeL(std::shared_ptr<Channel> channel, bool setMode, const std::vector<std::string> &modeArguments,
-					size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar);
-	void handleModeK(std::shared_ptr<Channel> channel, bool setMode, const std::vector<std::string> &modeArguments,
-					size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar);
-	void handleModeO(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, const std::vector<std::string> &modeArguments,
-					bool setMode, size_t &argumentIndex, std::string &changedModes, std::string &usedParameters, char &lastModeChar);
-	void handleModeChange(std::shared_ptr<Client> client, std::shared_ptr<Channel> channel, char modeChar, bool setMode,
-						const std::vector<std::string> &modeArguments, size_t &argumentIndex, std::string &changedModes,
-						std::string &usedParameters, char &lastModeChar);
-	void appendToChangedModeString(bool setMode, std::string& changedModes, char& lastModeChar, char modeChar);
-	bool modeRequiresParameter(char mode);
-	bool mandatoryModeParameter(char mode);
-	void sendCurrentUserModes(std::shared_ptr<Client> client);
-	void appendModeChange(std::string &modeChange, char &lastModeChar, bool isSettingMode, char mode);
-	void handleUserMode(std::shared_ptr<Client> client, const std::string &target, const std::string &modeString);
+	void handleUserMode(std::shared_ptr<Client> client_ptr, const std::string &target, const std::string &mode_string);
+	void applyUserMode(std::shared_ptr<Client> client_ptr, const std::string &mode_string);
+	void sendCurrentUserModes(std::shared_ptr<Client> client_ptr);
+	void handleChannelMode(std::shared_ptr<Client> client_ptr, const std::string &target, 
+							const std::string &mode_string, const std::vector<std::string> &mode_arguments);
+	void applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr,
+							const std::string& mode_string, const std::vector<std::string>& mode_arguments);
+	void handleModeL(std::shared_ptr<Channel> channel_ptr, bool mode_setting, const std::vector<std::string> &mode_arguments,
+					size_t &arg_index, std::string &changed_modes, std::string &used_parameters, char &last_sign);
+	void handleModeK(std::shared_ptr<Channel> channel_ptr, bool mode_setting, const std::vector<std::string> &mode_arguments,
+					size_t &arg_index, std::string &changed_modes, std::string &used_parameters, char &last_sign);
+	void handleModeO(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, const std::vector<std::string> &mode_arguments,
+							bool mode_setting, size_t &arg_index, std::string &changed_modes, std::string &used_parameters, char &last_sign);
+	bool applyModeO(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, const std::string &target_nickname, bool mode_setting);
+	void handleModeChange(std::shared_ptr<Client> client_ptr, std::shared_ptr<Channel> channel_ptr, char mode_char, bool mode_setting,
+							const std::vector<std::string> &mode_arguments, size_t &arg_index, std::string &changed_modes,
+							std::string &used_parameters, char &last_sign);
+	void appendToChangedModeString(bool mode_setting, std::string &changed_modes, char &last_sign, char mode_char);
+	void parseModeString(const std::string &mode_string, std::vector<std::pair<char, bool>> &mode_changes, bool &mode_setting);
+	bool modeRequiresParameter(char mode_char);
+	bool mandatoryModeParameter(char mode_char);
 
-	
 	void handleNick(const Message &msg);
 	bool isValidNickname(std::string& nickname);
 	bool isNicknameInUse(std::string const &nickname);
@@ -72,12 +73,10 @@ public:
 	void handleJoin(const Message &msg);
 	bool isValidChannelName(const std::string& channel_name) const;
 	bool channelExists(std::string const &channel_name);
-	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
-	void sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string nickname, int fd);
+	void sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int client_fd);
+	void sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string nickname, int client_fd);
 	
 	std::vector<std::string> split(const std::string &s, char delim);
-	void handleChannelMode(std::shared_ptr<Client> client, const std::string& target, const std::string& modeString, const std::vector<std::string>& modeArguments);
-	void parseModeString(const std::string &modeString, std::vector<std::pair<char, bool>> &modeChanges, bool &isSettingMode);
 	
 };
 
