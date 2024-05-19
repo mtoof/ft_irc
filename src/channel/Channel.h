@@ -88,6 +88,7 @@ class Channel
 		void sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr);
 		bool hasTopic();
 		void clearTopic(const std::string &nickname);
+		bool isEmpty();
 };
 
 #endif// CHANNEL_H

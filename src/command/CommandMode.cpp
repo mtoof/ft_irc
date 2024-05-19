@@ -152,8 +152,6 @@ void Command::applyUserMode(std::shared_ptr<Client> client_ptr, const std::strin
     else
         sendCurrentUserModes(client_ptr);
 }
-
-/**
  
 /**
  * Sends the current modes set on a user to the client.

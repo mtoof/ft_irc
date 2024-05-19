@@ -168,8 +168,8 @@ char *Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress)
 
 void Server::send_response(int fd, const std::string &response)
 {
-	std::cout << "Response:\n"
-			  << response;
+	std::cout << BLUE << "Response: "
+			  << response << RESET;
 	if (send(fd, response.c_str(), response.length(), 0) < 0)
 		debug("Response send() faild", FAILED);
 }
@@ -306,6 +306,7 @@ std::map<std::string, std::shared_ptr<Channel>> const &Server::getChannels() con
 
 void Server::deleteChannel(std::string const &channelname)
 {
+	std::cout << "Channel is Empty(), deleteChannel called" << std::endl;
 	if (this->findChannel(channelname))
 		channels_.erase(channelname);
 }

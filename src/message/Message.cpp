@@ -13,9 +13,10 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 		debug("Find client in message constructor", FAILED);
 		return;
 	}
-	
+	std::cout << CYAN << "Server received: " << raw_message << "\t" \
+	<< "Message size = " << raw_message.length() << " byte" << RESET << std::endl;
 	valid_message_ = analyzeMessage();
-	printMessageContents();
+	// printMessageContents();
 }
 
 Message::~Message()

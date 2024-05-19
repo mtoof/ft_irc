@@ -302,3 +302,8 @@ void	Channel::setChannelCreationTimestamps()
 {
 	channel_creation_timestamps_ = std::chrono::system_clock::now();
 }
+
+bool Channel::isEmpty()
+{
+	return (users_.size() == 0);
+}

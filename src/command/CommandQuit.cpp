@@ -24,6 +24,11 @@ void Command::handleQuit(const Message &msg)
 				}
 			}
 			channel->removeUser(client_ptr);
+			if (channel->isEmpty())
+			{
+				std::cout << "Channel is Empty(), delete channel" << std::endl;
+				server_ptr_->deleteChannel(channel->getName());
+			}
 		}
 	}
 	server_ptr_->disconnectAndDeleteClient(client_ptr);
