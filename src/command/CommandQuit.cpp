@@ -6,7 +6,7 @@ void Command::handleQuit(const Message &msg)
 	int client_fd = client_ptr->getFd();
 	std::vector<std::shared_ptr<Channel>> channel_list = client_ptr->getChannels();
 	std::string reason = msg.getTrailer().empty() ? "Leaving" : msg.getTrailer(); // default part message is the nickname
-	server_ptr_->send_response(client_fd, "ERROR: Bye, see you soon!\r\n");	
+	server_ptr_->sendResponse(client_fd, "ERROR: Bye, see you soon!\r\n");	
 	if (!channel_list.empty())
 	{
 		std::vector<int> fds_sent_to = {};
@@ -19,7 +19,7 @@ void Command::handleQuit(const Message &msg)
 				auto it = std::find(fds_sent_to.begin(), fds_sent_to.end(), recipient_fd);
 				if (recipient_ptr != client_ptr && it == fds_sent_to.end()) // Don't send the message to the sender
 				{
-					server_ptr_->send_response(recipient_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
+					server_ptr_->sendResponse(recipient_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
 					fds_sent_to.push_back(recipient_fd);
 				}
 			}

@@ -11,7 +11,7 @@ void Command::handleKill(const Message &msg)
 	comment = msg.getTrailer();
 	if (comment.empty())
 	{
-		server_ptr_->send_response(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), command));
+		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), command));
 		return;
 	}
 	if (params.size())
@@ -24,17 +24,17 @@ void Command::handleKill(const Message &msg)
 		if (target_client)
 		{
 			std::string kill_message = RPL_KILLED(server_ptr_->getServerHostname(), sender_nick, comment);
-			server_ptr_->send_response(target_client->getFd(), RPL_KILLMSG(client_ptr->getClientPrefix(), target_client->getNickname(), kill_message));
+			server_ptr_->sendResponse(target_client->getFd(), RPL_KILLMSG(client_ptr->getClientPrefix(), target_client->getNickname(), kill_message));
 			Message quit_msg("QUIT :" + kill_message, server_ptr_, target_client->getFd());
 			target_client->processCommand(quit_msg, server_ptr_);
 			return;
 		}
 		else
 		{
-			server_ptr_->send_response(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), sender_nick, target_nick));
+			server_ptr_->sendResponse(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), sender_nick, target_nick));
 			return;
 		}
 	}
 	else if (it == server_operators.end())
-		server_ptr_->send_response(client_fd, ERR_NOPRIVILEGES(sender_nick));
+		server_ptr_->sendResponse(client_fd, ERR_NOPRIVILEGES(sender_nick));
 }

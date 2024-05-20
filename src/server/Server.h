@@ -72,7 +72,7 @@ public:
 	std::shared_ptr<Client> 				findClientUsingOldNickname(std::string const &nickname) const;
 	void									whoGotDisconnected(int fd);
 	char*									extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
-	void									send_response(int fd, const std::string &response);
+	void									sendResponse(int fd, const std::string &response);
 	void									setServerHostname();
 	void 									welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix);
 	std::shared_ptr<Channel>				createNewChannel(std::string const &channel_name);

@@ -201,7 +201,7 @@ void Client::processCommand(Message &message, Server *server_ptr)
        (command_object.*handler)(message);
     }
 	else
-		server_ptr->send_response(getFd(), ERR_CMDNOTFOUND(server_ptr->getServerHostname(), getNickname(), command));
+		server_ptr->sendResponse(getFd(), ERR_CMDNOTFOUND(server_ptr->getServerHostname(), getNickname(), command));
 }
 
 void Client::appendToBuffer(const std::string &data)

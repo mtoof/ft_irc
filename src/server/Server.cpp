@@ -127,7 +127,7 @@ void Server::registerNewClient()
 	if (this->clients_.size() > DEFAULT_MAX_CLIENTS)
 	{
 		std::string msg = "The maximum number of clients has been reached. We cannot accept any more.";
-		send_response(userfd, msg + CRLF);
+		sendResponse(userfd, msg + CRLF);
 		close(userfd);
 		return;
 	}
