@@ -173,7 +173,11 @@ void Client::processBuffer(Server *server_ptr)
 		this->buffer.erase(0, pos + 2);
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back(); // Remove the trailing \r
-
+		if (line.size() > 511)
+		{
+			std::string result = line.substr(0, 510);
+			line = result;
+		}
 		Message message(line, server_ptr, this->fd_); // Parse the message
 		if(message.isValidMessage() == true)
 			processCommand(message, server_ptr);
@@ -183,7 +187,6 @@ void Client::processBuffer(Server *server_ptr)
 void Client::processCommand(Message &message, Server *server_ptr)
 {
     const std::string &command = message.getCommand();
-
     auto it = server_ptr->getSupportedCommands().find(command);
     if (it != server_ptr->getSupportedCommands().end())
     {
