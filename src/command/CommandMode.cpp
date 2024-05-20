@@ -336,14 +336,23 @@ void Command::handleModeL(std::shared_ptr<Channel> channel_ptr, bool mode_settin
     {
         if (mode_arguments[arg_index].find_first_not_of("0123456789") == std::string::npos)
         {
-            int limit = std::stoi(mode_arguments[arg_index]);
-            channel_ptr->setModeL(true, limit);
-            appendToChangedModeString(mode_setting, changed_modes, last_sign, 'l');
-            if (!used_parameters.empty())
-                used_parameters += " ";
-            used_parameters += std::to_string(limit);
-            arg_index++;
-        }
+			int limit;
+			try
+			{
+				limit = std::stoi(mode_arguments[arg_index]);
+			}
+			catch (const std::exception& e) 
+			{
+				limit = std::numeric_limits<int>::max();
+				std::cout << RED << "EXCEPTION: Proposed channel user limit was out of range" << RESET << std::endl;
+			}
+			channel_ptr->setModeL(true, limit);
+			appendToChangedModeString(mode_setting, changed_modes, last_sign, 'l');
+			if (!used_parameters.empty())
+				used_parameters += " ";
+			used_parameters += std::to_string(limit);
+       		arg_index++;
+		}
     }
     else
     {

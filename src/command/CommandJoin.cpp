@@ -17,84 +17,97 @@ void Command::handleJoin(const Message &msg)
 		server_ptr_->send_response(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "JOIN"));
 		return;
 	}
-
-	std::string channel_name = parameters.front();
-
-	if (!isValidChannelName(channel_name))
+	std::vector<std::string> channels = split(parameters[0], ',');
+	std::vector<std::string> keys;
+	if (parameters.size() > 1)
+		keys = split(parameters[1], ',');
+	//std::string channel_name = parameters.front();
+	for (size_t i = 0; i < channels.size(); i++)
 	{
-		server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
-		return;
-	}
-
-	std::shared_ptr<Channel> channel_ptr = server_ptr_->findChannel(channel_name);
-	char prefix = channel_name.front();
-	if (!channel_ptr)
-	{
-		// Handling based on channel prefix
-		switch (prefix)
+		std::string channel_name = channels[i];
+		if (client_ptr->getChannels().size() >= CLIENT_MAX_CHANNELS)
 		{
-		case '#': // Standard channels
-		case '&': // Local to server
-			channel_ptr = server_ptr_->createNewChannel(channel_name);
-			channel_ptr->setChannelCreationTimestamps();
-			channel_ptr->addUser(client_ptr, true); // First user becomes the operator
-			break;
-		case '!': // Safe channels require special handling
+			server_ptr_->send_response(client_fd, ERR_TOOMANYCHANNELS(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+			continue;
+		}
+		if (channel_name.size() > CHANNEL_NAME_MAX_LENGTH)
+			channel_name = channel_name.substr(0, CHANNEL_NAME_MAX_LENGTH);
+		if (!isValidChannelName(channel_name))
+		{
 			server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
-			return;
-		case '+': // No modes can be set
-			channel_ptr = server_ptr_->createNewChannel(channel_name);
-			channel_ptr->addUser(client_ptr, false);
-			break;
-		default:
-			server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
-			return;
+			continue;
 		}
-	}
-	else
-	{
-		if (channel_ptr->isUserOnChannel(client_ptr->getNickname()))
+
+		std::shared_ptr<Channel> channel_ptr = server_ptr_->findChannel(channel_name);
+		char prefix = channel_name.front();
+		if (!channel_ptr)
 		{
-		 	std::cout << "user " << client_ptr->getNickname() << " tried to join channel " << channel_name << "but they are already there" << std::endl;
-	 		return;
-		}
-		if (channel_ptr->isFull())
-		{
-			server_ptr_->send_response(client_fd, ERR_CHANNELISFULL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
-			return;
-		}
-		if (channel_ptr->isInviteOnly() && !channel_ptr->isUserInvited(client_ptr->getNickname()))
-		{
-			server_ptr_->send_response(client_fd, ERR_INVITEONLYCHAN(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
-			return;
-		}
-		if (channel_ptr->isPasswordProtected())
-		{
-			std::string given_password = parameters.size() > 1 ? parameters[1] : "";
-			if (!channel_ptr->isCorrectPassword(given_password))
+			// Handling based on channel prefix
+			switch (prefix)
 			{
-				server_ptr_->send_response(client_fd, ERR_BADCHANNELKEY(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
-				return;
+			case '#': // Standard channels
+			case '&': // Local to server
+				channel_ptr = server_ptr_->createNewChannel(channel_name);
+				channel_ptr->setChannelCreationTimestamps();
+				channel_ptr->addUser(client_ptr, true); // First user becomes the operator
+				break;
+			case '!': // Safe channels require special handling
+				server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+				continue;
+			case '+': // No modes can be set
+				channel_ptr = server_ptr_->createNewChannel(channel_name);
+				channel_ptr->addUser(client_ptr, false);
+				break;
+			default:
+				server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+				continue;
 			}
 		}
-		// are these needed if channel is deleted?
-		if (channel_ptr->getUsers().size())
-			channel_ptr->addUser(client_ptr, false);
 		else
 		{
-			channel_ptr->setChannelCreationTimestamps();
-			channel_ptr->addUser(client_ptr, true);
+			if (channel_ptr->isUserOnChannel(client_ptr->getNickname()))
+			{
+				std::cout << "user " << client_ptr->getNickname() << " tried to join channel " << channel_name << "but they are already there" << std::endl;
+				continue;
+			}
+			if (channel_ptr->isFull())
+			{
+				server_ptr_->send_response(client_fd, ERR_CHANNELISFULL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+				continue;
+			}
+			if (channel_ptr->isInviteOnly() && !channel_ptr->isUserInvited(client_ptr->getNickname()))
+			{
+				server_ptr_->send_response(client_fd, ERR_INVITEONLYCHAN(client_ptr->getHostname(), client_ptr->getNickname(), channel_name));
+				continue;
+			}
+			if (channel_ptr->isPasswordProtected())
+			{
+				std::string given_password = keys.size() > i ? keys[i] : "";
+				if (!channel_ptr->isCorrectPassword(given_password))
+				{
+					server_ptr_->send_response(client_fd, ERR_BADCHANNELKEY(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+					continue;
+				}
+			}
+			// are these needed if channel is deleted?
+			if (channel_ptr->getUsers().size())
+				channel_ptr->addUser(client_ptr, false);
+			else
+			{
+				channel_ptr->setChannelCreationTimestamps();
+				channel_ptr->addUser(client_ptr, true);
+			}
 		}
+		client_ptr->joinChannel(channel_ptr);
+		server_ptr_->send_response(client_fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
+		sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), client_fd);
+		std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(channel_ptr->getChannelCreationTimestamps());
+		std::string channel_creation_timestamp_string = std::to_string(unix_timestamp);
+		server_ptr_->send_response(client_fd, RPL_CREATIONTIME(client_ptr->getNickname(), channel_name, channel_creation_timestamp_string));
+		channel_ptr->broadcastMessage(client_ptr, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_ptr->getName()), server_ptr_);
+		if (channel_ptr->hasTopic())
+			channel_ptr->sendTopicToClient(client_ptr, server_ptr_);
 	}
-	client_ptr->joinChannel(channel_ptr);
-	server_ptr_->send_response(client_fd, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_name));
-	sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), client_fd);
-	std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(channel_ptr->getChannelCreationTimestamps());
-	std::string channel_creation_timestamp_string = std::to_string(unix_timestamp);
-	server_ptr_->send_response(client_fd, RPL_CREATIONTIME(client_ptr->getNickname(), channel_name, channel_creation_timestamp_string));
-	channel_ptr->broadcastMessage(client_ptr, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_ptr->getName()), server_ptr_);
-	if (channel_ptr->hasTopic())
-		channel_ptr->sendTopicToClient(client_ptr, server_ptr_);
 }
 
 /**

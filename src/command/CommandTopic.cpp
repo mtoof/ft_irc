@@ -34,18 +34,18 @@ void Command::handleTopic(const Message &msg)
 			new_topic = new_topic.substr(0, TOPIC_MAX_LENGTH);
 		if (channel_ptr->getModeT() && !channel_ptr->isOperator(client_ptr))
 		{
-			server_ptr_->send_response(client_fd, ERR_CHANOPRIVSNEEDED(server_ptr_->getServerHostname(), channel_name));
+			server_ptr_->send_response(client_fd, ERR_CHANOPRIVSNEEDED(server_ptr_->getServerHostname(), channel_ptr->getName()));
 			return;
 		}
 		if (new_topic.empty())
 		{
 			channel_ptr->clearTopic(client_ptr->getNickname());
-			channel_ptr->broadcastMessageToAll(RPL_TOPICCHANGE(client_ptr->getClientPrefix(), channel_name, ""),server_ptr_);
+			channel_ptr->broadcastMessageToAll(RPL_TOPICCHANGE(client_ptr->getClientPrefix(), channel_ptr->getName(), ""), server_ptr_);
 		}
 		else
 		{
 			channel_ptr->setTopic(make_pair(client_ptr->getNickname(), new_topic));
-			channel_ptr->broadcastMessageToAll(RPL_TOPICCHANGE(client_ptr->getClientPrefix(), channel_name, new_topic),server_ptr_);
+			channel_ptr->broadcastMessageToAll(RPL_TOPICCHANGE(client_ptr->getClientPrefix(), channel_ptr->getName(), new_topic), server_ptr_);
 		}
 	}
 	else
