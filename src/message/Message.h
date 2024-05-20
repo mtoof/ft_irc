@@ -25,7 +25,7 @@ class Message{
 	Message(std::string raw_message, Server *server, int clientfd);
 	~Message();
 
-	bool const &isValidMessage();
+	bool const &isValidMessage() const;
 	
 	bool analyzeMessage();
 

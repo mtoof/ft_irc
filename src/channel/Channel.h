@@ -51,6 +51,9 @@ class Channel
 		bool const 										&getModeN() const;
 		std::string const 								&getMode() const;
 		std::chrono::time_point<std::chrono::system_clock> const &getChannelCreationTimestamps() const;
+		bool const 										&hasTopic() const;
+		bool const 										&isInviteOnly() const;
+
 
 		// Mutator methods
 		void setName(const std::string &name);
@@ -69,7 +72,6 @@ class Channel
 
 		// Functional methods
 		bool isFull() const;
-		bool isInviteOnly() const;
 		bool isPasswordProtected() const;
 		void addUser(std::shared_ptr<Client> client_ptr, bool is_channel_op);
 		void removeUser(std::shared_ptr<Client> client_ptr);
@@ -86,7 +88,7 @@ class Channel
 		void addUserToInvitedList(const std::string &nickname);
 		void removeUserFromInvitedList(const std::string &nickname);
 		void sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr);
-		bool hasTopic();
+
 		void clearTopic(const std::string &nickname);
 		bool isEmpty();
 };

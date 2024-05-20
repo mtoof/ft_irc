@@ -87,7 +87,7 @@ std::vector<std::string> const &Message::getParameters() const
 	return parameters_;
 }
 
-bool const &Message::isValidMessage()
+bool const &Message::isValidMessage() const
 {
 	return valid_message_;
 }

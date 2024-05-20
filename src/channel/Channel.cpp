@@ -138,7 +138,7 @@ bool Channel::isFull() const
 }
 
 // Check if the channel is invite only
-bool Channel::isInviteOnly() const
+bool const &Channel::isInviteOnly() const
 {
 	return mode_i_;
 }
@@ -289,7 +289,7 @@ void Channel::clearTopic(const std::string &nickname)
 	topic_timestamp_ = std::chrono::system_clock::now();
 }
 
-bool Channel::hasTopic()
+bool const &Channel::hasTopic() const
 {
 	return topic_is_set_;
 }

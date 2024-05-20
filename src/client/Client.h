@@ -54,6 +54,7 @@ class Client{
 	std::string const	&getAwayMessage() const;
 	bool		const	&getRejectedStatus() const;
 	bool		const 	&hasSentPassword() const;
+	bool 		const	&isAway() const;
 	std::vector<std::shared_ptr<Channel>> const &getChannels() const;
 	
 
@@ -81,7 +82,6 @@ class Client{
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(Message &message, Server *server_ptr);
 
-	bool 		isAway() const;
 	bool		joinChannel(const std::shared_ptr<Channel>& channel_ptr);
 	void		leaveChannel(const std::shared_ptr<Channel>& channel_ptr);
 	

@@ -85,7 +85,7 @@ bool const &Client::hasSentPassword() const
 	return has_sent_password_;
 }
 
-bool Client::isAway() const
+bool const &Client::isAway() const
 {
 	return away_status_;
 }
