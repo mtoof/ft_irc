@@ -5,7 +5,7 @@
 /// @param server
 /// @param clientfd
 Message::Message(std::string raw_message, Server *server, int clientfd)
-: raw_message_(raw_message), has_trailer_(false), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
+	: raw_message_(raw_message), has_trailer_(false), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
 {
 	client_ptr_ = server_ptr_->findClientUsingFd(client_fd_);
 	if (!client_ptr_)
@@ -13,14 +13,15 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 		debug("Find client in message constructor", FAILED);
 		return;
 	}
-	std::cout << CYAN << "Server received: " << raw_message << "\t" \
-	<< "Message size = " << raw_message.length() << " byte" << RESET << std::endl;
+	std::cout << CYAN << "Server received: " << raw_message << "\t"
+			  << "Message size = " << raw_message.length() << " byte" << RESET << std::endl;
 	valid_message_ = analyzeMessage();
 	// printMessageContents();
 }
 
 Message::~Message()
-{}
+{
+}
 
 bool Message::analyzeMessage()
 {
@@ -43,27 +44,29 @@ bool Message::analyzeMessage()
 
 	iss >> command;
 	command_ = command;
-    while (iss >> param) {
-        if (param.front() == ':') {
-            has_trailer_ = true;
-            trailer_ = param.substr(1); // Remove the colon
-            break;
-        }
-        parameters_.push_back(param);
-    }
+	while (iss >> param)
+	{
+		if (param.front() == ':')
+		{
+			has_trailer_ = true;
+			trailer_ = param.substr(1); // Remove the colon
+			break;
+		}
+		parameters_.push_back(param);
+	}
 
-    // Read the rest of the line for the trailer
-    if (has_trailer_) {
-        std::string remaining;
-        std::getline(iss, remaining);
-        if (!remaining.empty()) {
-            trailer_ += remaining;
-        }
-    }
+	// Read the rest of the line for the trailer
+	if (has_trailer_)
+	{
+		std::string remaining;
+		std::getline(iss, remaining);
+		if (!remaining.empty())
+			trailer_ += remaining;
+	}
 	return true;
 }
 
-void	Message::printMessageContents()
+void Message::printMessageContents()
 {
 	std::cout << "Printing contents:\n";
 	std::cout << "Prefix: " << prefix_ << "\n";
@@ -72,7 +75,6 @@ void	Message::printMessageContents()
 	for (auto param : parameters_)
 		std::cout << param << "\n";
 	std::cout << "Trailer trash: " << trailer_ << std::endl;
-
 }
 
 std::string const &Message::getCommand() const
