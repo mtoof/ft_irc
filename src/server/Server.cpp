@@ -193,7 +193,7 @@ void Server::handleClientData(int fd)
 	}
 	else
 	{
-		if (readbyte == 2)
+		if (readbyte <= 2 && !strlen(buffer))
 			return;
 		client->appendToBuffer(std::string(buffer, readbyte));
 		client->processBuffer(this);

@@ -170,17 +170,23 @@ void Client::processBuffer(Server *server_ptr)
 	while ((pos = this->buffer.find("\r\n")) != std::string::npos)
 	{
 		std::string line = this->buffer.substr(0, pos);
-		this->buffer.erase(0, pos + 2);
+		this->buffer.erase(0, pos + 2); // Remove the \r\n
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back(); // Remove the trailing \r
-		if (line.size() > 511)
+		while (line.size() > MAX_MSG_LENGTH - 2)
 		{
-			std::string result = line.substr(0, 510);
-			line = result;
+			std::string part = line.substr(0, MAX_MSG_LENGTH - 2); // 510 bytes max for a message
+			line = line.substr(MAX_MSG_LENGTH - 2); // Remove the first 510 bytes
+			Message message(part, server_ptr, this->fd_);
+			if(message.isValidMessage() == true)
+				processCommand(message, server_ptr);
 		}
-		Message message(line, server_ptr, this->fd_); // Parse the message
-		if(message.isValidMessage() == true)
-			processCommand(message, server_ptr);
+		if (!line.empty())
+		{
+			Message message(line, server_ptr, this->fd_);
+			if(message.isValidMessage() == true)
+				processCommand(message, server_ptr);
+		}
 	}
 }
 
