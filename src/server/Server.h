@@ -66,7 +66,7 @@ public:
 	void									deleteChannel(std::string const &channelname);
 	void									closeDeletePollFd(int fd);
 	void									closeFds();
-	void									disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr);
+	void									disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr, std::string const &reason);
 	std::shared_ptr<Client>					findClientUsingFd(int fd) const;
 	std::shared_ptr<Client> 				findClientUsingNickname(std::string const &nickname) const;
 	std::shared_ptr<Client> 				findClientUsingOldNickname(std::string const &nickname) const;
@@ -87,6 +87,7 @@ public:
 	std::vector<t_opers>	const							&getOperatorsFile() const;
 	std::map <int, std::shared_ptr<Client>>	const			&getOperatorUsers() const;
 	void													insertInOperators(std::pair<int, std::shared_ptr <Client>> const &element);
+	void									sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string const &reason);
 
 //getter
 

@@ -188,7 +188,7 @@ void Server::handleClientData(int fd)
 	}
 	else if (!readbyte)
 	{
-		disconnectAndDeleteClient(client);
+		disconnectAndDeleteClient(client, "Client got disconnected");
 		return;
 	}
 	else
@@ -215,22 +215,36 @@ std::shared_ptr<Channel> Server::findOrCreateChannel(const std::string& name) {
     return channel;
 }
 
-void Server::disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr)
+void Server::disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr, std::string const &reason)
 {
 	int fd = client_ptr->getFd();
-	std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
-	std::vector<std::shared_ptr <Channel>> client_channels = client_ptr->getChannels();
-	if (client_channels.size())
-	{
-		for (auto channel: client_channels)
-		{
-			std::string disconnect_msg = "PRIVMSG " + channel->getName() + " :" + RED + "disconnected";
-			Message msg(disconnect_msg, this, fd);
-			client_ptr->processCommand(msg, this);
-			channel->removeUser(client_ptr);
-			std::cout << RESET << std::endl;
-		}
-	}
+	sendQuitMessages(client_ptr, reason);
 	deleteClient(fd);
 	closeDeletePollFd(fd);
+}
+
+void Server::sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string const &reason)
+{
+	std::vector<std::shared_ptr<Channel>> channel_list = client_ptr->getChannels();
+	if (!channel_list.empty())
+	{
+		std::vector<int> fds_sent_to = {};
+		for(auto channel_ptr : channel_list)
+		{
+			for (const auto &recipient_pair : channel_ptr->getUsers())
+			{
+				std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
+				int recipient_fd = recipient_ptr->getFd();
+				auto it = std::find(fds_sent_to.begin(), fds_sent_to.end(), recipient_fd);
+				if (recipient_ptr != client_ptr && it == fds_sent_to.end()) // Don't send the message to the sender
+				{
+					sendResponse(recipient_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
+					fds_sent_to.push_back(recipient_fd);
+				}
+			}
+			channel_ptr->removeUser(client_ptr);
+			if (channel_ptr->isEmpty())
+				deleteChannel(channel_ptr->getName());
+		}
+	}
 }
