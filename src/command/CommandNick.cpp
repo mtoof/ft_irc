@@ -14,7 +14,7 @@ void Command::handleNick(const Message &msg)
 	std::vector<std::string> parameters = msg.getParameters();
 	if (parameters.empty())
 	{
-		server_ptr_->send_response(client_fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
+		server_ptr_->sendResponse(client_fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
 		return;
 	}
 	std::string new_nickname = parameters[0]; // desired nickname is the first parameter, we'll just ignore the rest for now
@@ -32,18 +32,18 @@ void Command::handleNick(const Message &msg)
 	{
 		if (isValidNickname(new_nickname) == false)
 		{
-			server_ptr_->send_response(client_fd, ERR_ERRONEUSNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), new_nickname));
+			server_ptr_->sendResponse(client_fd, ERR_ERRONEUSNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), new_nickname));
 			return;
 		}
 		if (isNicknameInUse(new_nickname) == true)
 		{
-			server_ptr_->send_response(client_fd, ERR_NICKINUSE(server_ptr_->getServerHostname(), new_nickname));
+			server_ptr_->sendResponse(client_fd, ERR_NICKINUSE(server_ptr_->getServerHostname(), new_nickname));
 			return;
 		}
 	}
 
 	std::string old_prefix = client_ptr->getClientPrefix();
-	server_ptr_->send_response(client_fd, RPL_NICKCHANGE(old_prefix, new_nickname));
+	server_ptr_->sendResponse(client_fd, RPL_NICKCHANGE(old_prefix, new_nickname));
 	client_ptr->setNickname(new_nickname);
 	client_ptr->setClientPrefix();
 	if (!client_ptr->getRegisterStatus() && !client_ptr->getUsername().empty())

@@ -203,7 +203,7 @@ void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const 
 			std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
 			if (recipient_ptr != sender_ptr) // Don't send the message to the sender
 			{
-				server_ptr->send_response(recipient_ptr->getFd(), message);
+				server_ptr->sendResponse(recipient_ptr->getFd(), message);
 			}
 		}
 	}
@@ -214,7 +214,7 @@ void Channel::broadcastMessageToAll(const std::string &message, Server* server_p
 	for (const auto &recipient_pair : users_)
 	{
 		std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
-			server_ptr->send_response(recipient_ptr->getFd(), message);
+			server_ptr->sendResponse(recipient_ptr->getFd(), message);
 	}
 }
 
@@ -270,13 +270,13 @@ void Channel::removeUserFromInvitedList(const std::string &nickname)
 void Channel::sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr)
 {
 	if (this->topic_is_set_ == false)
-		server_ptr->send_response(client_ptr->getFd(), RPL_NOTOPIC(server_ptr->getServerHostname(), client_ptr->getNickname(), getName()));
+		server_ptr->sendResponse(client_ptr->getFd(), RPL_NOTOPIC(server_ptr->getServerHostname(), client_ptr->getNickname(), getName()));
 	else
 	{
 		std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(topic_timestamp_);
 		std::string timestamp_string = std::to_string(unix_timestamp);
-		server_ptr->send_response(client_ptr->getFd(), RPL_TOPIC(server_ptr->getServerHostname(), client_ptr->getNickname(), getName(), getTopic().second));
-		server_ptr->send_response(client_ptr->getFd(), RPL_TOPICWHOTIME(server_ptr->getServerHostname(), client_ptr->getNickname(), getName(), getTopic().first, timestamp_string));
+		server_ptr->sendResponse(client_ptr->getFd(), RPL_TOPIC(server_ptr->getServerHostname(), client_ptr->getNickname(), getName(), getTopic().second));
+		server_ptr->sendResponse(client_ptr->getFd(), RPL_TOPICWHOTIME(server_ptr->getServerHostname(), client_ptr->getNickname(), getName(), getTopic().first, timestamp_string));
 	}
 }
 

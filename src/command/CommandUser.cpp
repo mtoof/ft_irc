@@ -10,7 +10,7 @@ void Command::handleUser(const Message &msg)
 	if (!server_ptr_->hasClientSentPass(client_ptr))
 		return;
 	if (client_ptr->getRegisterStatus() == true)
-		server_ptr_->send_response(client_fd, ERR_ALREADYREGISTERED(server_ptr_->getServerHostname(), client_ptr->getNickname()));
+		server_ptr_->sendResponse(client_fd, ERR_ALREADYREGISTERED(server_ptr_->getServerHostname(), client_ptr->getNickname()));
 	else if (params.size() == 3 && !msg.getTrailer().empty())
 	{
 		client_ptr->setUsername(params[0]);
@@ -25,7 +25,7 @@ void Command::handleUser(const Message &msg)
 	}
 	else
 	{
-		server_ptr_->send_response(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "USER"));
+		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "USER"));
 		return;
 	}
 }

@@ -54,7 +54,7 @@ void Command::handleMode(const Message &msg)
 
     if (parameters.empty())
     {
-        server_ptr_->send_response(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));
+        server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "MODE"));
         return;
     }
 
@@ -84,9 +84,9 @@ void Command::handleUserMode(std::shared_ptr<Client> client_ptr, const std::stri
     if (target == client_ptr->getNickname())
         applyUserMode(client_ptr, mode_string);
     else if (server_ptr_->findClientUsingNickname(target))
-        server_ptr_->send_response(client_fd, ERR_USERSDONTMATCH(server_ptr_->getServerHostname(), client_ptr->getNickname()));
+        server_ptr_->sendResponse(client_fd, ERR_USERSDONTMATCH(server_ptr_->getServerHostname(), client_ptr->getNickname()));
     else
-        server_ptr_->send_response(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), target));
+        server_ptr_->sendResponse(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), target));
 }
 
 /**
@@ -104,15 +104,15 @@ void Command::handleChannelMode(std::shared_ptr<Client> client_ptr, const std::s
     int client_fd = client_ptr->getFd();
 
     if (!channel_ptr)
-        server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), target));
+        server_ptr_->sendResponse(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), target));
     else if (mode_string.empty())
-        server_ptr_->send_response(client_fd, RPL_CHANNELMODEIS(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName(), getChannelModes(channel_ptr, channel_ptr->isUserOnChannel(client_ptr->getNickname()))));
+        server_ptr_->sendResponse(client_fd, RPL_CHANNELMODEIS(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName(), getChannelModes(channel_ptr, channel_ptr->isUserOnChannel(client_ptr->getNickname()))));
 	else if (mode_string == "b") // ignore the mode b message irssi sends constantly
 		return;
     else if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
-        server_ptr_->send_response(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
+        server_ptr_->sendResponse(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
     else if (!channel_ptr->isOperator(client_ptr))
-        server_ptr_->send_response(client_fd, ERR_CHANOPRIVSNEEDED(server_ptr_->getServerHostname(), channel_ptr->getName()));
+        server_ptr_->sendResponse(client_fd, ERR_CHANOPRIVSNEEDED(server_ptr_->getServerHostname(), channel_ptr->getName()));
     else
         applyChannelModes(client_ptr, channel_ptr, mode_string, mode_arguments);
 }
@@ -145,9 +145,9 @@ void Command::applyUserMode(std::shared_ptr<Client> client_ptr, const std::strin
                 appendToChangedModeString(mode_setting, changed_modes, last_sign, mode_char);
             }
             else
-                server_ptr_->send_response(client_fd, ERR_UMODEUNKNOWNFLAG(server_ptr_->getServerHostname(), client_ptr->getNickname(), mode_char));
+                server_ptr_->sendResponse(client_fd, ERR_UMODEUNKNOWNFLAG(server_ptr_->getServerHostname(), client_ptr->getNickname(), mode_char));
         }
-        server_ptr_->send_response(client_fd, RPL_UMODECHANGE(client_ptr->getNickname(), changed_modes));
+        server_ptr_->sendResponse(client_fd, RPL_UMODECHANGE(client_ptr->getNickname(), changed_modes));
     }
     else
         sendCurrentUserModes(client_ptr);
@@ -166,7 +166,7 @@ void Command::sendCurrentUserModes(std::shared_ptr<Client> client_ptr)
         current_user_modes += "i";
     if (client_ptr->getModeLocalOp())
         current_user_modes += "O";
-    server_ptr_->send_response(client_fd, RPL_UMODEIS(server_ptr_->getServerHostname(), client_ptr->getNickname(), current_user_modes));
+    server_ptr_->sendResponse(client_fd, RPL_UMODEIS(server_ptr_->getServerHostname(), client_ptr->getNickname(), current_user_modes));
 }
 
 /**
@@ -202,7 +202,7 @@ void Command::applyChannelModes(std::shared_ptr<Client> client_ptr, std::shared_
     if (!changed_modes.empty())
     {
         std::string final_response = RPL_CHANGEMODE(client_ptr->getClientPrefix(), channel_ptr->getName(), changed_modes, used_parameters);
-        server_ptr_->send_response(client_fd, final_response);
+        server_ptr_->sendResponse(client_fd, final_response);
         channel_ptr->broadcastMessage(client_ptr, final_response, server_ptr_);
     }
 }
@@ -251,7 +251,7 @@ void Command::handleModeChange(std::shared_ptr<Client> client_ptr, std::shared_p
     if (param_required && mode_setting && arg_index >= mode_arguments.size())
     {
         if (param_mandatory)
-            server_ptr_->send_response(client_fd, ERR_INVALIDMODEPARAM(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName(), mode_char, "", "Mode parameter missing."));
+            server_ptr_->sendResponse(client_fd, ERR_INVALIDMODEPARAM(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName(), mode_char, "", "Mode parameter missing."));
         return;
     }
 
@@ -279,7 +279,7 @@ void Command::handleModeChange(std::shared_ptr<Client> client_ptr, std::shared_p
         handleModeO(client_ptr, channel_ptr, mode_arguments, mode_setting, arg_index, changed_modes, used_parameters, last_sign);
         break;
     default:
-        server_ptr_->send_response(client_fd, ERR_UNKNOWNMODE(server_ptr_->getServerHostname(), client_ptr->getNickname(), mode_char));
+        server_ptr_->sendResponse(client_fd, ERR_UNKNOWNMODE(server_ptr_->getServerHostname(), client_ptr->getNickname(), mode_char));
         break;
     }
 }
@@ -302,12 +302,15 @@ void Command::handleModeK(std::shared_ptr<Channel> channel_ptr, bool mode_settin
     {
         if (arg_index < mode_arguments.size())
         {
+			std::string channel_key = mode_arguments[arg_index];
+			if (channel_key.size() > CHANNEL_KEY_MAX_LENGTH) // if nickname is too long, it gets truncated
+				channel_key = channel_key.substr(0, CHANNEL_KEY_MAX_LENGTH);	
             channel_ptr->setModeK(true);
-            channel_ptr->setChannelKey(mode_arguments[arg_index]);
+            channel_ptr->setChannelKey(channel_key);
             appendToChangedModeString(mode_setting, changed_modes, last_sign, 'k');
             if (!used_parameters.empty())
                 used_parameters += " ";
-            used_parameters += mode_arguments[arg_index];
+            used_parameters += channel_key;
             arg_index++;
         }
     }
@@ -426,13 +429,13 @@ bool Command::applyModeO(std::shared_ptr<Client> client_ptr, std::shared_ptr<Cha
 
     if (!target_ptr)
     {
-        server_ptr_->send_response(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), target_nickname));
+        server_ptr_->sendResponse(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), target_nickname));
         return false;
     }
 
     if (!channel_ptr->isUserOnChannel(target_nickname))
     {
-        server_ptr_->send_response(client_fd, ERR_USERNOTINCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), target_nickname, channel_ptr->getName()));
+        server_ptr_->sendResponse(client_fd, ERR_USERNOTINCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), target_nickname, channel_ptr->getName()));
         return false;
     }
 

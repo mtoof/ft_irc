@@ -15,9 +15,9 @@ void Command::sendNamelist(std::shared_ptr<Channel> channel_ptr, std::string use
 			flag += "H";
 		if (it->first->getModeLocalOp() == true)
 			flag += "*";
-		server_ptr_->send_response(client_fd, RPL_WHOREPLY(servername, user_nickname, channel_name, it->first->getUsername(), it->first->getHostname(), it->first->getNickname(), flag, it->first->getRealname()));
+		server_ptr_->sendResponse(client_fd, RPL_WHOREPLY(servername, user_nickname, channel_name, it->first->getUsername(), it->first->getHostname(), it->first->getNickname(), flag, it->first->getRealname()));
 	}
-	server_ptr_->send_response(client_fd, RPL_ENDOFWHO(servername, user_nickname, channel_name));
+	server_ptr_->sendResponse(client_fd, RPL_ENDOFWHO(servername, user_nickname, channel_name));
 }
 
 void Command::handleWho(const Message &msg)
@@ -30,5 +30,5 @@ void Command::handleWho(const Message &msg)
 	if (channel_ptr && channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		sendNamelist(channel_ptr, client_ptr->getNickname(), client_fd);
 	else if (channel_ptr && !channel_ptr->isUserOnChannel(client_ptr->getNickname()))
-		server_ptr_->send_response(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), params[0]));
+		server_ptr_->sendResponse(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), params[0]));
 }
