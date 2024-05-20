@@ -13,7 +13,7 @@
 #define RPL_KILLMSG(client_prefix, target, content) (":" + client_prefix + " " + target + " :" + content + CRLF)
 #define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
 #define RPL_NICKCHANGE(oldprefix, nickname) (":" + oldprefix + " NICK " + nickname + CRLF)
-#define RPL_PART(client_prefix,channel_name, part_msg) (":" + client_prefix + " PART " + channel_name + " :" + part_msg + CRLF)
+#define RPL_PART(client_prefix, channel_name, part_message) (":" + client_prefix + " PART " + channel_name + " :" + part_message + CRLF)
 #define RPL_PRIVMSG(client_prefix, target, message) (":" + client_prefix + " PRIVMSG " + target + " :" + message + CRLF)
 #define RPL_TOPICCHANGE(client_prefix, channel_name, new_topic) (":" + client_prefix + " TOPIC " + channel_name + " :" + new_topic + CRLF)
 #define RPL_UMODECHANGE(NICK, mode) (":" + NICK + " MODE " + NICK + " :" + mode + CRLF)
@@ -22,7 +22,7 @@
 // numerical replies
 
 #define RPL_CONNECTED(servername, nickname, client_prefix) (":" + servername + " 001 " + nickname + " :Welcome to the best ever IRC server! " + client_prefix + CRLF)
-#define RPL_ISUPPORT(servername, nickname) (":" + servername + " 005 " + nickname + " AWAYLEN=AWAY_MAX_LENGTH CHANMODES=l,k,it NICKLEN=NICK_MAX_LENGTH TOPICLEN=TOPIC_MAX_LENGTH MODES=42 KICKLEN=255 CHANTYPES=# CHANNELLEN=32 :are supported on this server" + CRLF)
+#define RPL_ISUPPORT(servername, nickname) (":" + servername + " 005 " + nickname + " AWAYLEN=AWAY_MAX_LENGTH CHANMODES=l,k,it NICKLEN=NICK_MAX_LENGTH TOPICLEN=TOPIC_MAX_LENGTH KICKLEN=KICKMSG_MAX_LENGTH MAXCHANS=CLIENT_MAX_CHANNELS CHANTYPES=# CHANNELLEN=CHANNEL_NAME_MAX_LENGTH CHANTYPES=#& :are supported on this server" + CRLF)
 #define RPL_UMODEIS(servername, nickname, modes) (":" + servername + " 221 " + nickname + " " + modes + CRLF)
 #define RPL_AWAY(servername, nickname, recipient, message) (":" + servername + " 301 " + nickname + " " + recipient + " :" + message + CRLF)
 #define RPL_UNAWAY(servername, nickname) (":" + servername + " 305 " + nickname + " :You are no longer marked as being away" + CRLF)
@@ -46,7 +46,8 @@
 #define RPL_YOUREOPER(servername, nickname)(":" + servername + " 381 " + nickname + " You are now an IRC operator" + CRLF)
 #define ERR_NOSUCHNICK(servername, nickname, target) (":" + servername + " 401 " + nickname + " " + target +" :No such nick/channel" + CRLF)
 #define ERR_NOSUCHCHANNEL(servername, nickname, channel_name) (":" + servername + " 403 " + nickname + " " + channel_name + " :No such channel" + CRLF)
-#define ERR_CANNOTSENDTOCHAN(servername, nickname, channel) (":" + servername + " 404 " + nickname + " " + channel + " :Cannot send to channel" + CRLF)
+#define ERR_CANNOTSENDTOCHAN(servername, nickname, channel_name) (":" + servername + " 404 " + nickname + " " + channel_name + " :Cannot send to channel" + CRLF)
+#define ERR_TOOMANYCHANNELS(servername, nickname, channel_name) (":" + servername + " 405 " + nickname + " " + channel_name + " :You have joined too many channels" + CRLF)
 #define ERR_NORECIPIENT(servername, nickname, command) (":" + servername + " 411 " + nickname + " " + command + " :No recipient given (" + command + ")" + CRLF)
 #define ERR_NOTEXTTOSEND(servername, nickname) (":" + servername + " 412 " + nickname + " :No text to send" + CRLF)
 #define ERR_CMDNOTFOUND(servername, nickname, command) (":" + servername + " 421 " + nickname + " " + command + " :Unknown command" + CRLF)

@@ -118,7 +118,7 @@ std::shared_ptr<Channel> Server::findChannel(std::string const &channel_name)
 {
 	if (channels_.empty())
 		return nullptr;
-	auto iter = channels_.find(channel_name);
+	auto iter = channels_.find(toLower(channel_name));
 	if (iter != channels_.end())
 		return iter->second;
 	return nullptr;

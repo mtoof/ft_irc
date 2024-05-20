@@ -31,12 +31,12 @@ void Command::handlePart(const Message &msg)
 		}
 		channel_ptr->removeUser(client_ptr);
 		client_ptr->leaveChannel(channel_ptr);
+		server_ptr_->send_response(client_fd, RPL_PART(client_ptr->getClientPrefix(), channel_name, part_message));
+		channel_ptr->broadcastMessage(client_ptr, RPL_PART(client_ptr->getClientPrefix(), channel_name, part_message), server_ptr_);
 		if (channel_ptr->isEmpty())
 		{
 			server_ptr_->deleteChannel(channel_ptr->getName());
 			return;
 		}
-		server_ptr_->send_response(client_fd, RPL_PART(client_ptr->getClientPrefix(), channel_name, part_message));
-		channel_ptr->broadcastMessage(client_ptr, RPL_PART(client_ptr->getClientPrefix(), channel_name, part_message), server_ptr_);
 	}
 }
