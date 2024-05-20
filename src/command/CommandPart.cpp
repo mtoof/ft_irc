@@ -3,12 +3,12 @@
 void Command::handlePart(const Message &msg)
 {
 	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	int fd = client_ptr->getFd();
+	int client_fd = client_ptr->getFd();
 	std::vector<std::string> parameters = msg.getParameters();
 
 	if (parameters.empty())
 	{
-		server_ptr_->send_response(fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PART"));
+		server_ptr_->send_response(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PART"));
 		return;
 	}
 
@@ -20,23 +20,23 @@ void Command::handlePart(const Message &msg)
 		std::shared_ptr<Channel> channel_ptr = server_ptr_->findChannel(channel_name);
 		if (!channel_ptr)
 		{
-			server_ptr_->send_response(fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
+			server_ptr_->send_response(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 			continue;
 		}
 
 		if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 		{
-			server_ptr_->send_response(fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
+			server_ptr_->send_response(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_ptr->getName()));
 			continue;
 		}
 		channel_ptr->removeUser(client_ptr);
 		client_ptr->leaveChannel(channel_ptr);
-		server_ptr_->send_response(fd, ":" + client_ptr->getClientPrefix() + " PART " + channel_name + " :" + part_message + CRLF);
 		if (channel_ptr->isEmpty())
 		{
 			server_ptr_->deleteChannel(channel_ptr->getName());
 			return;
 		}
-		channel_ptr->broadcastMessage(client_ptr, ":" + client_ptr->getClientPrefix() + " PART " + channel_name + " :" + part_message + CRLF, server_ptr_);
+		server_ptr_->send_response(client_fd, RPL_PART(client_ptr->getClientPrefix(), channel_name, part_message));
+		channel_ptr->broadcastMessage(client_ptr, RPL_PART(client_ptr->getClientPrefix(), channel_name, part_message), server_ptr_);
 	}
 }
