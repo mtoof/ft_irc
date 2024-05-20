@@ -16,7 +16,7 @@ class Client{
 	private:
 	int															fd_;
 	bool														registered_;
-	bool														has_sent_password_;
+	bool														has_correct_password_;
 	bool														rejected_;
 	std::string													nickname_;
 	std::string													old_nickname_;
@@ -54,6 +54,7 @@ class Client{
 	std::string 		getAwayMessage() const;
 	std::string 		getChannelName() const;
 	bool		const	&getRejectedStatus() const;
+	bool		const	&getHasCorrectPassword() const;
 	
 
 	// setters
@@ -66,7 +67,7 @@ class Client{
 	void		setRealname(std::string const &realname);
 	void		setUserMode(char const &usermode);
 	void		setIpAddress(std::string const &ip_address);
-	void		setPasswordStatus();
+	void		setHasCorrectPassword(bool const &status);
 	void        setClientPrefix();
 	void		setAway(bool status, const std::string& message = "");
 	void		setModeI(bool status);
@@ -79,8 +80,6 @@ class Client{
 	void 		processBuffer(Server *server_ptr);
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(Message &message, Server *server_ptr);
-	bool		hasSentPassword();
-	bool 		hasCorrectPassword(const std::string& password) const; // Check if the client has the correct password
 	bool 		isAway() const;
 	bool		joinChannel(const std::shared_ptr<Channel>& channel_ptr);
 	void		leaveChannel(const std::shared_ptr<Channel>& channel_ptr);
