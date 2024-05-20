@@ -47,7 +47,7 @@ void Command::handleNick(const Message &msg)
 	client_ptr->setNickname(new_nickname);
 	client_ptr->setClientPrefix();
 	if (!client_ptr->getRegisterStatus() && !client_ptr->getUsername().empty())
-	{	
+	{
 		client_ptr->registerClient();
 		server_ptr_->welcomeAndMOTD(client_fd, server_ptr_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
 	}

@@ -1,7 +1,7 @@
 #include "Client.h"
 
 Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : 
-		fd_(fd), registered_(false), has_sent_password_(false), nickname_(nickname), username_(username),
+		fd_(fd), registered_(false), has_correct_password_(false), nickname_(nickname), username_(username),
 		ip_address_(ipaddress),	mode_i_(false), mode_local_op_(false), away_status_(false)
 {
 }
@@ -80,9 +80,9 @@ bool const &Client::getRejectedStatus() const
 	return rejected_;
 }
 
-bool Client::hasSentPassword()
+bool const &Client::getHasCorrectPassword() const
 {
-	return has_sent_password_;
+	return has_correct_password_;
 }
 
 bool Client::isAway() const
@@ -126,9 +126,9 @@ void Client::setModeLocalOp(bool status)
 	this->mode_local_op_ = status;
 }
 
-void	Client::setPasswordStatus()
+void	Client::setHasCorrectPassword(bool const &status)
 {
-	has_sent_password_ = true;
+	has_correct_password_ = status;
 }
 
 void Client::setIpAddress(std::string const &ip_address)

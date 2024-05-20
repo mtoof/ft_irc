@@ -314,7 +314,7 @@ void Server::deleteChannel(std::string const &channelname)
 bool Server::hasClientSentPass(std::shared_ptr <Client> const &client_ptr)
 {
 	int fd = client_ptr->getFd();
-	if (!this->getPassword().empty() && client_ptr->hasSentPassword() == false)
+	if (!this->getPassword().empty() && client_ptr->getHasCorrectPassword() == false)
 	{
 		std::string msg = "You must send password first";
 		if (findClientUsingFd(fd) && !client_ptr->getRejectedStatus())
