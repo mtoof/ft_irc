@@ -60,7 +60,7 @@ bool	const &Client::getModeLocalOp() const
 	return this->mode_local_op_;
 }
 
-std::string Client::getAwayMessage() const
+std::string const &Client::getAwayMessage() const
 {
 	return away_message_;
 }
@@ -70,7 +70,7 @@ std::string const &Client::getClientPrefix() const
 	return client_prefix_;
 }
 
-std::vector<std::shared_ptr<Channel>> Client::getChannels() const 
+std::vector<std::shared_ptr<Channel>> const &Client::getChannels() const 
 {
     return channels_;
 }
@@ -80,7 +80,7 @@ bool const &Client::getRejectedStatus() const
 	return rejected_;
 }
 
-bool Client::hasSentPassword()
+bool const &Client::hasSentPassword() const
 {
 	return has_sent_password_;
 }

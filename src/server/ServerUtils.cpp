@@ -190,7 +190,7 @@ void Server::setServerHostname()
 	return;
 }
 
-const std::string &Server::getServerHostname() const
+std::string const &Server::getServerHostname() const
 {
 	return host_;
 }

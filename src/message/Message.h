@@ -25,7 +25,7 @@ class Message{
 	Message(std::string raw_message, Server *server, int clientfd);
 	~Message();
 
-	bool isValidMessage();
+	bool const &isValidMessage();
 	
 	bool analyzeMessage();
 
@@ -41,7 +41,7 @@ class Message{
 	std::string 			 const 	&getTrailer() const;
 	int 					 const 	&getClientfd() const;
 	std::shared_ptr<Client>	 const 	&getClientPtr() const;
-	bool							hasTrailer() const;
+	bool					 const 	&hasTrailer() const;
 	void printMessageContents();
 };
 

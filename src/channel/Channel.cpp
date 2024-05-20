@@ -9,58 +9,61 @@ Channel::~Channel()
 {
 }
 
-std::string Channel::getName() const
+std::string const &Channel::getName() const
 {
 	if (name_.empty())
 		throw std::runtime_error("Channel name is empty.");
 	return name_;
 }
 
-std::map<std::shared_ptr<Client>, bool> Channel::getUsers() const
+std::map<std::shared_ptr<Client>, bool> const &Channel::getUsers() const
 {
 	return users_;
 }
 
-std::string Channel::getChannelKey() const
+std::string const &Channel::getChannelKey() const
 {
 	return channel_key_;
 }
 
-std::pair<std::string, std::string> Channel::getTopic() const
+std::pair<std::string, std::string> const &Channel::getTopic() const
 {
 	return topic_;
 }
 
-unsigned int Channel::getChannelLimit() const
+
+// Get channel limit
+unsigned int const &Channel::getChannelLimit() const
 {
 	return limit_;
 }
 // Get mode_t (topic lock mode)
-bool Channel::getModeT() const
+
+bool const &Channel::getModeT() const
 {
 	return mode_t_;
 }
 
 // Get mode_i (invite-only mode)
-bool Channel::getModeI() const
+bool const &Channel::getModeI() const
 {
 	return mode_i_;
 }
 
 // Get mode_k (key-protected mode)
-bool Channel::getModeK() const
+bool const &Channel::getModeK() const
 {
 	return mode_k_;
 }
 
 // Get mode_l
-bool Channel::getModeL() const
+bool const &Channel::getModeL() const
 {
 	return mode_l_;
 }
 
 // Get mode_n
-bool Channel::getModeN() const
+bool const &Channel::getModeN() const
 {
 	return mode_n_;
 }
@@ -202,9 +205,7 @@ void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const 
 		{
 			std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
 			if (recipient_ptr != sender_ptr) // Don't send the message to the sender
-			{
 				server_ptr->sendResponse(recipient_ptr->getFd(), message);
-			}
 		}
 	}
 }

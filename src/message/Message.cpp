@@ -87,12 +87,12 @@ std::vector<std::string> const &Message::getParameters() const
 	return parameters_;
 }
 
-bool Message::isValidMessage()
+bool const &Message::isValidMessage()
 {
 	return valid_message_;
 }
 
-bool Message::hasTrailer() const
+bool const &Message::hasTrailer() const
 {
 	return has_trailer_;
 }

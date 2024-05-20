@@ -39,17 +39,17 @@ class Channel
 		~Channel();
 
 		// Accessor methods
-		std::string getName() const;
-		std::map<std::shared_ptr<Client>, bool> getUsers() const;
-		std::string getChannelKey() const;
-		unsigned int getChannelLimit() const;
-		std::pair<std::string, std::string> getTopic() const;
-		bool getModeT() const;
-		bool getModeI() const;
-		bool getModeK() const;
-		bool getModeL() const;
-		bool getModeN() const;
-		std::string const &getMode() const;
+		std::string const 								&getName() const;
+		std::map<std::shared_ptr<Client>, bool> const 	&getUsers() const;
+		std::string const 								&getChannelKey() const;
+		unsigned int const 								&getChannelLimit() const;
+		std::pair<std::string, std::string> const 		&getTopic() const;
+		bool const 										&getModeT() const;
+		bool const 										&getModeI() const;
+		bool const 										&getModeK() const;
+		bool const 										&getModeL() const;
+		bool const 										&getModeN() const;
+		std::string const 								&getMode() const;
 		std::chrono::time_point<std::chrono::system_clock> const &getChannelCreationTimestamps() const;
 
 		// Mutator methods
