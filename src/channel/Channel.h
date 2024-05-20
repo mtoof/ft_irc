@@ -31,7 +31,7 @@ class Channel
 		unsigned int 										limit_;
 		std::set<std::string> 								invited_users_;
 		std::pair<std::string, std::string> 				topic_; // Channel topic (author, topic)
-		std::map<std::shared_ptr<Client>, bool> 			users_; // Users in the channel and their operator status (true if op)
+		std::map<std::shared_ptr<Client>, bool> users_; // Users in the channel and their operator status (true if op)
 		std::chrono::time_point<std::chrono::system_clock>	channel_creation_timestamps_;
 		std::chrono::time_point<std::chrono::system_clock>	topic_timestamp_;
 	public:

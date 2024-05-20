@@ -42,15 +42,22 @@ void Server::closeDeletePollFd(int fd)
 void Server::closeFds()
 {
 	std::cout << RED "Closing all connections" RESET << std::endl;
+	if (channels_.size())
+		channels_.clear();
+	if (clients_.size())
+		clients_.clear();
 	if (fds_.size() > 1)
 	{
-		for (auto index = fds_.begin(); index != fds_.end(); index++)
+		for (auto index = fds_.begin(); index != fds_.end();)
 		{
 			if (index->fd)
 			{
-				close(index->fd);
+				if (close(index->fd) == -1)
+					perror("Error closing fd");
 				fds_.erase(index);
 			}
+			else
+				++index;
 		}
 	}
 }
