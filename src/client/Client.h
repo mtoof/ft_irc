@@ -30,7 +30,7 @@ class Client{
 	bool														mode_local_op_;
 	bool														away_status_;
     std::string													away_message_;
-	std::vector<std::shared_ptr<Channel>>						channels_;
+	std::vector<std::weak_ptr<Channel>>							channels_;
 	// TODO monitoring ping pong status
 	// clients that have not replied in a long time should be dropped from the server
 
@@ -55,7 +55,7 @@ class Client{
 	bool		const	&getRejectedStatus() const;
 	bool		const	&getHasCorrectPassword() const;
 	bool 		const	&isAway() const;
-	std::vector<std::shared_ptr<Channel>> const &getChannels() const;
+	std::vector<std::weak_ptr<Channel>> const &getChannels() const;
 	
 
 	// setters
@@ -83,7 +83,7 @@ class Client{
 	void		processCommand(Message &message, Server *server_ptr);
 
 	bool		joinChannel(const std::shared_ptr<Channel>& channel_ptr);
-	void		leaveChannel(const std::shared_ptr<Channel>& channel_ptr);
+	void		leaveChannel(const std::weak_ptr<Channel>& channel_ptr);
 	
 };
 #endif

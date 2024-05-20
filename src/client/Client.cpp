@@ -70,7 +70,7 @@ std::string const &Client::getClientPrefix() const
 	return client_prefix_;
 }
 
-std::vector<std::shared_ptr<Channel>> const &Client::getChannels() const 
+std::vector<std::weak_ptr<Channel>> const &Client::getChannels() const 
 {
     return channels_;
 }
@@ -217,7 +217,15 @@ bool	Client::joinChannel(const std::shared_ptr<Channel>& channel_ptr)
 	return true;
 }
 
-void Client::leaveChannel(const std::shared_ptr<Channel>& channel_ptr)
+void Client::leaveChannel(const std::weak_ptr<Channel>& channel_ptr)
 {
-    channels_.erase(std::remove(channels_.begin(), channels_.end(), channel_ptr), channels_.end());
+    auto locked_channel_ptr = channel_ptr.lock(); // Attempt to obtain a shared_ptr
+    if (!locked_channel_ptr) // If the weak_ptr is expired, return
+        return;
+
+    // Remove the weak_ptr from the vector
+    channels_.erase(std::remove_if(channels_.begin(), channels_.end(),
+        [&locked_channel_ptr](const std::weak_ptr<Channel>& wp) {
+            return wp.lock() == locked_channel_ptr;
+        }), channels_.end());
 }

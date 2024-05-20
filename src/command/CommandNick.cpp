@@ -51,11 +51,11 @@ void Command::handleNick(const Message &msg)
 		client_ptr->registerClient();
 		server_ptr_->welcomeAndMOTD(client_fd, server_ptr_->getServerHostname(), client_ptr->getNickname(), client_ptr->getClientPrefix());
 	}
-	std::vector<std::shared_ptr<Channel>> channel_list = client_ptr->getChannels();//else
+	std::vector<std::weak_ptr<Channel>> channel_list = client_ptr->getChannels();//else
 	if (!channel_list.empty())
 	{
 		for (auto channel_ptr: channel_list)
-			channel_ptr->broadcastMessage(client_ptr, RPL_NICKCHANGECHANNEL(old_prefix, new_nickname), server_ptr_);
+			channel_ptr.lock()->broadcastMessage(client_ptr, RPL_NICKCHANGECHANNEL(old_prefix, new_nickname), server_ptr_);
 	}
 }
 

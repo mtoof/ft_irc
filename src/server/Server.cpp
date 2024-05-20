@@ -142,15 +142,16 @@ void Server::registerNewClient()
 		return;
 	}
 	userpollfd = {userfd, POLL_IN, 0};
-	char *ip;
-	if ((ip = extractUserIpAddress(usersocketaddress)) == nullptr)
+	char ip[INET6_ADDRSTRLEN];
+	memset(ip, 0, INET6_ADDRSTRLEN);
+	extractUserIpAddress(ip, usersocketaddress);
+	if (strlen(ip) == 0)
 	{
 		debug("Unknown address family", FAILED);
 		return;
 	}
 	std::shared_ptr<Client> newclient = std::make_shared<Client>(userfd, "", "", ip);
-	delete ip;
-	this->clients_.insert(std::make_pair(userfd, newclient));
+	this->clients_.insert({userfd, newclient});
 	fds_.push_back(userpollfd);
 	std::cout << GREEN " <Client " << userfd << "> is trying to establish a connection." RESET << std::endl;
 }
@@ -225,13 +226,13 @@ void Server::disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr, std::
 
 void Server::sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string const &reason)
 {
-	std::vector<std::shared_ptr<Channel>> channel_list = client_ptr->getChannels();
+	std::vector<std::weak_ptr<Channel>> channel_list = client_ptr->getChannels();
 	if (!channel_list.empty())
 	{
 		std::vector<int> fds_sent_to = {};
 		for(auto channel_ptr : channel_list)
 		{
-			for (const auto &recipient_pair : channel_ptr->getUsers())
+			for (const auto &recipient_pair : channel_ptr.lock()->getUsers())
 			{
 				std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
 				int recipient_fd = recipient_ptr->getFd();
@@ -242,9 +243,9 @@ void Server::sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string co
 					fds_sent_to.push_back(recipient_fd);
 				}
 			}
-			channel_ptr->removeUser(client_ptr);
-			if (channel_ptr->isEmpty())
-				deleteChannel(channel_ptr->getName());
+			channel_ptr.lock()->removeUser(client_ptr);
+			if (channel_ptr.lock()->isEmpty())
+				deleteChannel(channel_ptr.lock()->getName());
 		}
 	}
 }

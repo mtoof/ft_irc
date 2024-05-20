@@ -71,7 +71,7 @@ public:
 	std::shared_ptr<Client> 				findClientUsingNickname(std::string const &nickname) const;
 	std::shared_ptr<Client> 				findClientUsingOldNickname(std::string const &nickname) const;
 	void									whoGotDisconnected(int fd);
-	char*									extractUserIpAddress(struct sockaddr_in6 usersocketaddress);
+	void									extractUserIpAddress(char *ip, struct sockaddr_in6 usersocketaddress);
 	void									sendResponse(int fd, const std::string &response);
 	void									setServerHostname();
 	void 									welcomeAndMOTD(int fd, std::string const &servername, std::string const &nickname, std::string const &client_prefix);

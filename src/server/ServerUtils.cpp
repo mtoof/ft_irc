@@ -42,13 +42,10 @@ void Server::closeDeletePollFd(int fd)
 void Server::closeFds()
 {
 	std::cout << RED "Closing all connections" RESET << std::endl;
-	if (channels_.size())
-		channels_.clear();
-	if (clients_.size())
-		clients_.clear();
-	if (fds_.size() > 1)
+	supported_commands_.clear();
+	if (fds_.size())
 	{
-		for (auto index = fds_.begin(); index != fds_.end();)
+		for (auto index = fds_.begin() + 1; index != fds_.end();)
 		{
 			if (index->fd)
 			{
@@ -142,10 +139,8 @@ void Server::whoGotDisconnected(int fd)
 	}
 }
 
-char *Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress)
+void Server::extractUserIpAddress(char *ipstr, struct sockaddr_in6 usersocketaddress)
 {
-	char *ipstr = nullptr;
-
 	if (usersocketaddress.sin6_family == AF_INET6)
 	{
 		if (IN6_IS_ADDR_V4MAPPED(&(usersocketaddress.sin6_addr)))
@@ -153,24 +148,24 @@ char *Server::extractUserIpAddress(struct sockaddr_in6 usersocketaddress)
 			// It's an IPv4-mapped IPv6 address, extract the IPv4 address
 			struct in_addr ipv4addr;
 			memcpy(&ipv4addr, &(usersocketaddress.sin6_addr.s6_addr[12]), sizeof(struct in_addr));
-			ipstr = new char[INET_ADDRSTRLEN];
+			// ipstr = new char[INET_ADDRSTRLEN];
 			inet_ntop(AF_INET, &ipv4addr, ipstr, INET_ADDRSTRLEN);
 		}
 		else
 		{
 			// It's a regular IPv6 address
 
-			ipstr = new char[INET6_ADDRSTRLEN];
+			// ipstr = new char[INET6_ADDRSTRLEN];
 			inet_ntop(AF_INET6, &(usersocketaddress.sin6_addr), ipstr, INET6_ADDRSTRLEN);
 		}
 	}
 	else if (usersocketaddress.sin6_family == AF_INET)
 	{
 		// It's an IPv4 address
-		ipstr = new char[INET_ADDRSTRLEN];
+		// ipstr = new char[INET_ADDRSTRLEN];
 		inet_ntop(AF_INET, &(usersocketaddress.sin6_addr), ipstr, INET_ADDRSTRLEN);
 	}
-	return ipstr;
+	// return ipstr;
 }
 
 void Server::sendResponse(int fd, const std::string &response)

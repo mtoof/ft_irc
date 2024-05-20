@@ -69,6 +69,17 @@
 		"typeinfo": "cpp",
 		"unordered_map": "cpp",
 		"vector": "cpp",
-		"queue": "cpp"
+		"queue": "cpp",
+		"*.tcc": "cpp",
+		"clocale": "cpp",
+		"compare": "cpp",
+		"concepts": "cpp",
+		"condition_variable": "cpp",
+		"memory_resource": "cpp",
+		"numeric": "cpp",
+		"random": "cpp",
+		"ranges": "cpp",
+		"stop_token": "cpp",
+		"thread": "cpp"
 	}
 }
