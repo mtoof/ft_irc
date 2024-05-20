@@ -84,17 +84,17 @@ public:
 	std::vector<std::shared_ptr<Client>> 	findClientsByMask(const std::string &mask) const;
 	bool									hasClientSentPass(std::shared_ptr <Client> const &client_ptr);
 	void									initOperators(const std::stringstream &config_file);
-	std::vector<t_opers>	const							&getOperatorsFile() const;
-	std::map <int, std::shared_ptr<Client>>	const			&getOperatorUsers() const;
 	void													insertInOperators(std::pair<int, std::shared_ptr <Client>> const &element);
 	void									sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string const &reason);
 
 //getter
 
+	std::vector<t_opers>	const							&getOperatorsFile() const;
+	std::map <int, std::shared_ptr<Client>>	const			&getOperatorUsers() const;
 	std::string const & getPassword() const;
 	// getter for map of supported commands
 	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;
-	const std::string &getServerHostname() const;
+	std::string const &getServerHostname() const;
 	std::map<std::string, std::shared_ptr<Channel>> const &getChannels() const;
 
 };

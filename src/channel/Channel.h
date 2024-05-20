@@ -39,18 +39,21 @@ class Channel
 		~Channel();
 
 		// Accessor methods
-		std::string getName() const;
-		std::map<std::shared_ptr<Client>, bool> getUsers() const;
-		std::string getChannelKey() const;
-		unsigned int getChannelLimit() const;
-		std::pair<std::string, std::string> getTopic() const;
-		bool getModeT() const;
-		bool getModeI() const;
-		bool getModeK() const;
-		bool getModeL() const;
-		bool getModeN() const;
-		std::string const &getMode() const;
+		std::string const 								&getName() const;
+		std::map<std::shared_ptr<Client>, bool> const 	&getUsers() const;
+		std::string const 								&getChannelKey() const;
+		unsigned int const 								&getChannelLimit() const;
+		std::pair<std::string, std::string> const 		&getTopic() const;
+		bool const 										&getModeT() const;
+		bool const 										&getModeI() const;
+		bool const 										&getModeK() const;
+		bool const 										&getModeL() const;
+		bool const 										&getModeN() const;
+		std::string const 								&getMode() const;
 		std::chrono::time_point<std::chrono::system_clock> const &getChannelCreationTimestamps() const;
+		bool const 										&hasTopic() const;
+		bool const 										&isInviteOnly() const;
+
 
 		// Mutator methods
 		void setName(const std::string &name);
@@ -69,7 +72,6 @@ class Channel
 
 		// Functional methods
 		bool isFull() const;
-		bool isInviteOnly() const;
 		bool isPasswordProtected() const;
 		void addUser(std::shared_ptr<Client> client_ptr, bool is_channel_op);
 		void removeUser(std::shared_ptr<Client> client_ptr);
@@ -86,7 +88,7 @@ class Channel
 		void addUserToInvitedList(const std::string &nickname);
 		void removeUserFromInvitedList(const std::string &nickname);
 		void sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr);
-		bool hasTopic();
+
 		void clearTopic(const std::string &nickname);
 		bool isEmpty();
 };

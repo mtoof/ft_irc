@@ -51,10 +51,11 @@ class Client{
 	bool		const   &getModeLocalOp() const;
 	bool		const	&getRegisterStatus() const;
 	std::string const	&getClientPrefix() const;
-	std::string 		getAwayMessage() const;
-	std::string 		getChannelName() const;
+	std::string const	&getAwayMessage() const;
 	bool		const	&getRejectedStatus() const;
 	bool		const	&getHasCorrectPassword() const;
+	bool 		const	&isAway() const;
+	std::vector<std::shared_ptr<Channel>> const &getChannels() const;
 	
 
 	// setters
@@ -80,9 +81,9 @@ class Client{
 	void 		processBuffer(Server *server_ptr);
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(Message &message, Server *server_ptr);
-	bool 		isAway() const;
+
 	bool		joinChannel(const std::shared_ptr<Channel>& channel_ptr);
 	void		leaveChannel(const std::shared_ptr<Channel>& channel_ptr);
-	std::vector<std::shared_ptr<Channel>> getChannels() const;
+	
 };
 #endif
