@@ -103,7 +103,7 @@ void Command::handleJoin(const Message &msg)
 		sendNamReplyAfterJoin(channel_ptr, client_ptr->getNickname(), client_fd);
 		std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(channel_ptr->getChannelCreationTimestamps());
 		std::string channel_creation_timestamp_string = std::to_string(unix_timestamp);
-		server_ptr_->sendResponse(client_fd, RPL_CREATIONTIME(client_ptr->getNickname(), channel_name, channel_creation_timestamp_string));
+		server_ptr_->sendResponse(client_fd, RPL_CREATIONTIME(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name, channel_creation_timestamp_string));
 		channel_ptr->broadcastMessage(client_ptr, RPL_JOINMSG(client_ptr->getClientPrefix(), channel_ptr->getName()), server_ptr_);
 		if (channel_ptr->hasTopic())
 			channel_ptr->sendTopicToClient(client_ptr, server_ptr_);

@@ -32,7 +32,7 @@
 #define RPL_ENDOFWHOIS(servername, user_nickname, whois_nickname) (":" + servername + " 318 " + user_nickname + " " + whois_nickname + " :End of WHOIS list." + CRLF)
 #define RPL_WHOISCHANNELS(nickname, channel) (": 319 " + nickname + " :" + channel + CRLF)
 #define RPL_CHANNELMODEIS(servername, nickname, channelname, modes) (":" + servername + " 324 " + nickname + " " + channelname + " " + modes + CRLF)
-#define RPL_CREATIONTIME(nickname, channelname, creationtime) (": 329 " + nickname + " " + channelname + " " + creationtime + CRLF)
+#define RPL_CREATIONTIME(servername, nickname, channelname, creationtime) (":" + servername + " 329 " + nickname + " " + channelname + " " + creationtime + CRLF)
 #define RPL_NOTOPIC(servername, nickname, channelname) (":" + servername + " 331 " + nickname + " " + channelname + " :No topic is set" + CRLF)
 #define RPL_TOPIC(servername, nickname, channelname, topic) (":" + servername + " 332 " + nickname + " " + channelname + " :" + topic + CRLF)
 #define RPL_TOPICWHOTIME(servername, nickname, channelname, author, timestamp) (":" + servername + " 333 " + nickname + " " + channelname + " " + author + " " + timestamp + CRLF)
