@@ -2,13 +2,14 @@
 
 void Command::handlePass(const Message &msg)
 {
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	int client_fd = client_ptr->getFd();
+	auto tmp_client_ptr = msg.getClientPtr();
+	auto lock_client_ptr = tmp_client_ptr.lock();
+	int client_fd = lock_client_ptr->getFd();
 	if (server_ptr_->getPassword().empty())
 		return;
-	if (client_ptr->getRegisterStatus() == true)
+	if (lock_client_ptr->getRegisterStatus() == true)
 	{
-		server_ptr_->sendResponse(client_fd, ERR_ALREADYREGISTERED(server_ptr_->getServerHostname(), client_ptr->getNickname()));
+		server_ptr_->sendResponse(client_fd, ERR_ALREADYREGISTERED(server_ptr_->getServerHostname(), lock_client_ptr->getNickname()));
 		return;
 	}
 	std::vector<std::string> parameters = msg.getParameters();
@@ -16,13 +17,13 @@ void Command::handlePass(const Message &msg)
 
 	if (pos == std::string::npos || parameters.empty())
 		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(std::string("*"), "PASS"));
-	else if (!client_ptr->getRegisterStatus())
+	else if (!lock_client_ptr->getRegisterStatus())
 	{
 		if (parameters[0] == server_ptr_->getPassword())
-			client_ptr->setHasCorrectPassword(true);
+			lock_client_ptr->setHasCorrectPassword(true);
 		else if (parameters[0] != server_ptr_->getPassword())
 		{
-			server_ptr_->sendResponse(client_fd, ERR_INCORPASS(server_ptr_->getServerHostname(), client_ptr->getNickname()));
+			server_ptr_->sendResponse(client_fd, ERR_INCORPASS(server_ptr_->getServerHostname(), lock_client_ptr->getNickname()));
 			server_ptr_->sendResponse(client_fd, RED "Connection got rejected by the server\r\n");
 			std::cout << RESET << std::endl;
 			server_ptr_->closeDeletePollFd(client_fd);

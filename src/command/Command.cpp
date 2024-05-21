@@ -19,12 +19,13 @@ Command::~Command()
  */
 void Command::handlePing(const Message &msg)
 {
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	int client_fd = client_ptr->getFd();
+	auto tmp_client_ptr = msg.getClientPtr();
+	auto lock_client_ptr = tmp_client_ptr.lock();
+	int client_fd = lock_client_ptr->getFd();
 	std::vector<std::string> parameters = msg.getParameters();
 	if (parameters.empty())
 	{
-		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "PING"));
+		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(lock_client_ptr->getClientPrefix(), "PING"));
 	}
 	server_ptr_->sendResponse(client_fd, PONG(server_ptr_->getServerHostname(), parameters.front())); // latter parameter is the token received from client
 }
