@@ -12,10 +12,11 @@ void Command::handlePass(const Message &msg)
 		return;
 	}
 	std::vector<std::string> parameters = msg.getParameters();
-	size_t pos = parameters.front().find_first_not_of(" \t\v");
-
-	if (pos == std::string::npos || parameters.empty())
+	if (parameters.empty() || parameters.front().find_first_not_of(" \t\v") == std::string::npos)
+	{
 		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(std::string("*"), "PASS"));
+		return;
+	}
 	else if (!client_ptr->getRegisterStatus())
 	{
 		if (parameters[0] == server_ptr_->getPassword())

@@ -9,6 +9,28 @@ BotCommand::~BotCommand()
 {
 }
 
+static std::string getNicknameFromPrefix(std::string prefix)
+{
+	std::string nickname = "";
+	if (prefix[0] == ':')
+		prefix.erase(0, 1);
+	size_t end_pos = prefix.find('!');
+	if (end_pos != std::string::npos)
+		nickname = prefix.substr(0, end_pos);
+	return nickname;
+}
+
+static std::string getUsernameFromPrefix(std::string prefix)
+{
+	std::string username = "";
+	size_t start_pos = prefix.find('~');
+	size_t end_pos = prefix.find('@');
+	std::cout << prefix << " " << start_pos << " " << end_pos << std::endl;
+	if (start_pos != std::string::npos && end_pos != std::string::npos)
+		username = prefix.substr(start_pos, end_pos - start_pos);
+	return username;
+}
+
 void BotCommand::handleJoin(const BotMessage &msg)
 {
 	std::string reply_number = msg.getReplyNumber();
@@ -21,13 +43,24 @@ void BotCommand::handleJoin(const BotMessage &msg)
 		return;
 	}
 	std::string prefix = msg.getPrefix();
-	std::string nickname = prefix.substr(1, prefix.find_first_of("!") - 1);
+	std::string nickname = getNicknameFromPrefix(prefix);
+	std::string username = getUsernameFromPrefix(prefix);
+	std::cout << nickname << "\n" << username << std::endl;
 	std::string channel_name = msg.getParameters().front();
 	if (nickname != bot_->getNickname())
 	{
-		bot_->send_response(fd, RPL_PRIVMSG(channel_name, "Welcome to " + channel_name + ", " + nickname + "!"));
+		bot_->send_response(fd, RPL_PRIVMSG(channel_name, "Hello " + nickname + ", good to see you!"));
+		auto operators = bot_->getOperators();
+		if (!operators.empty())
+		{
+			auto iter = operators.find(nickname);
+			if (iter != operators.end())
+			{
+				if (iter->second == username)
+					bot_->send_response(fd, "MODE " + channel_name + " +o " + nickname + CRLF);
+			}
+		}
 	}
-
 }
 
 void BotCommand::handleNick(const BotMessage &msg)
@@ -57,12 +90,8 @@ void BotCommand::handlePrivmsg(const BotMessage &msg)
 {
 	std::string prefix = msg.getPrefix();
 	std::string channel_name = msg.getParameters()[0];
-	if (prefix[0] == ':')
-		prefix.erase(0, 1);
-	size_t pos = prefix.find('!');
-	std::string offender;
-	if (pos != std::string::npos)
-		offender = prefix.substr(0, pos);
+	std::string nickname = getNicknameFromPrefix(prefix);
+	std::string username = getUsernameFromPrefix(prefix);
 	std::string line(msg.getTrailer());
 	int fd = bot_->getServerfd();
 	std::string word;
@@ -75,15 +104,15 @@ void BotCommand::handlePrivmsg(const BotMessage &msg)
 			//std::cout << line.find(word_it) << std::endl;
 			if (line.find(word_it) != std::string::npos)
 			{
-				if (std::find(violated_users.begin(), violated_users.end(), offender) != violated_users.end())
+				if (std::find(violated_users.begin(), violated_users.end(), nickname) != violated_users.end())
 				{
-					bot_->send_response(fd, KICK_REQUEST(channel_name, offender + " :You have violated the chat room rules."));
+					bot_->send_response(fd, KICK_REQUEST(channel_name, nickname + " :You have violated the chat room rules."));
 					return;
 				}
 				else
 				{
-					bot_->send_response(fd, RPL_PRIVMSG(channel_name, offender + " :This is the last warning, You have violated the chat room rules."));
-					bot_->insertInViolatedUsers(offender);
+					bot_->send_response(fd, RPL_PRIVMSG(channel_name, nickname + " :This is the last warning, You have violated the chat room rules."));
+					bot_->insertInViolatedUsers(nickname);
 					return;
 				}
 			}

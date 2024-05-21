@@ -60,19 +60,59 @@ void	Bot::readConfigFile()
 	std::ifstream config_file(CONFIG_FILE);
 	if (config_file.is_open())
 	{
-		std::stringstream ss;
-		ss << config_file.rdbuf();
-		std::string line;
-		std::cout << RED << "reading the file" << RESET << std::endl;
-		while (ss >> line)
-		{
-			if (line.find(' ') != std::string::npos)
-				continue;
-			std::cout << RED << "line = " << line << RESET << std::endl;
-			forbidden_words_.push_back(line);
+	    std::stringstream ss;
+        ss << config_file.rdbuf();
+        std::string line;
+        std::cout << "Reading the file" << std::endl;
+
+        bool reading_operators = false;
+        bool reading_forbidden_words = false;
+
+        while (std::getline(ss, line))
+        {
+            // Trim leading and trailing whitespace
+            line.erase(0, line.find_first_not_of(" \t\n\r"));
+            line.erase(line.find_last_not_of(" \t\n\r") + 1);
+
+            if (line.empty())
+                continue;
+
+            if (line == "OPERATORS:")
+            {
+                reading_operators = true;
+                reading_forbidden_words = false;
+                continue;
+            }
+            else if (line == "FORBIDDEN WORDS:")
+            {
+                reading_operators = false;
+                reading_forbidden_words = true;
+                continue;
+            }
+
+            if (reading_operators)
+            {
+                std::istringstream iss(line);
+                std::string nickname, username;
+                if (iss >> nickname >> username)
+                {
+                    operators_[nickname] = username;
+                    std::cout << "Operator: " << nickname << " " << username << std::endl;
+                }
+            }
+            else if (reading_forbidden_words)
+            {
+                if (line.find(' ') == std::string::npos)
+                {
+                    forbidden_words_.push_back(line);
+                    std::cout << "Forbidden word: " << line << std::endl;
+                }
+            }
 		}
 	}
 }
+
+
 
 std::vector<std::string> const &Bot::getForbiddenWords() const
 {
@@ -87,4 +127,9 @@ std::vector<std::string> const &Bot::getViolatedUsers() const
 void Bot::insertInViolatedUsers(std::string const &username)
 {
 	violated_users_.push_back(username);
+}
+
+std::unordered_map<std::string, std::string> const &Bot::getOperators() const
+{
+	return operators_;
 }
