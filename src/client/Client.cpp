@@ -219,13 +219,18 @@ bool	Client::joinChannel(const std::shared_ptr<Channel>& channel_ptr)
 
 void Client::leaveChannel(const std::weak_ptr<Channel>& channel_ptr)
 {
-    auto locked_channel_ptr = channel_ptr.lock(); // Attempt to obtain a shared_ptr
-    if (!locked_channel_ptr) // If the weak_ptr is expired, return
-        return;
-
-    // Remove the weak_ptr from the vector
-    channels_.erase(std::remove_if(channels_.begin(), channels_.end(),
-        [&locked_channel_ptr](const std::weak_ptr<Channel>& wp) {
-            return wp.lock() == locked_channel_ptr;
-        }), channels_.end());
+	auto locked_channel_ptr = channel_ptr.lock();
+	if (!locked_channel_ptr)
+		return;
+	std:: vector<std::weak_ptr<Channel>>::iterator it = channels_.begin();
+	while (it != channels_.end())
+    {
+        if (it->lock() == locked_channel_ptr)
+        {
+            it = channels_.erase(it);
+            break;
+        }
+        else
+		   ++it;
+    }
 }
