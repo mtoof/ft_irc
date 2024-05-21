@@ -60,7 +60,7 @@
 #define ERR_NOTREGISTERED(servername) (":" + servername + " 451 " + "*" + " :You have not registered." + CRLF)
 #define ERR_NEEDMOREPARAMS(client_prefix, command) (":" + client_prefix + " 461 " + command + " :Not enough parameters given." + CRLF)
 #define ERR_ALREADYREGISTERED(servername, nickname) (":" + servername + " 462 " + nickname + " :You are already registered!" + CRLF)
-#define ERR_INCORPASS(servername, nickname) (":" + servername + " 464 " + nickname + " :Password incorrect! try again!" + CRLF)
+#define ERR_PASSWDMISMATCH(servername, nickname) (":" + servername + " 464 " + nickname + " :Password incorrect!" + CRLF)
 #define ERR_CHANNELISFULL(servername, nickname, channel) (":" + servername + " 471 " + nickname + " " + channel + " :Cannot join channel (+l)" + CRLF)
 #define ERR_UNKNOWNMODE(servername, nickname, mode) (":" + servername + " 472 " + nickname + " " + mode + " :is unknown mode char to me" + CRLF)
 #define ERR_INVITEONLYCHAN(servername, nickname, channel) (":" + servername + " 473 " + nickname + " " + channel + " :Cannot join channel (+i)" + CRLF)

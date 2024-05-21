@@ -22,9 +22,8 @@ void Command::handlePass(const Message &msg)
 			client_ptr->setHasCorrectPassword(true);
 		else if (parameters[0] != server_ptr_->getPassword())
 		{
-			server_ptr_->sendResponse(client_fd, ERR_INCORPASS(server_ptr_->getServerHostname(), client_ptr->getNickname()));
-			server_ptr_->sendResponse(client_fd, RED "Connection got rejected by the server\r\n");
-			std::cout << RESET << std::endl;
+			server_ptr_->sendResponse(client_fd, ERR_PASSWDMISMATCH(server_ptr_->getServerHostname(), client_ptr->getNickname()));
+			server_ptr_->sendResponse(client_fd, "ERROR: Connection got rejected by the server\r\n");
 			server_ptr_->closeDeletePollFd(client_fd);
 			server_ptr_->deleteClient(client_fd);
 		}

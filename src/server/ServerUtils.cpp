@@ -176,7 +176,7 @@ void Server::extractUserIpAddress(char *ipstr, struct sockaddr_in6 usersocketadd
 
 void Server::sendResponse(int fd, const std::string &response)
 {
-	std::cout << BLUE << "Response: "
+	std::cout << YELLOW << "Response: "
 			  << response << RESET;
 	if (send(fd, response.c_str(), response.length(), 0) < 0)
 		debug("Response send() faild", FAILED);
@@ -321,14 +321,24 @@ void Server::deleteChannel(std::string const &channelname)
 
 bool Server::hasClientSentPass(std::shared_ptr <Client> const &client_ptr)
 {
-	int fd = client_ptr->getFd();
+	int client_fd = client_ptr->getFd();
 	if (!this->getPassword().empty() && client_ptr->getHasCorrectPassword() == false)
 	{
-		std::string msg = "You must send password first";
-		if (findClientUsingFd(fd) && !client_ptr->getRejectedStatus())
+		if (findClientUsingFd(client_fd))
 		{
-			this->sendResponse(fd, msg + CRLF); // this is definitely not the correct reply
-			client_ptr->setRejectedStatus(true);
+			if (!client_ptr->getRejectedStatus())
+			{
+				this->sendResponse(client_fd, ERR_NOTREGISTERED(getServerHostname()));
+				this->sendResponse(client_fd, "ERROR: You must send password\r\n");
+				client_ptr->setRejectedStatus(true);
+			}
+			else
+			{
+				sendResponse(client_fd, "ERROR: No password received. Connect rejected by the server\r\n");
+				closeDeletePollFd(client_fd);
+				deleteClient(client_fd);
+				return false;
+			}
 		}
 		return false;
 	}

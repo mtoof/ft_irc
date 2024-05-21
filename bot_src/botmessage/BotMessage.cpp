@@ -7,8 +7,9 @@
 BotMessage::BotMessage(std::string raw_message)
 	: raw_message_(raw_message), valid_message_(false)
 {
+	std::cout << CYAN << "Received from Server: " << raw_message << "\t"
+			  << "Message size = " << raw_message.length() << " byte" << RESET << std::endl;
 	valid_message_ = analyzeMessage();
-	printMessageContents();
 }
 
 BotMessage::~BotMessage()

@@ -2,7 +2,7 @@
 
 bool Bot::signal_ = false;
 Bot::Bot(std::string &server_address, int &port, std::string &password, char **av)
-	: server_addr_(server_address), server_port_(port), server_password_(password)
+	: server_addr_(server_address), server_port_(port), server_password_(password), register_status_(false)
 {
 	if (isValidNickname(av[4]))
 		nickname_ = av[4];
@@ -16,6 +16,7 @@ Bot::Bot(std::string &server_address, int &port, std::string &password, char **a
 	supported_commands_.insert(std::pair("NICK", &BotCommand::handleNick));
 	supported_commands_.insert(std::pair("PRIVMSG", &BotCommand::handlePrivmsg));
 	supported_commands_.insert(std::pair("KICK", &BotCommand::handleKick));
+	//supported_commands_.insert(std::pair("PASS", &BotCommand::handlePass));
 }
 
 Bot::~Bot()

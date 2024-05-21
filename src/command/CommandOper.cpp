@@ -47,7 +47,7 @@ void Command::handleOper(const Message &msg)
 				}
 				else
 				{
-					server_ptr_->sendResponse(client_fd, ERR_INCORPASS(server_ptr_->getServerHostname(), requested_nick));
+					server_ptr_->sendResponse(client_fd, ERR_PASSWDMISMATCH(server_ptr_->getServerHostname(), requested_nick));
 					return;
 				}
 			}

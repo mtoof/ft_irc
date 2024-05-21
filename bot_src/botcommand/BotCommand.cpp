@@ -15,9 +15,19 @@ void BotCommand::handleJoin(const BotMessage &msg)
 	int fd = bot_->getServerfd();
 	if (reply_number == "451")
 	{
+		bot_->send_response(fd, RPL_PASS(bot_->getServerPassword()));
 		bot_->send_response(fd, RPL_NICK(bot_->getNickname()));
 		bot_->send_response(fd, RPL_USER(bot_->getUsername()));
+		return;
 	}
+	std::string prefix = msg.getPrefix();
+	std::string nickname = prefix.substr(1, prefix.find_first_of("!") - 1);
+	std::string channel_name = msg.getParameters().front();
+	if (nickname != bot_->getNickname())
+	{
+		bot_->send_response(fd, RPL_PRIVMSG(channel_name, "Welcome to " + channel_name + ", " + nickname + "!"));
+	}
+
 }
 
 void BotCommand::handleNick(const BotMessage &msg)
@@ -61,25 +71,38 @@ void BotCommand::handlePrivmsg(const BotMessage &msg)
 	if (!forbidden_words.empty())
 	{
 		for (auto word_it: forbidden_words)
+		{
+			//std::cout << line.find(word_it) << std::endl;
+			if (line.find(word_it) != std::string::npos)
 			{
-				std::cout << line.find(word_it) << std::endl;
-				if (line.find(word_it) != std::string::npos)
+				if (std::find(violated_users.begin(), violated_users.end(), offender) != violated_users.end())
 				{
-					if (std::find(violated_users.begin(), violated_users.end(), offender) != violated_users.end())
-					{
-						bot_->send_response(fd, KICK_REQUEST(channel_name, offender + " :You have violated the chat room rules."));
-						return;
-					}
-					else
-					{
-						bot_->send_response(fd, RPL_PRIVMSG(channel_name, offender + " :This is the last warning, You have violated the chat room rules."));
-						bot_->insertInViolatedUsers(offender);
-						return;
-					}
+					bot_->send_response(fd, KICK_REQUEST(channel_name, offender + " :You have violated the chat room rules."));
+					return;
+				}
+				else
+				{
+					bot_->send_response(fd, RPL_PRIVMSG(channel_name, offender + " :This is the last warning, You have violated the chat room rules."));
+					bot_->insertInViolatedUsers(offender);
+					return;
 				}
 			}
 		}
+	}
+	if (line.find("lol") != std::string::npos)
+	{
+		bot_->send_response(fd, RPL_PRIVMSG(channel_name, "   /\\O"));
+		bot_->send_response(fd, RPL_PRIVMSG(channel_name, "    /\\/"));  
+    	bot_->send_response(fd, RPL_PRIVMSG(channel_name, "   /\\"));    
+   		bot_->send_response(fd, RPL_PRIVMSG(channel_name, "  /  \\"));
+ 		bot_->send_response(fd, RPL_PRIVMSG(channel_name, "LOL  LOL"));
+		return;
+	}
+	if (line.find("haha") != std::string::npos){
+		bot_->send_response(fd, RPL_PRIVMSG(channel_name, "THAT WAS HILARIOUS!"));
+		return;}
 }
+
 
 void BotCommand::handleKick(const BotMessage &msg)
 {
@@ -96,3 +119,4 @@ void BotCommand::handleInvite(const BotMessage &msg)
 		bot_->send_response(fd, "JOIN " + msg.getTrailer() + CRLF);
 	}
 }
+

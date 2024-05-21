@@ -49,8 +49,8 @@ int const &Bot::getServerfd() const
 
 void Bot::send_response(int fd, const std::string &response)
 {
-	std::cout << "Response:\n"
-			  << response;
+	std::cout << YELLOW << "Response: "
+			  << response << RESET;
 	if (send(fd, response.c_str(), response.length(), 0) < 0)
 		std::cerr << "Response send() faild" << std::endl;
 }
