@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Server.h"
+#include <unordered_set>
 
 bool Server::signal_ = false;
 
@@ -226,26 +227,29 @@ void Server::disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr, std::
 
 void Server::sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string const &reason)
 {
-	std::vector<std::weak_ptr<Channel>> channel_list = client_ptr->getChannels();
-	if (!channel_list.empty())
+    auto channel_list = client_ptr->getChannels();
+    if (!channel_list.empty()) 
 	{
-		std::vector<int> fds_sent_to = {};
-		for(auto channel_ptr : channel_list)
-		{
-			for (const auto &recipient_pair : channel_ptr.lock()->getUsers())
-			{
-				std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
-				int recipient_fd = recipient_ptr->getFd();
-				auto it = std::find(fds_sent_to.begin(), fds_sent_to.end(), recipient_fd);
-				if (recipient_ptr != client_ptr && it == fds_sent_to.end()) // Don't send the message to the sender
-				{
-					sendResponse(recipient_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
-					fds_sent_to.push_back(recipient_fd);
-				}
-			}
-			channel_ptr.lock()->removeUser(client_ptr);
-			if (channel_ptr.lock()->isEmpty())
-				deleteChannel(channel_ptr.lock()->getName());
-		}
-	}
+        std::unordered_set<int> fds_sent_to;
+        for (auto &channel_weak_ptr : channel_list) {
+            auto channel_ptr = channel_weak_ptr.lock();
+            if (!channel_ptr) continue;  // Check if channel_ptr is valid
+
+            for (const auto &recipient_pair : channel_ptr->getUsers()) {
+                auto recipient_ptr = recipient_pair.first.lock();
+                if (!recipient_ptr) continue;  // Check if recipient_ptr is valid
+
+                int recipient_fd = recipient_ptr->getFd();
+                if (recipient_ptr != client_ptr && fds_sent_to.find(recipient_fd) == fds_sent_to.end()) {
+                    sendResponse(recipient_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
+                    fds_sent_to.insert(recipient_fd);
+                }
+            }
+
+            channel_ptr->removeUser(client_ptr);
+            if (channel_ptr->isEmpty()) {
+                deleteChannel(channel_ptr->getName());
+            }
+        }
+    }
 }

@@ -12,7 +12,8 @@ class Commands;
 class Message;
 class Channel;
 
-class Client{
+class Client: public std::enable_shared_from_this<Client>
+{
 	private:
 	int															fd_;
 	bool														registered_;

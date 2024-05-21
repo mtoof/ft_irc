@@ -16,7 +16,7 @@ std::string const &Channel::getName() const
 	return name_;
 }
 
-std::map<std::shared_ptr<Client>, bool> const &Channel::getUsers() const
+std::map<std::weak_ptr<Client>, bool, std::owner_less<std::weak_ptr<Client>>> const &Channel::getUsers() const
 {
 	return users_;
 }
@@ -72,12 +72,6 @@ bool const &Channel::getModeN() const
 void Channel::setName(const std::string &name)
 {
 	name_ = name;
-}
-
-// Set users
-void Channel::setUsers(const std::map<std::shared_ptr<Client>, bool> &users)
-{
-	users_ = users;
 }
 
 // Set channel key
@@ -149,18 +143,24 @@ bool Channel::isPasswordProtected() const
 	return mode_k_ && !channel_key_.empty();
 }
 
-void Channel::addUser(std::shared_ptr<Client> client_ptr, bool is_channel_op)
+void Channel::addUser(const std::weak_ptr<Client> &client_ptr, bool is_channel_op)
 {
-	if (client_ptr)
+	if (client_ptr.lock())
 		users_[client_ptr] = is_channel_op;				   // Add the user with operator status if specified
 	return;								   // Return true if user added successfully
 }
 
 // Remove a user from the channel
-void Channel::removeUser(std::shared_ptr<Client> client_ptr)
+void Channel::removeUser(const std::weak_ptr<Client> &client_ptr)
 {
-	if (client_ptr)
-		users_.erase(client_ptr);				   // Remove the user from the channel
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+	{
+		std::cerr << "nullptr in removeUser" << std::endl;
+		return ;
+	}
+	if (locked_client_ptr)
+		users_.erase(locked_client_ptr);				   // Remove the user from the channel
 }
 
 /**
@@ -178,7 +178,7 @@ bool Channel::isUserOnChannel(std::string const &nickname)
 	std::transform(nick_lowercase.begin(), nick_lowercase.end(), nick_lowercase.begin(), ::tolower); // Convert the nickname to lowercase
 	for (auto const &user : users_)
 	{
-		std::string user_nick = user.first->getNickname();
+		std::string user_nick = user.first.lock()->getNickname();
 		std::transform(user_nick.begin(), user_nick.end(), user_nick.begin(), ::tolower); // Convert the user's nickname to lowercase
 		if (user_nick == nick_lowercase)
 			return true;
@@ -186,27 +186,37 @@ bool Channel::isUserOnChannel(std::string const &nickname)
 	return false;
 }
 
-bool Channel::isOperator(std::shared_ptr<Client> client_ptr)
+bool Channel::isOperator(const std::weak_ptr<Client> &client_ptr)
 {
-	if (client_ptr)
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+		return false;
+
+	std::weak_ptr<Client> temp_weak_ptr(locked_client_ptr);
+
+	auto user = users_.find(temp_weak_ptr);
+	if (user != users_.end())
 	{
-		auto user = users_.find(client_ptr);
 		if (user != users_.end())
 			return user->second;
 	}
 	return false;
 }
 
-void Channel::broadcastMessage(const std::shared_ptr<Client> &sender_ptr, const std::string &message, Server* server_ptr)
+void Channel::broadcastMessage(const std::weak_ptr<Client> &sender_ptr, const std::string &message, Server* server_ptr)
 {
-	if (sender_ptr)
+	auto locked_client_ptr = sender_ptr.lock();
+	if (!locked_client_ptr)
 	{
-		for (const auto &recipient_pair : users_)
-		{
-			std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
-			if (recipient_ptr != sender_ptr) // Don't send the message to the sender
-				server_ptr->sendResponse(recipient_ptr->getFd(), message);
-		}
+		std::cerr << ("null ptr in sendTopicToClient") << std::endl;
+		return;
+	}
+	for (const auto &recipient_pair : users_)
+	{
+		std::weak_ptr<Client> recipient_ptr = recipient_pair.first;
+		auto tmp = recipient_ptr.lock();
+		if (tmp != locked_client_ptr) // Don't send the message to the sender
+			server_ptr->sendResponse(tmp->getFd(), message);
 	}
 }
 
@@ -214,18 +224,22 @@ void Channel::broadcastMessageToAll(const std::string &message, Server* server_p
 {
 	for (const auto &recipient_pair : users_)
 	{
-		std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
-			server_ptr->sendResponse(recipient_ptr->getFd(), message);
+		std::weak_ptr<Client> recipient_ptr = recipient_pair.first;
+			server_ptr->sendResponse(recipient_ptr.lock()->getFd(), message);
 	}
 }
 
-bool Channel::canChangeTopic(std::shared_ptr<Client> client_ptr)
+bool Channel::canChangeTopic(const std::weak_ptr<Client> &client_ptr)
 {
-	if (client_ptr)
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+		return false;
+
+	if (locked_client_ptr)
 	{
-		if (isOperator(client_ptr))
+		if (isOperator(locked_client_ptr))
 			return true;
-		else if (client_ptr->getNickname() == topic_.first) // Check if the client is the one who set the topic
+		else if (locked_client_ptr->getNickname() == topic_.first) // Check if the client is the one who set the topic
 			return true;
 	}
 	return false;
@@ -236,18 +250,21 @@ bool Channel::isCorrectPassword(const std::string& given_password)
 	return channel_key_ == given_password;
 }
 
-bool Channel::changeOpStatus(std::shared_ptr<Client> client_ptr, bool status)
+bool Channel::changeOpStatus(const std::weak_ptr<Client> &client_ptr, bool status)
 {
-	if (client_ptr)
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+		return false;
+
+	std::weak_ptr<Client> temp_weak_ptr(locked_client_ptr);
+
+	auto user = users_.find(temp_weak_ptr);
+	if (user != users_.end())
 	{
-		auto user = users_.find(client_ptr);
-		if (user != users_.end())
+		if (user->second != status)
 		{
-			if (user->second != status)
-			{
-				user->second = status;
-				return true;
-			}
+			user->second = status;
+			return true;
 		}
 	}
 	return false;
@@ -268,16 +285,22 @@ void Channel::removeUserFromInvitedList(const std::string &nickname)
 	invited_users_.erase(nickname);
 }
 
-void Channel::sendTopicToClient(const std::shared_ptr<Client> &client_ptr, Server* server_ptr)
+void Channel::sendTopicToClient(const std::weak_ptr<Client> &client_ptr, Server* server_ptr)
 {
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+	{
+		std::cerr << ("null ptr in sendTopicToClient") << std::endl;
+		return;
+	}
 	if (this->topic_is_set_ == false)
-		server_ptr->sendResponse(client_ptr->getFd(), RPL_NOTOPIC(server_ptr->getServerHostname(), client_ptr->getNickname(), getName()));
+		server_ptr->sendResponse(locked_client_ptr->getFd(), RPL_NOTOPIC(server_ptr->getServerHostname(), locked_client_ptr->getNickname(), getName()));
 	else
 	{
 		std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(topic_timestamp_);
 		std::string timestamp_string = std::to_string(unix_timestamp);
-		server_ptr->sendResponse(client_ptr->getFd(), RPL_TOPIC(server_ptr->getServerHostname(), client_ptr->getNickname(), getName(), getTopic().second));
-		server_ptr->sendResponse(client_ptr->getFd(), RPL_TOPICWHOTIME(server_ptr->getServerHostname(), client_ptr->getNickname(), getName(), getTopic().first, timestamp_string));
+		server_ptr->sendResponse(locked_client_ptr->getFd(), RPL_TOPIC(server_ptr->getServerHostname(), locked_client_ptr->getNickname(), getName(), getTopic().second));
+		server_ptr->sendResponse(locked_client_ptr->getFd(), RPL_TOPICWHOTIME(server_ptr->getServerHostname(), locked_client_ptr->getNickname(), getName(), getTopic().first, timestamp_string));
 	}
 }
 
