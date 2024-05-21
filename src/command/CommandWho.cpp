@@ -26,11 +26,10 @@ void Command::handleWho(const Message &msg)
 	std::string command = msg.getCommand();
 	std::vector <std::string> params = msg.getParameters();
 	int client_fd = msg.getClientfd();
-	auto tmp_client_ptr = msg.getClientPtr();
-	auto lock_client_ptr = tmp_client_ptr.lock();
+	auto client_ptr = msg.getClientPtr();
 	std::shared_ptr <Channel> channel_ptr = server_ptr_->findChannel(params[0]);
-	if (channel_ptr && channel_ptr->isUserOnChannel(lock_client_ptr->getNickname()))
-		sendNamelist(channel_ptr, lock_client_ptr->getNickname(), client_fd);
-	else if (channel_ptr && !channel_ptr->isUserOnChannel(lock_client_ptr->getNickname()))
-		server_ptr_->sendResponse(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), lock_client_ptr->getNickname(), params[0]));
+	if (channel_ptr && channel_ptr->isUserOnChannel(client_ptr->getNickname()))
+		sendNamelist(channel_ptr, client_ptr->getNickname(), client_fd);
+	else if (channel_ptr && !channel_ptr->isUserOnChannel(client_ptr->getNickname()))
+		server_ptr_->sendResponse(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), params[0]));
 }

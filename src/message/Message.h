@@ -8,7 +8,7 @@
 class Server;
 class Client;
 
-class Message: public std::enable_shared_from_this<Client>
+class Message
 {
 	private:
 	const std::string				raw_message_;
@@ -19,7 +19,7 @@ class Message: public std::enable_shared_from_this<Client>
 	bool							has_trailer_;
 	Server*							server_ptr_;
 	const int						client_fd_;
-	std::weak_ptr<Client>			client_ptr_;
+	std::shared_ptr<Client>			client_ptr_;
 	bool							valid_message_;
 
 	public:
@@ -41,7 +41,7 @@ class Message: public std::enable_shared_from_this<Client>
 	std::vector<std::string> const	&getParameters() const;
 	std::string 			 const 	&getTrailer() const;
 	int 					 const 	&getClientfd() const;
-	std::weak_ptr<Client>	 const 	&getClientPtr() const;
+	std::shared_ptr<Client>	 const 	&getClientPtr() const;
 	bool					 const 	&hasTrailer() const;
 	void printMessageContents();
 };

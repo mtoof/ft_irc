@@ -2,13 +2,12 @@
 
 void Command::handleTopic(const Message &msg)
 {
-	auto tmp_client_ptr = msg.getClientPtr();
-	auto lock_client_ptr = tmp_client_ptr.lock();
+	auto client_ptr = msg.getClientPtr();
 	std::vector<std::string> parameters = msg.getParameters();
-	int client_fd = lock_client_ptr->getFd();
+	int client_fd = client_ptr->getFd();
 	if (parameters.empty())
 	{
-		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(lock_client_ptr->getClientPrefix(), "TOPIC"));
+		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(client_ptr->getClientPrefix(), "TOPIC"));
 		return;
 	}
 
@@ -18,13 +17,13 @@ void Command::handleTopic(const Message &msg)
 
 	if (!channel_ptr)
 	{
-		server_ptr_->sendResponse(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), lock_client_ptr->getNickname(), channel_name));
+		server_ptr_->sendResponse(client_fd, ERR_NOSUCHCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 		return;
 	}
 
-	if (!channel_ptr->isUserOnChannel(lock_client_ptr->getNickname()))
+	if (!channel_ptr->isUserOnChannel(client_ptr->getNickname()))
 	{
-		server_ptr_->sendResponse(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), lock_client_ptr->getNickname(), channel_name));
+		server_ptr_->sendResponse(client_fd, ERR_NOTONCHANNEL(server_ptr_->getServerHostname(), client_ptr->getNickname(), channel_name));
 		return;
 	}
 
@@ -33,23 +32,23 @@ void Command::handleTopic(const Message &msg)
 		std::string new_topic = msg.getTrailer();
 		if (new_topic.size() > TOPIC_MAX_LENGTH) // if topic is too long
 			new_topic = new_topic.substr(0, TOPIC_MAX_LENGTH);
-		if (channel_ptr->getModeT() && !channel_ptr->isOperator(lock_client_ptr))
+		if (channel_ptr->getModeT() && !channel_ptr->isOperator(client_ptr))
 		{
 			server_ptr_->sendResponse(client_fd, ERR_CHANOPRIVSNEEDED(server_ptr_->getServerHostname(), channel_ptr->getName()));
 			return;
 		}
 		if (new_topic.empty())
 		{
-			channel_ptr->clearTopic(lock_client_ptr->getNickname());
-			channel_ptr->broadcastMessageToAll(RPL_TOPICCHANGE(lock_client_ptr->getClientPrefix(), channel_ptr->getName(), ""), server_ptr_);
+			channel_ptr->clearTopic(client_ptr->getNickname());
+			channel_ptr->broadcastMessageToAll(RPL_TOPICCHANGE(client_ptr->getClientPrefix(), channel_ptr->getName(), ""), server_ptr_);
 		}
 		else
 		{
-			channel_ptr->setTopic(make_pair(lock_client_ptr->getNickname(), new_topic));
-			channel_ptr->broadcastMessageToAll(RPL_TOPICCHANGE(lock_client_ptr->getClientPrefix(), channel_ptr->getName(), new_topic), server_ptr_);
+			channel_ptr->setTopic(make_pair(client_ptr->getNickname(), new_topic));
+			channel_ptr->broadcastMessageToAll(RPL_TOPICCHANGE(client_ptr->getClientPrefix(), channel_ptr->getName(), new_topic), server_ptr_);
 		}
 	}
 	else
-		channel_ptr->sendTopicToClient(lock_client_ptr, server_ptr_);
+		channel_ptr->sendTopicToClient(client_ptr, server_ptr_);
 }
 

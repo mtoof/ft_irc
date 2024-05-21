@@ -7,13 +7,12 @@
 Message::Message(std::string raw_message, Server *server, int clientfd)
 	: raw_message_(raw_message), has_trailer_(false), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
 {
-	auto client_ptr = server_ptr_->findClientUsingFd(client_fd_);
-	if (!client_ptr)
+	client_ptr_ = server_ptr_->findClientUsingFd(client_fd_);
+	if (!client_ptr_)
 	{
 		debug("Find client in message constructor", FAILED);
 		return;
 	}
-	client_ptr_ = client_ptr->shared_from_this();
 	std::cout << CYAN << "Server received: " << raw_message << "\t"
 			  << "Message size = " << raw_message.length() << " byte" << RESET << std::endl;
 	valid_message_ = analyzeMessage();
@@ -32,7 +31,7 @@ bool Message::analyzeMessage()
 	if (raw_message_.front() == ':')
 	{
 		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
-		std::string temp_prefix = ":" + client_ptr_.lock()->getNickname();
+		std::string temp_prefix = ":" + client_ptr_->getNickname();
 		if (prefix != temp_prefix)
 		{
 			std::cerr << "Invalid prefix: " << prefix << std::endl;
@@ -108,7 +107,7 @@ int const &Message::getClientfd() const
 	return client_fd_;
 }
 
-std::weak_ptr<Client> const &Message::getClientPtr() const
+std::shared_ptr<Client> const &Message::getClientPtr() const
 {
 	return client_ptr_;
 }

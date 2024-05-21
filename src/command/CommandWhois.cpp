@@ -1,13 +1,12 @@
 #include "Command.h"
 
 void Command::handleWhois(const Message &msg) {
-	auto tmp_client_ptr = msg.getClientPtr();
-	auto lock_client_ptr = tmp_client_ptr.lock();
-    int client_fd = lock_client_ptr->getFd();
+	auto client_ptr = msg.getClientPtr();
+    int client_fd = client_ptr->getFd();
     std::vector<std::string> parameters = msg.getParameters();
     
     if (parameters.empty()) {
-        server_ptr_->sendResponse(client_fd, ERR_NONICKNAMEGIVEN(lock_client_ptr->getClientPrefix()));
+        server_ptr_->sendResponse(client_fd, ERR_NONICKNAMEGIVEN(client_ptr->getClientPrefix()));
         return;
     }
 
@@ -20,13 +19,13 @@ void Command::handleWhois(const Message &msg) {
         for (const auto& whois_lock_client_ptr : matched_clients)
 		{
             found = true;
-            server_ptr_->sendResponse(client_fd, RPL_WHOISUSER(server_ptr_->getServerHostname(), lock_client_ptr->getNickname(),
+            server_ptr_->sendResponse(client_fd, RPL_WHOISUSER(server_ptr_->getServerHostname(), client_ptr->getNickname(),
                                                     whois_lock_client_ptr->getNickname(), whois_lock_client_ptr->getUsername(),
                                                     whois_lock_client_ptr->getHostname(), whois_lock_client_ptr->getRealname()));
         }
         if (!found)
-            server_ptr_->sendResponse(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), lock_client_ptr->getNickname(), mask));
+            server_ptr_->sendResponse(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), mask));
     }
 
-    server_ptr_->sendResponse(client_fd, RPL_ENDOFWHOIS(server_ptr_->getServerHostname(), lock_client_ptr->getNickname(), parameters.front()));
+    server_ptr_->sendResponse(client_fd, RPL_ENDOFWHOIS(server_ptr_->getServerHostname(), client_ptr->getNickname(), parameters.front()));
 }

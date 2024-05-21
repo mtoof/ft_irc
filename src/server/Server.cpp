@@ -20,26 +20,26 @@ Server::Server(const int &port, const std::string &password, const std::stringst
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
 	initOperators(config_file);
-	supported_commands_.insert(std::pair("JOIN", &Command::handleJoin));
-	supported_commands_.insert(std::pair("NICK", &Command::handleNick));
-	supported_commands_.insert(std::pair("PRIVMSG", &Command::handlePrivmsg));
-	supported_commands_.insert(std::pair("QUIT", &Command::handleQuit));
-	supported_commands_.insert(std::pair("PASS", &Command::handlePass));
-	supported_commands_.insert(std::pair("CAP", &Command::handleCap));
-	supported_commands_.insert(std::pair("USER", &Command::handleUser));
-	supported_commands_.insert(std::pair("PING", &Command::handlePing));
-	supported_commands_.insert(std::pair("WHOIS", &Command::handleWhois));
-	supported_commands_.insert(std::pair("WHOWAS", &Command::handleWhois));
-	supported_commands_.insert(std::pair("PART", &Command::handlePart));
-	supported_commands_.insert(std::pair("MODE", &Command::handleMode));
-	supported_commands_.insert(std::pair("KICK", &Command::handleKick));
-	supported_commands_.insert(std::pair("TOPIC", &Command::handleTopic));
-	supported_commands_.insert(std::pair("INVITE", &Command::handleInvite));
-	supported_commands_.insert(std::pair("AWAY", &Command::handleAway));
-	supported_commands_.insert(std::pair("WHO", &Command::handleWho));
-	supported_commands_.insert(std::pair("OPER", &Command::handleOper));
-	supported_commands_.insert(std::pair("kill", &Command::handleKill));
-	supported_commands_.insert(std::pair("KILL", &Command::handleKill));
+	supported_commands_.insert({"JOIN", &Command::handleJoin});
+	supported_commands_.insert({"NICK", &Command::handleNick});
+	supported_commands_.insert({"PRIVMSG", &Command::handlePrivmsg});
+	supported_commands_.insert({"QUIT", &Command::handleQuit});
+	supported_commands_.insert({"PASS", &Command::handlePass});
+	supported_commands_.insert({"CAP", &Command::handleCap});
+	supported_commands_.insert({"USER", &Command::handleUser});
+	supported_commands_.insert({"PING", &Command::handlePing});
+	supported_commands_.insert({"WHOIS", &Command::handleWhois});
+	supported_commands_.insert({"WHOWAS", &Command::handleWhois});
+	supported_commands_.insert({"PART", &Command::handlePart});
+	supported_commands_.insert({"MODE", &Command::handleMode});
+	supported_commands_.insert({"KICK", &Command::handleKick});
+	supported_commands_.insert({"TOPIC", &Command::handleTopic});
+	supported_commands_.insert({"INVITE", &Command::handleInvite});
+	supported_commands_.insert({"AWAY", &Command::handleAway});
+	supported_commands_.insert({"WHO", &Command::handleWho});
+	supported_commands_.insert({"OPER", &Command::handleOper});
+	supported_commands_.insert({"kill", &Command::handleKill});
+	supported_commands_.insert({"KILL", &Command::handleKill});
 }
 
 Server::~Server()
