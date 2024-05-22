@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mtoof <mtoof@student.hive.fi>              +#+  +:+       +#+        */
+/*   By: oandelin <oandelin@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/15 12:14:19 by atoof             #+#    #+#             */
-/*   Updated: 2024/05/21 14:44:54 by mtoof            ###   ########.fr       */
+/*   Updated: 2024/05/22 14:54:52 by oandelin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,10 +115,11 @@ int main(int ac, char **av)
 	{
 		switch (ac)
 		{
-			case 1:
-				port = DEFAULTPORT;
-				break;
-			case 2:
+			// for testing purposes
+			// case 1:
+			// 	port = DEFAULTPORT;
+			// 	break;
+			// case 2:
 			case 3:
 				convertArgs(port, password, av);
 				break;
