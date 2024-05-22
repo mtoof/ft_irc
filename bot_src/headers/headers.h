@@ -1,7 +1,9 @@
-#ifndef __COLOUR_H__
-#define __COLOUR_H__
+#ifndef __HEADERS_H__
+#define __HEADERS_H__
 
 #include <iostream>
+#include <iomanip>
+#include <cstring>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -20,18 +22,17 @@
 #include <fcntl.h>
 #include <csignal>
 #include <arpa/inet.h>
+#include <netinet/in.h> 
+#include <netdb.h>
 #include <memory>
 #include <map>
+#include <regex>
 #include <sys/stat.h>
-#include "./debug/debug.h"
+#include "./colour.h"
+#include "reply.h"
 
-
-#define RED     "\x1b[31m"
-#define GREEN   "\x1b[32m"
-#define YELLOW  "\x1b[33m"
-#define BLUE    "\x1b[34m"
-#define MAGENTA "\x1b[35m"
-#define CYAN    "\x1b[36m"
-#define RESET   "\x1b[0m"
+#define DEFAULTPORT 6667
+#define NICK_MAX_LENGTH 9
+#define CRLF "\r\n"
 
 #endif

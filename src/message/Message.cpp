@@ -1,11 +1,11 @@
 #include "Message.h"
 
 /// @brief constructor for receiving a message from client and getting ready to parse it
-/// @param raw_message 
-/// @param server 
-/// @param clientfd 
+/// @param raw_message
+/// @param server
+/// @param clientfd
 Message::Message(std::string raw_message, Server *server, int clientfd)
-: raw_message_(raw_message), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
+	: raw_message_(raw_message), has_trailer_(false), server_ptr_(server), client_fd_(clientfd), valid_message_(false)
 {
 	client_ptr_ = server_ptr_->findClientUsingFd(client_fd_);
 	if (!client_ptr_)
@@ -13,27 +13,20 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 		debug("Find client in message constructor", FAILED);
 		return;
 	}
-	std::cout << "Message constructor. Raw message: " << raw_message_ << "\t received from fd: " << client_fd_ << std::endl;
-	
+	std::cout << CYAN << "Server received: " << raw_message << "\t"
+			  << "Message size = " << raw_message.length() << " byte" << RESET << std::endl;
 	valid_message_ = analyzeMessage();
-	printMessageContents();
-	// TODO: Parsing the message and saving it to the members of the class
-	// Parser is below, modularize it to subfunctions that save each element of the message to correct members
-	// once parsing/analyzing is done, it's sent for COMMAND class (also TODO)
-	// THIS IS ABOUT FORMATTING
 }
 
 Message::~Message()
 {
-	std::cout << "Message destructor" << std::endl;
 }
 
 bool Message::analyzeMessage()
 {
 	std::istringstream iss(raw_message_);
 	std::string prefix;
-	
-	// Extract prefix if present
+
 	if (raw_message_.front() == ':')
 	{
 		std::getline(iss, prefix, ' '); // Extract prefix up to the first space
@@ -47,68 +40,62 @@ bool Message::analyzeMessage()
 	}
 
 	std::string command, param;
-		
+
 	iss >> command;
 	command_ = command;
 	while (iss >> param)
 	{
 		if (param.front() == ':')
 		{
-			if (param.size() > 1)
-			{
-				trailer_ = param;
-				while (iss >> param)
-					trailer_ += " " + param;
-				trailer_.erase(trailer_.begin());
-			}
+			has_trailer_ = true;
+			trailer_ = param.substr(1); // Remove the colon
 			break;
 		}
 		parameters_.push_back(param);
 	}
 
+	// Read the rest of the line for the trailer
+	if (has_trailer_)
+	{
+		std::string remaining;
+		std::getline(iss, remaining);
+		if (!remaining.empty())
+			trailer_ += remaining;
+	}
 	return true;
 }
 
-void	Message::printMessageContents()
-{
-	std::cout << "Printing contents:\n";
-	std::cout << "Prefix: " << prefix_ << "\n";
-	std::cout << "command: " << command_ << "\n";
-	std::cout << "Params:\n";
-	for (auto param : parameters_)
-	{
-		std::cout << param << "\n";
-	}
-	std::cout << "Trailer trash: " << trailer_ << std::endl;
-	
-}
-
-std::string Message::getCommand() const
+std::string const &Message::getCommand() const
 {
 	return command_;
 }
 
-std::vector<std::string> Message::getParameters() const
+std::vector<std::string> const &Message::getParameters() const
 {
 	return parameters_;
 }
 
-bool Message::isValidMessage()
+bool const &Message::isValidMessage() const
 {
 	return valid_message_;
 }
 
-std::string Message::getTrailer() const
+bool const &Message::hasTrailer() const
+{
+	return has_trailer_;
+}
+
+std::string const &Message::getTrailer() const
 {
 	return trailer_;
 }
 
-int Message::getClientfd() const
+int const &Message::getClientfd() const
 {
 	return client_fd_;
 }
 
-std::shared_ptr<Client> Message::getClientPtr() const
+std::shared_ptr<Client> const &Message::getClientPtr() const
 {
 	return client_ptr_;
 }

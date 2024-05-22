@@ -8,13 +8,15 @@
 class Server;
 class Client;
 
-class Message{
+class Message
+{
 	private:
 	const std::string				raw_message_;
 	std::string						prefix_;
 	std::string						command_;
 	std::vector<std::string>		parameters_;
 	std::string						trailer_;
+	bool							has_trailer_;
 	Server*							server_ptr_;
 	const int						client_fd_;
 	std::shared_ptr<Client>			client_ptr_;
@@ -24,7 +26,7 @@ class Message{
 	Message(std::string raw_message, Server *server, int clientfd);
 	~Message();
 
-	bool isValidMessage();
+	bool const &isValidMessage() const;
 	
 	bool analyzeMessage();
 
@@ -35,12 +37,12 @@ class Message{
 	void setParams(std::string raw_message);
 	void setTrailer(std::string raw_message);
 	
-	std::string getCommand() const;
-	std::vector<std::string> getParameters() const;
-	std::string getTrailer() const;
-	int getClientfd() const;
-	void printMessageContents();
-	std::shared_ptr<Client> getClientPtr() const;
+	std::string				 const 	&getCommand() const;
+	std::vector<std::string> const	&getParameters() const;
+	std::string 			 const 	&getTrailer() const;
+	int 					 const 	&getClientfd() const;
+	std::shared_ptr<Client>	 const 	&getClientPtr() const;
+	bool					 const 	&hasTrailer() const;
 };
 
 #endif

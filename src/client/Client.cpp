@@ -1,14 +1,14 @@
 #include "Client.h"
 
-Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : fd_(fd), registered_(false), nickname_(nickname), username_(username), ip_address_(ipaddress)
+Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : 
+		fd_(fd), registered_(false), has_correct_password_(false), rejected_(false), nickname_(nickname), username_(username),
+		ip_address_(ipaddress),	mode_i_(false), mode_local_op_(false), away_status_(false)
 {
 }
 
 Client::~Client()
 {
 }
-
-// getters
 
 int	const &Client::getFd() const
 {
@@ -50,19 +50,51 @@ bool	const &Client::getRegisterStatus() const
 	return this->registered_;
 }
 
-char	const &Client::getUserMode() const
+bool	const &Client::getModeI() const
 {
-	return this->usermode_;
+	return this->mode_i_;
 }
 
-// setters
+bool	const &Client::getModeLocalOp() const
+{
+	return this->mode_local_op_;
+}
+
+std::string const &Client::getAwayMessage() const
+{
+	return away_message_;
+}
+
+std::string const &Client::getClientPrefix() const
+{
+	return client_prefix_;
+}
+
+std::vector<std::weak_ptr<Channel>> const &Client::getChannels() const 
+{
+    return channels_;
+}
+
+bool const &Client::getRejectedStatus() const
+{
+	return rejected_;
+}
+
+bool const &Client::getHasCorrectPassword() const
+{
+	return has_correct_password_;
+}
+
+bool const &Client::isAway() const
+{
+	return away_status_;
+}
 
 void Client::setFd(int const &fd)
 {
 	this->fd_ = fd;
 }
 
-/// 		nickname cannot be longer than 9 characters!
 void Client::setNickname(std::string const &nickname)
 {
 	this->old_nickname_ = this->nickname_;
@@ -84,14 +116,40 @@ void Client::setRealname(std::string const &realname)
 	this->realname_ = realname;
 }
 
-void Client::setUserMode(char const &usermode)
+void Client::setModeI(bool status)
 {
-	this->usermode_ = usermode;
+	this->mode_i_ = status;
+}
+
+void Client::setModeLocalOp(bool status)
+{
+	this->mode_local_op_ = status;
+}
+
+void	Client::setHasCorrectPassword(bool const &status)
+{
+	has_correct_password_ = status;
 }
 
 void Client::setIpAddress(std::string const &ip_address)
 {
 	this->ip_address_ = ip_address;
+}
+
+void Client::setClientPrefix()
+{
+	client_prefix_ = nickname_ + "!~" + username_ + "@" + ip_address_;
+}
+
+void Client::setAway(bool status, const std::string& message)
+{
+	away_status_ = status;
+	away_message_ = message;
+}
+
+void Client::setRejectedStatus(bool const &status)
+{
+	rejected_ = status;
 }
 
 void Client::registerClient()
@@ -112,16 +170,22 @@ void Client::processBuffer(Server *server_ptr)
 	while ((pos = this->buffer.find("\r\n")) != std::string::npos)
 	{
 		std::string line = this->buffer.substr(0, pos);
-		this->buffer.erase(0, pos + 2);
+		this->buffer.erase(0, pos + 2); // Remove the \r\n
 		if (!line.empty() && line.back() == '\r')
 			line.pop_back(); // Remove the trailing \r
-		//processCommand(line, this->fd_);
-
-		Message message(line, server_ptr, this->fd_); // Parse the message
-		if(message.isValidMessage() == true)
+		while (line.size() > MAX_MSG_LENGTH - 2)
 		{
-			//TODO: send the message to command
-			processCommand(message, server_ptr);
+			std::string part = line.substr(0, MAX_MSG_LENGTH - 2); // 510 bytes max for a message
+			line = line.substr(MAX_MSG_LENGTH - 2); // Remove the first 510 bytes
+			Message message(part, server_ptr, this->fd_);
+			if(message.isValidMessage() == true)
+				processCommand(message, server_ptr);
+		}
+		if (!line.empty())
+		{
+			Message message(line, server_ptr, this->fd_);
+			if(message.isValidMessage() == true)
+				processCommand(message, server_ptr);
 		}
 	}
 }
@@ -129,21 +193,15 @@ void Client::processBuffer(Server *server_ptr)
 void Client::processCommand(Message &message, Server *server_ptr)
 {
     const std::string &command = message.getCommand();
-    //const std::vector<std::string> &params = message.getParameters();
-    // const std::string &trailer = message.getTrailer();
-
     auto it = server_ptr->getSupportedCommands().find(command);
     if (it != server_ptr->getSupportedCommands().end())
     {
-       auto handler = it->second; // Get the function pointer from the map
-       Command commandObject(server_ptr);
-       (commandObject.*handler)(message);
+       auto handler = it->second;
+       Command command_object(server_ptr);
+       (command_object.*handler)(message);
     }
-}
-
-void	Client::setPassword()
-{
-	password_ = true;
+	else
+		server_ptr->sendResponse(getFd(), ERR_CMDNOTFOUND(server_ptr->getServerHostname(), getNickname(), command));
 }
 
 void Client::appendToBuffer(const std::string &data)
@@ -151,48 +209,28 @@ void Client::appendToBuffer(const std::string &data)
 	this->buffer += data;
 }
 
-void Client::setClientPrefix()
+bool	Client::joinChannel(const std::shared_ptr<Channel>& channel_ptr)
 {
-	client_prefix_ = nickname_ + "!~" + username_ + "@" + ip_address_;
+	if (channels_.size() >= CLIENT_MAX_CHANNELS)
+		return false;
+    channels_.push_back(channel_ptr);
+	return true;
 }
 
-std::string const &Client::getClientPrefix() const
+void Client::leaveChannel(const std::weak_ptr<Channel>& channel_ptr)
 {
-	return client_prefix_;
+	auto locked_channel_ptr = channel_ptr.lock();
+	if (!locked_channel_ptr)
+		return;
+	std:: vector<std::weak_ptr<Channel>>::iterator it = channels_.begin();
+	while (it != channels_.end())
+    {
+        if (it->lock() == locked_channel_ptr)
+        {
+            it = channels_.erase(it);
+            break;
+        }
+        else
+		   ++it;
+    }
 }
-
-bool Client::hasSentPassword()
-{
-	return password_;
-}
-
-bool Client::isInvited() const
-{
-    return invited_;
-}
-
-// Implementation of hasCorrectPassword method to check if the client has the correct password for a channel
-bool Client::hasCorrectPassword(const std::string& password) const
-{
-	return password_ && password == channel->getChannelKey();
-}
-
-// this function is supposed to send a message to client
-// void		Client::sendMessage(std::string const &message)
-// {
-// 	(void) message;
-// }
-
-// and this one would receive messages
-// std::string	Client::receiveMessage()
-// {
-
-// }
-
-// this would make the client join channel,
-// maybe this should take a pointer to the channel
-// instead of a string
-// void		Client::joinChannel(std::string const &channel)
-// {
-
-// }

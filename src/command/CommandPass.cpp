@@ -2,27 +2,31 @@
 
 void Command::handlePass(const Message &msg)
 {
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
-	if (server_->getPassword().empty())
+	auto client_ptr = msg.getClientPtr();
+	int client_fd = client_ptr->getFd();
+	if (server_ptr_->getPassword().empty())
 		return;
 	if (client_ptr->getRegisterStatus() == true)
 	{
-		server_->send_response(client_ptr->getFd(), ERR_ALREADYREGISTERED(client_ptr->getNickname()));
+		server_ptr_->sendResponse(client_fd, ERR_ALREADYREGISTERED(server_ptr_->getServerHostname(), client_ptr->getNickname()));
 		return;
 	}
 	std::vector<std::string> parameters = msg.getParameters();
-	size_t pos = parameters.front().find_first_not_of(" \t\v");
-
-	if (pos == std::string::npos || parameters.empty())
-		server_->send_response(msg.getClientfd(), ERR_NEEDMOREPARAMS(std::string("*"), "PASS"));
+	if (parameters.empty() || parameters.front().find_first_not_of(" \t\v") == std::string::npos)
+	{
+		server_ptr_->sendResponse(client_fd, ERR_NEEDMOREPARAMS(std::string("*"), "PASS"));
+		return;
+	}
 	else if (!client_ptr->getRegisterStatus())
 	{
-		if (parameters.front() == server_->getPassword())
+		if (parameters[0] == server_ptr_->getPassword())
+			client_ptr->setHasCorrectPassword(true);
+		else if (parameters[0] != server_ptr_->getPassword())
 		{
-			// client->registerClient(); //This happens when the user has pass username and nick
-			client_ptr->setPassword();
+			server_ptr_->sendResponse(client_fd, ERR_PASSWDMISMATCH(server_ptr_->getServerHostname(), client_ptr->getNickname()));
+			server_ptr_->sendResponse(client_fd, "ERROR: Connection got rejected by the server\r\n");
+			server_ptr_->closeDeletePollFd(client_fd);
+			server_ptr_->deleteClient(client_fd);
 		}
-		else if (!server_->getPassword().empty() && parameters.front() != server_->getPassword())
-			server_->send_response(client_ptr->getFd(), ERR_INCORPASS(client_ptr->getNickname()));
 	}
 }
