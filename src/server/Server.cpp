@@ -11,25 +11,35 @@
 /* ************************************************************************** */
 
 #include "Server.h"
+#include <unordered_set>
 
 bool Server::signal_ = false;
 
-Server::Server(int port, std::string password) : host_(""), port_(port), password_(password)
+Server::Server(const int &port, const std::string &password, const std::stringstream &config_file) : host_(""), port_(port), password_(password)
 {
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
-	this->running_ = 1;
-	supported_commands_.insert(std::pair("JOIN", &Command::handleJoin));
-	supported_commands_.insert(std::pair("NICK", &Command::handleNick));
-	supported_commands_.insert(std::pair("PRIVMSG", &Command::handlePrivmsg));
-	supported_commands_.insert(std::pair("QUIT", &Command::handleQuit));
-	supported_commands_.insert(std::pair("PASS", &Command::handlePass));
-	supported_commands_.insert(std::pair("CAP", &Command::handleCap));
-	supported_commands_.insert(std::pair("USER", &Command::handleUser));
-	supported_commands_.insert(std::pair("PING", &Command::handlePing));
-	supported_commands_.insert(std::pair("WHOIS", &Command::handleWhois));
-	supported_commands_.insert(std::pair("PART", &Command::handlePart));
-	supported_commands_.insert(std::pair("MODE", &Command::handleMode));
+	initOperators(config_file);
+	supported_commands_.insert({"JOIN", &Command::handleJoin});
+	supported_commands_.insert({"NICK", &Command::handleNick});
+	supported_commands_.insert({"PRIVMSG", &Command::handlePrivmsg});
+	supported_commands_.insert({"QUIT", &Command::handleQuit});
+	supported_commands_.insert({"PASS", &Command::handlePass});
+	supported_commands_.insert({"CAP", &Command::handleCap});
+	supported_commands_.insert({"USER", &Command::handleUser});
+	supported_commands_.insert({"PING", &Command::handlePing});
+	supported_commands_.insert({"WHOIS", &Command::handleWhois});
+	supported_commands_.insert({"WHOWAS", &Command::handleWhois});
+	supported_commands_.insert({"PART", &Command::handlePart});
+	supported_commands_.insert({"MODE", &Command::handleMode});
+	supported_commands_.insert({"KICK", &Command::handleKick});
+	supported_commands_.insert({"TOPIC", &Command::handleTopic});
+	supported_commands_.insert({"INVITE", &Command::handleInvite});
+	supported_commands_.insert({"AWAY", &Command::handleAway});
+	supported_commands_.insert({"WHO", &Command::handleWho});
+	supported_commands_.insert({"OPER", &Command::handleOper});
+	supported_commands_.insert({"kill", &Command::handleKill});
+	supported_commands_.insert({"KILL", &Command::handleKill});
 }
 
 Server::~Server()
@@ -115,6 +125,13 @@ void Server::registerNewClient()
 	memset(&usersocketaddress, 0, sizeof(usersocketaddress));
 	socketlen = sizeof(sockaddr_in6);
 	userfd = accept(socket_, (sockaddr *)&usersocketaddress, &socketlen);
+	if (this->clients_.size() > SERVER_MAX_CLIENTS)
+	{
+		std::string msg = "The maximum number of clients has been reached. We cannot accept any more.";
+		sendResponse(userfd, msg + CRLF);
+		close(userfd);
+		return;
+	}
 	if (userfd == -1)
 	{
 		debug("Accept user socket", FAILED);
@@ -126,16 +143,18 @@ void Server::registerNewClient()
 		return;
 	}
 	userpollfd = {userfd, POLL_IN, 0};
-	char *ip;
-	if ((ip = extractUserIpAddress(usersocketaddress)) == nullptr)
+	char ip[INET6_ADDRSTRLEN];
+	memset(ip, 0, INET6_ADDRSTRLEN);
+	extractUserIpAddress(ip, usersocketaddress);
+	if (strlen(ip) == 0)
 	{
 		debug("Unknown address family", FAILED);
 		return;
 	}
 	std::shared_ptr<Client> newclient = std::make_shared<Client>(userfd, "", "", ip);
-	delete ip;
-	this->clients_.insert(std::make_pair(userfd, newclient));
+	this->clients_.insert({userfd, newclient});
 	fds_.push_back(userpollfd);
+	std::cout << GREEN " <Client " << userfd << "> is trying to establish a connection." RESET << std::endl;
 }
 
 /**
@@ -147,7 +166,7 @@ void Server::registerNewClient()
 std::shared_ptr<Channel> Server::createNewChannel(std::string const &channel_name)
 {
 	std::shared_ptr<Channel> new_channel = std::make_shared<Channel>(channel_name);
-	this->channels_.insert(std::make_pair(channel_name, new_channel));
+	this->channels_.insert(std::make_pair(toLower(channel_name), new_channel));
 	return new_channel;
 }
 
@@ -171,22 +190,16 @@ void Server::handleClientData(int fd)
 	}
 	else if (!readbyte)
 	{
-		std::cout << RED << "<Client " << fd << "> disconnected" << RESET << std::endl;
-		deleteClient(fd);
-		closeDeletePollFd(fd);
+		disconnectAndDeleteClient(client, "Client got disconnected");
 		return;
 	}
 	else
 	{
+		if (readbyte <= 2 && !strlen(buffer))
+			return;
 		client->appendToBuffer(std::string(buffer, readbyte));
 		client->processBuffer(this);
-
 	}
-	// when the buffer has been processed and we can construct a message
-	// for (auto &command : commands)
-	// {
-	// 	client->processCommand(command, fd);
-	// }
 }
 
 const std::string & Server::getPassword() const
@@ -202,4 +215,41 @@ std::shared_ptr<Channel> Server::findOrCreateChannel(const std::string& name) {
         channels_[name] = channel;
     }
     return channel;
+}
+
+void Server::disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr, std::string const &reason)
+{
+	int fd = client_ptr->getFd();
+	sendQuitMessages(client_ptr, reason);
+	deleteClient(fd);
+	closeDeletePollFd(fd);
+}
+
+void Server::sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string const &reason)
+{
+    auto channel_list = client_ptr->getChannels();
+    if (!channel_list.empty()) 
+	{
+        std::unordered_set<int> fds_sent_to;
+        for (auto &channel_weak_ptr : channel_list) {
+            auto channel_ptr = channel_weak_ptr.lock();
+            if (!channel_ptr) continue;  // Check if channel_ptr is valid
+
+            for (const auto &recipient_pair : channel_ptr->getUsers()) {
+                auto recipient_ptr = recipient_pair.first.lock();
+                if (!recipient_ptr) continue;  // Check if recipient_ptr is valid
+
+                int recipient_fd = recipient_ptr->getFd();
+                if (recipient_ptr != client_ptr && fds_sent_to.find(recipient_fd) == fds_sent_to.end()) {
+                    sendResponse(recipient_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
+                    fds_sent_to.insert(recipient_fd);
+                }
+            }
+
+            channel_ptr->removeUser(client_ptr);
+            if (channel_ptr->isEmpty()) {
+                deleteChannel(channel_ptr->getName());
+            }
+        }
+    }
 }

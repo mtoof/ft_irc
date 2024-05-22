@@ -12,24 +12,26 @@ class Commands;
 class Message;
 class Channel;
 
-class Client{
+class Client: public std::enable_shared_from_this<Client>
+{
 	private:
 	int															fd_;
 	bool														registered_;
-	bool														password_; //true if server password is set
+	bool														has_correct_password_;
+	bool														rejected_;
 	std::string													nickname_;
 	std::string													old_nickname_;
 	std::string													username_;
 	std::string													hostname_;
 	std::string													realname_;
-	char														usermode_;
 	std::string													ip_address_;
 	std::string													client_prefix_;
 	std::string													buffer;
-	bool														invited_;
-	Channel*													channel;
-	// TODO saving channels where the user is to the client class
-	//  std::vector<std::shared_ptr<Channel>>	channels_;
+	bool														mode_i_;
+	bool														mode_local_op_;
+	bool														away_status_;
+    std::string													away_message_;
+	std::vector<std::weak_ptr<Channel>>							channels_;
 	// TODO monitoring ping pong status
 	// clients that have not replied in a long time should be dropped from the server
 
@@ -46,9 +48,16 @@ class Client{
 	std::string const	&getHostname() const;
 	std::string const	&getRealname() const;
 	std::string const	&getIpAddress() const;
-	char	 	const	&getUserMode() const;
+	bool	 	const	&getModeI() const;
+	bool		const   &getModeLocalOp() const;
 	bool		const	&getRegisterStatus() const;
 	std::string const	&getClientPrefix() const;
+	std::string const	&getAwayMessage() const;
+	bool		const	&getRejectedStatus() const;
+	bool		const	&getHasCorrectPassword() const;
+	bool 		const	&isAway() const;
+	std::vector<std::weak_ptr<Channel>> const &getChannels() const;
+	
 
 	// setters
 
@@ -60,22 +69,22 @@ class Client{
 	void		setRealname(std::string const &realname);
 	void		setUserMode(char const &usermode);
 	void		setIpAddress(std::string const &ip_address);
-	void		setPassword();
+	void		setHasCorrectPassword(bool const &status);
 	void        setClientPrefix();
-
+	void		setAway(bool status, const std::string& message = "");
+	void		setModeI(bool status);
+	void		setModeLocalOp(bool status);
+	void		setRejectedStatus(bool const &status);
+	
 	// member functions
 	void		registerClient();
 	void		unregisterClient();
 	void 		processBuffer(Server *server_ptr);
 	void 		appendToBuffer(const std::string& data);
 	void		processCommand(Message &message, Server *server_ptr);
-	bool		hasSentPassword();
-	bool 		isInvited() const; // Check if the client is invited to a channel
-	bool 		hasCorrectPassword(const std::string& password) const; // Check if the client has the correct password
 
-	// void		sendMessage(std::string const &message);
-	// std::string	receiveMessage();
-	// void		joinChannel(std::string const &channel); this could maybe take a pointer instead of string?
+	bool		joinChannel(const std::shared_ptr<Channel>& channel_ptr);
+	void		leaveChannel(const std::weak_ptr<Channel>& channel_ptr);
+	
 };
-
 #endif

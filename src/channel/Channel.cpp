@@ -1,84 +1,77 @@
 #include "Channel.h"
 
-
-Channel::Channel(const std::string &name): name_(name), usercount_(0), channel_key_(""), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), limit_(DEFAULT_MAX_CLIENTS)
+Channel::Channel(const std::string &name) : name_(name), channel_key_(""), topic_is_set_(false), mode_t_(false), mode_i_(false), mode_k_(false), mode_l_(false), mode_n_(false), limit_(DEFAULT_MAX_CHAN_CLIENTS)
 {
+
 }
 
 Channel::~Channel()
 {
 }
 
-
-std::string Channel::getName() const
+std::string const &Channel::getName() const
 {
+	if (name_.empty())
+		throw std::runtime_error("Channel name is empty.");
 	return name_;
 }
 
-
-std::map<std::shared_ptr<Client>, bool> Channel::getUsers() const
+std::map<std::weak_ptr<Client>, bool, std::owner_less<std::weak_ptr<Client>>> const &Channel::getUsers() const
 {
 	return users_;
 }
 
-
-unsigned int Channel::getUserCount() const
-{
-	return usercount_;
-}
-
-
-std::string Channel::getChannelKey() const
+std::string const &Channel::getChannelKey() const
 {
 	return channel_key_;
 }
 
-
-std::pair<std::string, std::string> Channel::getTopic() const
+std::pair<std::string, std::string> const &Channel::getTopic() const
 {
 	return topic_;
 }
 
+
+// Get channel limit
+unsigned int const &Channel::getChannelLimit() const
+{
+	return limit_;
+}
 // Get mode_t (topic lock mode)
-bool Channel::getModeT() const
+
+bool const &Channel::getModeT() const
 {
 	return mode_t_;
 }
 
 // Get mode_i (invite-only mode)
-bool Channel::getModeI() const
+bool const &Channel::getModeI() const
 {
 	return mode_i_;
 }
 
 // Get mode_k (key-protected mode)
-bool Channel::getModeK() const
+bool const &Channel::getModeK() const
 {
 	return mode_k_;
 }
 
 // Get mode_l
-bool Channel::getModeL() const
+bool const &Channel::getModeL() const
 {
 	return mode_l_;
+}
+
+// Get mode_n
+bool const &Channel::getModeN() const
+{
+	return mode_n_;
 }
 
 // Set channel name
 void Channel::setName(const std::string &name)
 {
 	name_ = name;
-}
-
-// Set users
-void Channel::setUsers(const std::map<std::shared_ptr<Client>, bool> &users)
-{
-	users_ = users;
-}
-
-// Set user count
-void Channel::setUserCount(unsigned int usercount)
-{
-	usercount_ = usercount;
 }
 
 // Set channel key
@@ -95,6 +88,8 @@ void Channel::setChannelKey(const std::string &channel_key)
 void Channel::setTopic(const std::pair<std::string, std::string> &topic)
 {
 	topic_ = topic;
+	topic_is_set_ = true;
+	topic_timestamp_ = std::chrono::system_clock::now();
 }
 
 // Set mode_t
@@ -115,24 +110,29 @@ void Channel::setModeK(bool mode_k)
 	mode_k_ = mode_k;
 }
 
-// Set mode_l
-void Channel::setModeL(bool mode_l)
+void Channel::setModeL(bool mode_l, unsigned int limit)
 {
 	mode_l_ = mode_l;
 	if (mode_l_)
-		limit_ = DEFAULT_MAX_CLIENTS;
+		limit_ = limit;
 	else
-		limit_ = 0;
+		limit_ = DEFAULT_MAX_CHAN_CLIENTS;
+}
+
+void Channel::setModeN(bool mode_n)
+{
+	mode_n_ = mode_n;
 }
 
 // Check if the channel is full
 bool Channel::isFull() const
 {
+	unsigned int usercount_ = users_.size();
 	return mode_l_ && usercount_ >= limit_;
 }
 
 // Check if the channel is invite only
-bool Channel::isInviteOnly() const
+bool const &Channel::isInviteOnly() const
 {
 	return mode_i_;
 }
@@ -143,26 +143,25 @@ bool Channel::isPasswordProtected() const
 	return mode_k_ && !channel_key_.empty();
 }
 
-// Additional method to update topic with validation
-void Channel::updateTopic(const std::string& newTopic, const std::string& author, bool isAdmin) {
-    if (mode_t_ && !isAdmin)
-        throw std::runtime_error("Topic is locked.");
-    topic_ = {author, newTopic}; // Update topic with author and new topic text
-}
-
-void Channel::addUser(std::shared_ptr<Client> client, bool isOp) {
-    std::lock_guard<std::mutex> lock(mtx); // Ensure thread safety
-    users_[client] = isOp; // Add the user with operator status if specified
-    usercount_ = users_.size(); // Update the user count
-    return; // Return true if user added successfully
+void Channel::addUser(const std::weak_ptr<Client> &client_ptr, bool is_channel_op)
+{
+	if (client_ptr.lock())
+		users_[client_ptr] = is_channel_op;				   // Add the user with operator status if specified
+	removeUserFromInvitedList(client_ptr.lock()->getNickname());
+	return;								   // Return true if user added successfully
 }
 
 // Remove a user from the channel
-void Channel::removeUser(std::shared_ptr<Client> client)
+void Channel::removeUser(const std::weak_ptr<Client> &client_ptr)
 {
-	std::lock_guard<std::mutex> lock(mtx); // We are modifying the users_ map and usercount_ variable in this function and we don't want other threads to access them at the same time
-	if (users_.erase(client))
-		usercount_ = users_.size();
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+	{
+		std::cerr << "nullptr in removeUser" << std::endl;
+		return ;
+	}
+	if (locked_client_ptr)
+		users_.erase(locked_client_ptr);				   // Remove the user from the channel
 }
 
 /**
@@ -176,34 +175,161 @@ void Channel::removeUser(std::shared_ptr<Client> client)
 
 bool Channel::isUserOnChannel(std::string const &nickname)
 {
-	std::string lowerCaseNick = nickname;
-	std::transform(lowerCaseNick.begin(), lowerCaseNick.end(), lowerCaseNick.begin(), ::tolower); // Convert the nickname to lowercase
+	std::string nick_lowercase = nickname;
+	std::transform(nick_lowercase.begin(), nick_lowercase.end(), nick_lowercase.begin(), ::tolower); // Convert the nickname to lowercase
 	for (auto const &user : users_)
 	{
-		std::string userNick = user.first->getNickname();
-		std::transform(userNick.begin(), userNick.end(), userNick.begin(), ::tolower); // Convert the user's nickname to lowercase
-		if (userNick == lowerCaseNick)
+		std::string user_nick = user.first.lock()->getNickname();
+		std::transform(user_nick.begin(), user_nick.end(), user_nick.begin(), ::tolower); // Convert the user's nickname to lowercase
+		if (user_nick == nick_lowercase)
 			return true;
 	}
 	return false;
 }
 
-bool Channel::userIsOperator(std::string const &nickname)
+bool Channel::isOperator(const std::weak_ptr<Client> &client_ptr)
 {
-	std::string lowerCaseNick = nickname;
-	std::transform(lowerCaseNick.begin(), lowerCaseNick.end(), lowerCaseNick.begin(), ::tolower); // Convert the nickname to lowercase
-	for (auto const &user : users_)
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+		return false;
+
+	std::weak_ptr<Client> temp_weak_ptr(locked_client_ptr);
+
+	auto user = users_.find(temp_weak_ptr);
+	if (user != users_.end())
 	{
-		std::string userNick = user.first->getNickname();
-		std::transform(userNick.begin(), userNick.end(), userNick.begin(), ::tolower); // Convert the user's nickname to lowercase
-		if (userNick == lowerCaseNick && user.second == true)
+		if (user != users_.end())
+			return user->second;
+	}
+	return false;
+}
+
+void Channel::broadcastMessage(const std::weak_ptr<Client> &sender_ptr, const std::string &message, Server* server_ptr)
+{
+	auto locked_client_ptr = sender_ptr.lock();
+	if (!locked_client_ptr)
+	{
+		std::cerr << ("null ptr in sendTopicToClient") << std::endl;
+		return;
+	}
+	for (const auto &recipient_pair : users_)
+	{
+		std::weak_ptr<Client> recipient_ptr = recipient_pair.first;
+		auto tmp = recipient_ptr.lock();
+		if (tmp != locked_client_ptr) // Don't send the message to the sender
+			server_ptr->sendResponse(tmp->getFd(), message);
+	}
+}
+
+void Channel::broadcastMessageToAll(const std::string &message, Server* server_ptr)
+{
+	for (const auto &recipient_pair : users_)
+	{
+		std::weak_ptr<Client> recipient_ptr = recipient_pair.first;
+			server_ptr->sendResponse(recipient_ptr.lock()->getFd(), message);
+	}
+}
+
+bool Channel::canChangeTopic(const std::weak_ptr<Client> &client_ptr)
+{
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+		return false;
+
+	if (locked_client_ptr)
+	{
+		if (isOperator(locked_client_ptr))
+			return true;
+		else if (locked_client_ptr->getNickname() == topic_.first) // Check if the client is the one who set the topic
 			return true;
 	}
 	return false;
 }
-bool Channel::isValidChannelName(const std::string& channelName) const
+
+bool Channel::isCorrectPassword(const std::string& given_password)
 {
-    // Regex to match valid channel names
-    std::regex pattern("^[&#\\+!][^ ,\\x07]{1,49}$");  // Adjusted for max length of 50 and disallowed characters
-    return std::regex_match(channelName, pattern);
+	return channel_key_ == given_password;
+}
+
+bool Channel::changeOpStatus(const std::weak_ptr<Client> &client_ptr, bool status)
+{
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+		return false;
+
+	std::weak_ptr<Client> temp_weak_ptr(locked_client_ptr);
+
+	auto user = users_.find(temp_weak_ptr);
+	if (user != users_.end())
+	{
+		if (user->second != status)
+		{
+			user->second = status;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Channel::isUserInvited(const std::string &nickname) const
+{
+    return invited_users_.find(nickname) != invited_users_.end();
+}
+
+void Channel::addUserToInvitedList(const std::string &nickname)
+{
+	invited_users_.insert(nickname);
+}
+
+void Channel::removeUserFromInvitedList(const std::string &nickname)
+{
+	if (invited_users_.find(nickname) != invited_users_.end())
+		invited_users_.erase(nickname);
+}
+
+void Channel::sendTopicToClient(const std::weak_ptr<Client> &client_ptr, Server* server_ptr)
+{
+	auto locked_client_ptr = client_ptr.lock();
+	if (!locked_client_ptr)
+	{
+		std::cerr << ("null ptr in sendTopicToClient") << std::endl;
+		return;
+	}
+	if (this->topic_is_set_ == false)
+		server_ptr->sendResponse(locked_client_ptr->getFd(), RPL_NOTOPIC(server_ptr->getServerHostname(), locked_client_ptr->getNickname(), getName()));
+	else
+	{
+		std::time_t unix_timestamp = std::chrono::system_clock::to_time_t(topic_timestamp_);
+		std::string timestamp_string = std::to_string(unix_timestamp);
+		server_ptr->sendResponse(locked_client_ptr->getFd(), RPL_TOPIC(server_ptr->getServerHostname(), locked_client_ptr->getNickname(), getName(), getTopic().second));
+		server_ptr->sendResponse(locked_client_ptr->getFd(), RPL_TOPICWHOTIME(server_ptr->getServerHostname(), locked_client_ptr->getNickname(), getName(), getTopic().first, timestamp_string));
+	}
+}
+
+void Channel::clearTopic(const std::string &nickname)
+{
+	topic_is_set_ = false;
+	topic_.first = nickname;
+	topic_.second = "";
+	topic_timestamp_ = std::chrono::system_clock::now();
+}
+
+bool const &Channel::hasTopic() const
+{
+	return topic_is_set_;
+}
+
+std::chrono::time_point<std::chrono::system_clock> const	&Channel::getChannelCreationTimestamps() const
+{
+	return channel_creation_timestamps_;
+}
+
+void	Channel::setChannelCreationTimestamps()
+{
+	channel_creation_timestamps_ = std::chrono::system_clock::now();
+}
+
+bool Channel::isEmpty()
+{
+	return (users_.size() == 0);
 }
