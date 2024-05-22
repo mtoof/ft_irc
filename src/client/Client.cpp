@@ -1,7 +1,7 @@
 #include "Client.h"
 
 Client::Client(const int &fd, const std::string &nickname, const std::string &username, const std::string &ipaddress) : 
-		fd_(fd), registered_(false), has_correct_password_(false), nickname_(nickname), username_(username),
+		fd_(fd), registered_(false), has_correct_password_(false), rejected_(false), nickname_(nickname), username_(username),
 		ip_address_(ipaddress),	mode_i_(false), mode_local_op_(false), away_status_(false)
 {
 }

@@ -7,11 +7,11 @@ void Command::handleKill(const Message &msg)
 	int client_fd = msg.getClientfd();
 	std::vector<std::string> params = msg.getParameters();
 //	FOR TESTING PURPOSES
-	// if (params[0] == "server")
-	// {
-	// 	server_ptr_->signalHandler(SIGINT);
-	// 	return;
-	// }
+	if (params[0] == "server")
+	{
+		server_ptr_->signalHandler(SIGINT);
+		return;
+	}
 	std::string target_nick, comment, command;
 	command = msg.getCommand();
 	comment = msg.getTrailer();

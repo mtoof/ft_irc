@@ -147,6 +147,7 @@ void Channel::addUser(const std::weak_ptr<Client> &client_ptr, bool is_channel_o
 {
 	if (client_ptr.lock())
 		users_[client_ptr] = is_channel_op;				   // Add the user with operator status if specified
+	removeUserFromInvitedList(client_ptr.lock()->getNickname());
 	return;								   // Return true if user added successfully
 }
 
@@ -282,7 +283,8 @@ void Channel::addUserToInvitedList(const std::string &nickname)
 
 void Channel::removeUserFromInvitedList(const std::string &nickname)
 {
-	invited_users_.erase(nickname);
+	if (invited_users_.find(nickname) != invited_users_.end())
+		invited_users_.erase(nickname);
 }
 
 void Channel::sendTopicToClient(const std::weak_ptr<Client> &client_ptr, Server* server_ptr)
