@@ -15,8 +15,6 @@ Bot::Bot(std::string &server_address, int &port, std::string &password, char **a
 	supported_commands_.insert(std::pair("INVITE", &BotCommand::handleInvite));
 	supported_commands_.insert(std::pair("NICK", &BotCommand::handleNick));
 	supported_commands_.insert(std::pair("PRIVMSG", &BotCommand::handlePrivmsg));
-	supported_commands_.insert(std::pair("KICK", &BotCommand::handleKick));
-	//supported_commands_.insert(std::pair("PASS", &BotCommand::handlePass));
 }
 
 Bot::~Bot()

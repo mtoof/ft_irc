@@ -23,7 +23,6 @@ public:
 	void handleUser(const BotMessage &msg);
 	void handlePrivmsg(const BotMessage &msg);
 	void handleMode(const BotMessage &msg);
-	void handleKick(const BotMessage &msg);
 	void handleInvite(const BotMessage &msg);
 };
 

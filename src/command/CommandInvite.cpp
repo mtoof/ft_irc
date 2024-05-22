@@ -15,7 +15,7 @@
 
 void Command::handleInvite(const Message &msg)
 {
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
 	int fd = client_ptr->getFd();
 	std::vector<std::string> parameters = msg.getParameters();
 

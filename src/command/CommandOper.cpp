@@ -2,7 +2,7 @@
 
 void Command::handleOper(const Message &msg)
 {
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
 	std::string requested_nick = client_ptr->getNickname();
 	std::string client_ip = client_ptr->getIpAddress();
 	std::string client_host = client_ptr->getHostname();
@@ -34,9 +34,7 @@ void Command::handleOper(const Message &msg)
 					if (it->hostmask == client_host || it->hostmask == client_ip)
 					{
 						server_ptr_->sendResponse(client_fd, RPL_YOUREOPER(server_ptr_->getServerHostname(), requested_nick));
-						//Needs to set the mode O for the user as a local operator
 						client_ptr->setModeLocalOp(true);
-						server_ptr_->insertInOperators(std::pair(client_fd, client_ptr)); // Because the mode is not ready yet
 						return;
 					}
 					else

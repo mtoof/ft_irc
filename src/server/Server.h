@@ -47,7 +47,6 @@ private:
 	int															socket_;
 	std::vector<struct pollfd> 									fds_; // pollfd structure for the server socket
 	std::map <int, std::shared_ptr<Client>>						clients_;
-	std::map <int, std::shared_ptr<Client>>						operators_;
 	std::map <std::string, std::shared_ptr<Channel>>			channels_;
 	static bool													signal_;
 	std::vector<t_opers>										operators_file_;
@@ -84,13 +83,11 @@ public:
 	std::vector<std::shared_ptr<Client>> 	findClientsByMask(const std::string &mask) const;
 	bool									hasClientSentPass(std::shared_ptr <Client> const &client_ptr);
 	void									initOperators(const std::stringstream &config_file);
-	void													insertInOperators(std::pair<int, std::shared_ptr <Client>> const &element);
 	void									sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string const &reason);
 
 //getter
 
 	std::vector<t_opers>	const							&getOperatorsFile() const;
-	std::map <int, std::shared_ptr<Client>>	const			&getOperatorUsers() const;
 	std::string const & getPassword() const;
 	// getter for map of supported commands
 	std::map<std::string, void (Command::*)(const Message &msg)> const &getSupportedCommands() const;

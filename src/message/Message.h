@@ -8,7 +8,8 @@
 class Server;
 class Client;
 
-class Message{
+class Message
+{
 	private:
 	const std::string				raw_message_;
 	std::string						prefix_;
@@ -42,7 +43,6 @@ class Message{
 	int 					 const 	&getClientfd() const;
 	std::shared_ptr<Client>	 const 	&getClientPtr() const;
 	bool					 const 	&hasTrailer() const;
-	void printMessageContents();
 };
 
 #endif

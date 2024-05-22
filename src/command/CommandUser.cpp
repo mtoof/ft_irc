@@ -6,7 +6,7 @@ void Command::handleUser(const Message &msg)
 {
 	std::vector<std::string> params = msg.getParameters();
 	int client_fd = msg.getClientfd();
-	std::shared_ptr <Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
 	if (!server_ptr_->hasClientSentPass(client_ptr))
 		return;
 	if (client_ptr->getRegisterStatus() == true)

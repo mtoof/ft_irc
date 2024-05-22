@@ -23,7 +23,7 @@
 
 void Command::handlePrivmsg(const Message &msg)
 {
-    std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
     int client_fd = client_ptr->getFd();
 
 	// Check if the client is registered, which is not necessary for the PRIVMSG command and can be removed

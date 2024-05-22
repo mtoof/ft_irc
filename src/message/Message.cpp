@@ -16,7 +16,6 @@ Message::Message(std::string raw_message, Server *server, int clientfd)
 	std::cout << CYAN << "Server received: " << raw_message << "\t"
 			  << "Message size = " << raw_message.length() << " byte" << RESET << std::endl;
 	valid_message_ = analyzeMessage();
-	// printMessageContents();
 }
 
 Message::~Message()
@@ -64,17 +63,6 @@ bool Message::analyzeMessage()
 			trailer_ += remaining;
 	}
 	return true;
-}
-
-void Message::printMessageContents()
-{
-	std::cout << "Printing contents:\n";
-	std::cout << "Prefix: " << prefix_ << "\n";
-	std::cout << "command: " << command_ << "\n";
-	std::cout << "Params:\n";
-	for (auto param : parameters_)
-		std::cout << param << "\n";
-	std::cout << "Trailer trash: " << trailer_ << std::endl;
 }
 
 std::string const &Message::getCommand() const

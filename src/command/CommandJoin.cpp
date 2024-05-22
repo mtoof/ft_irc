@@ -3,7 +3,7 @@
 
 void Command::handleJoin(const Message &msg)
 {
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
 	int client_fd = client_ptr->getFd();
 	if (!client_ptr->getRegisterStatus())
 	{
@@ -120,7 +120,7 @@ void Command::handleJoin(const Message &msg)
  */
 void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::string nickname, int client_fd)
 {
-	std::map<std::shared_ptr<Client>, bool> channel_users = channel_ptr->getUsers(); // get the user list
+	auto channel_users = channel_ptr->getUsers(); // get the user list
 	std::string servername = server_ptr_->getServerHostname();
 	std::string channel_name = channel_ptr->getName();
 	std::string userlist = "";
@@ -129,7 +129,7 @@ void Command::sendNamReplyAfterJoin(std::shared_ptr<Channel> channel_ptr, std::s
 		userlist += " ";
 		if (it->second == true)
 			userlist += "@";
-		userlist += it->first->getNickname();
+		userlist += it->first.lock()->getNickname();
 	}
 	server_ptr_->sendResponse(client_fd, RPL_NAMREPLY(servername, nickname, channel_name, userlist));
 	server_ptr_->sendResponse(client_fd, RPL_ENDOFNAMES(servername, nickname, channel_name));

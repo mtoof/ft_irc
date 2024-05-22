@@ -1,7 +1,7 @@
 #include "Command.h"
 
 void Command::handleWhois(const Message &msg) {
-    std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
     int client_fd = client_ptr->getFd();
     std::vector<std::string> parameters = msg.getParameters();
     
@@ -16,12 +16,12 @@ void Command::handleWhois(const Message &msg) {
 	{
         bool found = false;
         std::vector<std::shared_ptr<Client>> matched_clients = server_ptr_->findClientsByMask(mask);
-        for (const auto& whois_client_ptr : matched_clients)
+        for (const auto& whois_lock_client_ptr : matched_clients)
 		{
             found = true;
             server_ptr_->sendResponse(client_fd, RPL_WHOISUSER(server_ptr_->getServerHostname(), client_ptr->getNickname(),
-                                                    whois_client_ptr->getNickname(), whois_client_ptr->getUsername(),
-                                                    whois_client_ptr->getHostname(), whois_client_ptr->getRealname()));
+                                                    whois_lock_client_ptr->getNickname(), whois_lock_client_ptr->getUsername(),
+                                                    whois_lock_client_ptr->getHostname(), whois_lock_client_ptr->getRealname()));
         }
         if (!found)
             server_ptr_->sendResponse(client_fd, ERR_NOSUCHNICK(server_ptr_->getServerHostname(), client_ptr->getNickname(), mask));

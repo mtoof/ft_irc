@@ -42,13 +42,9 @@ void Server::closeDeletePollFd(int fd)
 void Server::closeFds()
 {
 	std::cout << RED "Closing all connections" RESET << std::endl;
-	for (auto channel :channels_)
-	{
-		channel.second.reset();
-	}
-	if (channels_.size())
-		channels_.clear();
 	supported_commands_.clear();
+	clients_.clear();
+	channels_.clear();
 	if (fds_.size())
 	{
 		for (auto index = fds_.begin() + 1; index != fds_.end();)
@@ -213,34 +209,13 @@ void Server::welcomeAndMOTD(int fd, std::string const &servername, std::string c
 	sendResponse(fd, RPL_CONNECTED(servername, nickname, client_prefix));
 	sendResponse(fd, RPL_ISUPPORT(servername, nickname));
 	sendResponse(fd, RPL_MOTDSTART(servername, nickname));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "███████╗████████╗░░░░░░██╗██████╗░░█████╗░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██╔════╝╚══██╔══╝░░░░░░██║██╔══██╗██╔══██╗"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "█████╗░░░░░██║░░░█████╗██║██████╔╝██║░░╚═╝"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██╔══╝░░░░░██║░░░╚════╝██║██╔══██╗██║░░██╗"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██║░░░░░░░░██║░░░░░░░░░██║██║░░██║╚█████╔╝"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "╚═╝░░░░░░░░╚═╝░░░░░░░░░╚═╝╚═╝░░╚═╝░╚════╝░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, " "));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "░█████╗░░█████╗░███╗░░██╗██████╗░███████╗██╗░░░░░██╗███╗░░██╗"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██╔══██╗██╔══██╗████╗░██║██╔══██╗██╔════╝██║░░░░░██║████╗░██║"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██║░░██║███████║██╔██╗██║██║░░██║█████╗░░██║░░░░░██║██╔██╗██║"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██║░░██║██╔══██║██║╚████║██║░░██║██╔══╝░░██║░░░░░██║██║╚████║"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "╚█████╔╝██║░░██║██║░╚███║██████╔╝███████╗███████╗██║██║░╚███║"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "░╚════╝░╚═╝░░╚═╝╚═╝░░╚══╝╚═════╝░╚══════╝╚══════╝╚═╝╚═╝░░╚══╝"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, " "));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "███╗░░░███╗████████╗░█████╗░░█████╗░███████╗"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "████╗░████║╚══██╔══╝██╔══██╗██╔══██╗██╔════╝"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██╔████╔██║░░░██║░░░██║░░██║██║░░██║█████╗░░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██║╚██╔╝██║░░░██║░░░██║░░██║██║░░██║██╔══╝░░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██║░╚═╝░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░░░░░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "╚═╝░░░░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, " "));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "░█████╗░████████╗░█████╗░░█████╗░███████╗"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗██╔════╝"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "███████║░░░██║░░░██║░░██║██║░░██║█████╗░░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██╔══██║░░░██║░░░██║░░██║██║░░██║██╔══╝░░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "██║░░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░░░░░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, "╚═╝░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░"));
-	// sendResponse(fd, RPL_MOTD(servername, nickname, " "));
+	sendResponse(fd, RPL_MOTD(servername, nickname, "███████╗████████╗░░░░░░██╗██████╗░░█████╗░"));
+	sendResponse(fd, RPL_MOTD(servername, nickname, "██╔════╝╚══██╔══╝░░░░░░██║██╔══██╗██╔══██╗"));
+	sendResponse(fd, RPL_MOTD(servername, nickname, "█████╗░░░░░██║░░░█████╗██║██████╔╝██║░░╚═╝"));
+	sendResponse(fd, RPL_MOTD(servername, nickname, "██╔══╝░░░░░██║░░░╚════╝██║██╔══██╗██║░░██╗"));
+	sendResponse(fd, RPL_MOTD(servername, nickname, "██║░░░░░░░░██║░░░░░░░░░██║██║░░██║╚█████╔╝"));
+	sendResponse(fd, RPL_MOTD(servername, nickname, "╚═╝░░░░░░░░╚═╝░░░░░░░░░╚═╝╚═╝░░╚═╝░╚════╝░"));
+	sendResponse(fd, RPL_MOTD(servername, nickname, " "));
 	sendResponse(fd, RPL_MOTD(servername, nickname, "\"Alright, let's see what we can see.. Everybody online, looking good.\""));
 	sendResponse(fd, RPL_MOTD(servername, nickname, "Lieutenant Gorman to the marines before landing to terraforming colony on exomoon LV-426"));
 	sendResponse(fd, RPL_MOTD(servername, nickname, "Aliens, 1986"));
@@ -363,14 +338,4 @@ void Server::initOperators(const std::stringstream &config_file)
 std::vector<t_opers> const	&Server::getOperatorsFile() const
 {
 	return operators_file_;
-}
-
-void Server::insertInOperators(std::pair<int, std::shared_ptr <Client>> const &element)
-{
-	operators_.insert(element);
-}
-
-std::map <int, std::shared_ptr<Client>> const	&Server::getOperatorUsers() const
-{
-	return operators_;
 }

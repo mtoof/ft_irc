@@ -2,15 +2,16 @@
 
 void Command::handleKill(const Message &msg)
 {
-	std::shared_ptr <Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
 	std::string sender_nick = client_ptr->getNickname();
 	int client_fd = msg.getClientfd();
 	std::vector<std::string> params = msg.getParameters();
-	if (params[0] == "server") // REMEMBER TO REMOVE THIS
-	{
-		server_ptr_->signalHandler(SIGINT);
-		return;
-	}
+//	FOR TESTING PURPOSES
+	// if (params[0] == "server")
+	// {
+	// 	server_ptr_->signalHandler(SIGINT);
+	// 	return;
+	// }
 	std::string target_nick, comment, command;
 	command = msg.getCommand();
 	comment = msg.getTrailer();
@@ -21,9 +22,7 @@ void Command::handleKill(const Message &msg)
 	}
 	if (params.size())
 		target_nick = params[0];
-	std::map <int, std::shared_ptr<Client>> server_operators = server_ptr_->getOperatorUsers();
-	auto it = server_operators.find(client_fd);
-	if (it != server_operators.end() && sender_nick == it->second->getNickname())
+	if (client_ptr->getModeLocalOp() == true)
 	{
 		std::shared_ptr <Client> target_client = server_ptr_->findClientUsingNickname(target_nick);
 		if (target_client)
@@ -40,6 +39,6 @@ void Command::handleKill(const Message &msg)
 			return;
 		}
 	}
-	else if (it == server_operators.end())
+	else
 		server_ptr_->sendResponse(client_fd, ERR_NOPRIVILEGES(sender_nick));
 }

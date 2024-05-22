@@ -14,7 +14,7 @@
 
 void Command::handleAway(const Message &msg)
 {
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
 	int client_fd = client_ptr->getFd();
 	std::string away_message = msg.getTrailer();
 

@@ -2,7 +2,7 @@
 
 void Command::handlePass(const Message &msg)
 {
-	std::shared_ptr<Client> client_ptr = msg.getClientPtr();
+	auto client_ptr = msg.getClientPtr();
 	int client_fd = client_ptr->getFd();
 	if (server_ptr_->getPassword().empty())
 		return;

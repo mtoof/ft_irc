@@ -25,7 +25,6 @@ static std::string getUsernameFromPrefix(std::string prefix)
 	std::string username = "";
 	size_t start_pos = prefix.find('~');
 	size_t end_pos = prefix.find('@');
-	std::cout << prefix << " " << start_pos << " " << end_pos << std::endl;
 	if (start_pos != std::string::npos && end_pos != std::string::npos)
 		username = prefix.substr(start_pos, end_pos - start_pos);
 	return username;
@@ -45,7 +44,6 @@ void BotCommand::handleJoin(const BotMessage &msg)
 	std::string prefix = msg.getPrefix();
 	std::string nickname = getNicknameFromPrefix(prefix);
 	std::string username = getUsernameFromPrefix(prefix);
-	std::cout << nickname << "\n" << username << std::endl;
 	std::string channel_name = msg.getParameters().front();
 	if (nickname != bot_->getNickname())
 	{
@@ -101,7 +99,6 @@ void BotCommand::handlePrivmsg(const BotMessage &msg)
 	{
 		for (auto word_it: forbidden_words)
 		{
-			//std::cout << line.find(word_it) << std::endl;
 			if (line.find(word_it) != std::string::npos)
 			{
 				if (std::find(violated_users.begin(), violated_users.end(), nickname) != violated_users.end())
@@ -132,20 +129,10 @@ void BotCommand::handlePrivmsg(const BotMessage &msg)
 		return;}
 }
 
-
-void BotCommand::handleKick(const BotMessage &msg)
-{
-	(void)msg;
-}
-
 void BotCommand::handleInvite(const BotMessage &msg)
 {
 	std::string reply_number = msg.getReplyNumber();
 	int fd = bot_->getServerfd();
-	std::cout << "reply_number = " << reply_number << std::endl;
 	if (reply_number == "INVITE" && msg.getParameters()[0] == bot_->getNickname())
-	{
-		bot_->send_response(fd, "JOIN " + msg.getTrailer() + CRLF);
-	}
+		bot_->send_response(fd, "JOIN " + msg.getTrailer() + CRLF); 
 }
-

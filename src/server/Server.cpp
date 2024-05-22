@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Server.h"
+#include <unordered_set>
 
 bool Server::signal_ = false;
 
@@ -19,26 +20,26 @@ Server::Server(const int &port, const std::string &password, const std::stringst
 	if (port == -1)
 		this->port_ = DEFAULTPORT;
 	initOperators(config_file);
-	supported_commands_.insert(std::pair("JOIN", &Command::handleJoin));
-	supported_commands_.insert(std::pair("NICK", &Command::handleNick));
-	supported_commands_.insert(std::pair("PRIVMSG", &Command::handlePrivmsg));
-	supported_commands_.insert(std::pair("QUIT", &Command::handleQuit));
-	supported_commands_.insert(std::pair("PASS", &Command::handlePass));
-	supported_commands_.insert(std::pair("CAP", &Command::handleCap));
-	supported_commands_.insert(std::pair("USER", &Command::handleUser));
-	supported_commands_.insert(std::pair("PING", &Command::handlePing));
-	supported_commands_.insert(std::pair("WHOIS", &Command::handleWhois));
-	supported_commands_.insert(std::pair("WHOWAS", &Command::handleWhois));
-	supported_commands_.insert(std::pair("PART", &Command::handlePart));
-	supported_commands_.insert(std::pair("MODE", &Command::handleMode));
-	supported_commands_.insert(std::pair("KICK", &Command::handleKick));
-	supported_commands_.insert(std::pair("TOPIC", &Command::handleTopic));
-	supported_commands_.insert(std::pair("INVITE", &Command::handleInvite));
-	supported_commands_.insert(std::pair("AWAY", &Command::handleAway));
-	supported_commands_.insert(std::pair("WHO", &Command::handleWho));
-	supported_commands_.insert(std::pair("OPER", &Command::handleOper));
-	supported_commands_.insert(std::pair("kill", &Command::handleKill));
-	supported_commands_.insert(std::pair("KILL", &Command::handleKill));
+	supported_commands_.insert({"JOIN", &Command::handleJoin});
+	supported_commands_.insert({"NICK", &Command::handleNick});
+	supported_commands_.insert({"PRIVMSG", &Command::handlePrivmsg});
+	supported_commands_.insert({"QUIT", &Command::handleQuit});
+	supported_commands_.insert({"PASS", &Command::handlePass});
+	supported_commands_.insert({"CAP", &Command::handleCap});
+	supported_commands_.insert({"USER", &Command::handleUser});
+	supported_commands_.insert({"PING", &Command::handlePing});
+	supported_commands_.insert({"WHOIS", &Command::handleWhois});
+	supported_commands_.insert({"WHOWAS", &Command::handleWhois});
+	supported_commands_.insert({"PART", &Command::handlePart});
+	supported_commands_.insert({"MODE", &Command::handleMode});
+	supported_commands_.insert({"KICK", &Command::handleKick});
+	supported_commands_.insert({"TOPIC", &Command::handleTopic});
+	supported_commands_.insert({"INVITE", &Command::handleInvite});
+	supported_commands_.insert({"AWAY", &Command::handleAway});
+	supported_commands_.insert({"WHO", &Command::handleWho});
+	supported_commands_.insert({"OPER", &Command::handleOper});
+	supported_commands_.insert({"kill", &Command::handleKill});
+	supported_commands_.insert({"KILL", &Command::handleKill});
 }
 
 Server::~Server()
@@ -124,7 +125,7 @@ void Server::registerNewClient()
 	memset(&usersocketaddress, 0, sizeof(usersocketaddress));
 	socketlen = sizeof(sockaddr_in6);
 	userfd = accept(socket_, (sockaddr *)&usersocketaddress, &socketlen);
-	if (this->clients_.size() > DEFAULT_MAX_CLIENTS)
+	if (this->clients_.size() > SERVER_MAX_CLIENTS)
 	{
 		std::string msg = "The maximum number of clients has been reached. We cannot accept any more.";
 		sendResponse(userfd, msg + CRLF);
@@ -226,26 +227,29 @@ void Server::disconnectAndDeleteClient(std::shared_ptr<Client> client_ptr, std::
 
 void Server::sendQuitMessages(std::shared_ptr<Client> client_ptr, std::string const &reason)
 {
-	std::vector<std::weak_ptr<Channel>> channel_list = client_ptr->getChannels();
-	if (!channel_list.empty())
+    auto channel_list = client_ptr->getChannels();
+    if (!channel_list.empty()) 
 	{
-		std::vector<int> fds_sent_to = {};
-		for(auto channel_ptr : channel_list)
-		{
-			for (const auto &recipient_pair : channel_ptr.lock()->getUsers())
-			{
-				std::shared_ptr<Client> recipient_ptr = recipient_pair.first;
-				int recipient_fd = recipient_ptr->getFd();
-				auto it = std::find(fds_sent_to.begin(), fds_sent_to.end(), recipient_fd);
-				if (recipient_ptr != client_ptr && it == fds_sent_to.end()) // Don't send the message to the sender
-				{
-					sendResponse(recipient_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
-					fds_sent_to.push_back(recipient_fd);
-				}
-			}
-			channel_ptr.lock()->removeUser(client_ptr);
-			if (channel_ptr.lock()->isEmpty())
-				deleteChannel(channel_ptr.lock()->getName());
-		}
-	}
+        std::unordered_set<int> fds_sent_to;
+        for (auto &channel_weak_ptr : channel_list) {
+            auto channel_ptr = channel_weak_ptr.lock();
+            if (!channel_ptr) continue;  // Check if channel_ptr is valid
+
+            for (const auto &recipient_pair : channel_ptr->getUsers()) {
+                auto recipient_ptr = recipient_pair.first.lock();
+                if (!recipient_ptr) continue;  // Check if recipient_ptr is valid
+
+                int recipient_fd = recipient_ptr->getFd();
+                if (recipient_ptr != client_ptr && fds_sent_to.find(recipient_fd) == fds_sent_to.end()) {
+                    sendResponse(recipient_fd, RPL_QUIT(client_ptr->getClientPrefix(), reason));
+                    fds_sent_to.insert(recipient_fd);
+                }
+            }
+
+            channel_ptr->removeUser(client_ptr);
+            if (channel_ptr->isEmpty()) {
+                deleteChannel(channel_ptr->getName());
+            }
+        }
+    }
 }

@@ -9,7 +9,7 @@
 #define RPL_INVITED(CLIENT, nickname, channelname) (":" + CLIENT + " INVITE " + nickname + " :" + channelname + CRLF)
 #define RPL_JOINMSG(clientprefix, channelname) (":" + clientprefix + " JOIN " + channelname + CRLF)
 #define RPL_KICK(clientprefix, channelname, nickname, msg) (":" + clientprefix + " KICK " + channelname + " " + nickname + " :" + msg + CRLF)
-#define RPL_KILLED(servername, killer, reason) ("Closing Link: " + servername + " (Killed (<" + killer + "> " + reason + ")" + CRLF)
+#define RPL_KILLED(servername, killer, reason) ("Closing Link: " + servername + " (Killed (<" + killer + "> " + reason + ")")
 #define RPL_KILLMSG(client_prefix, target, content) (":" + client_prefix + " " + target + " :" + content + CRLF)
 #define RPL_NICKCHANGECHANNEL(old_prefix, nickname) (":" + old_prefix + " NICK :" + nickname + CRLF)
 #define RPL_NICKCHANGE(oldprefix, nickname) (":" + oldprefix + " NICK " + nickname + CRLF)
