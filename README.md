@@ -51,4 +51,3 @@ We have used the following RFCs:
 - [RFC 1459](https://tools.ietf.org/html/rfc1459)
 - [RFC 2810](https://tools.ietf.org/html/rfc2812)
 - [Modern IRC](https://modern.ircdocs.horse/)
-[text](README.md)
